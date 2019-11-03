@@ -1213,7 +1213,7 @@ class CartMap {
 
         }, this);        
 
-        this.drawLegend(new_sysname, "legend-square-" + element_id, "legend-text-" + element_id);
+        //this.drawLegend(new_sysname, "legend-square-" + element_id, "legend-text-" + element_id);
         /*if(new_sysname == "1-conventional"){
             this.drawLegend(new_sysname, "legend-square-2-population", "legend-text-2-population")
         }*/
@@ -2032,10 +2032,10 @@ class Cartogram {
                         this.updateGridDocument(response.grid_document);
                     }
 
-                    this.model.map.drawLegend(this.model.current_sysname, "legend-square-cartogram-area", "legend-text-cartogram-area");
+                    //this.model.map.drawLegend(this.model.current_sysname, "legend-square-cartogram-area", "legend-text-cartogram-area");
 
                     // The following line draws the conventional legend when the page first loads.
-                    this.model.map.drawLegend("1-conventional", "legend-square-map-area", "legend-text-map-area");
+                    //this.model.map.drawLegend("1-conventional", "legend-square-map-area", "legend-text-map-area");
 
                     this.exitLoadingState();
                     document.getElementById('cartogram').style.display = "block";
@@ -2225,10 +2225,10 @@ class Cartogram {
             this.generateSVGDownloadLinks();
             this.displayVersionSwitchButtons();
             this.updateGridDocument(mappack.griddocument);
-            this.model.map.drawLegend(this.model.current_sysname, "legend-square-cartogram-area", "legend-text-cartogram-area");
+            //this.model.map.drawLegend(this.model.current_sysname, "legend-square-cartogram-area", "legend-text-cartogram-area");
             
             // The following line draws the conventional legend when the page first loads.
-            this.model.map.drawLegend("1-conventional", "legend-square-map-area", "legend-text-map-area");
+            //this.model.map.drawLegend("1-conventional", "legend-square-map-area", "legend-text-map-area");
             document.getElementById('template-link').href = this.config.cartogram_data_dir+ "/" + sysname + "/template.csv";
             document.getElementById('cartogram').style.display = 'block';
 
