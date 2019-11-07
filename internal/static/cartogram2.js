@@ -754,15 +754,38 @@ class CartMap {
     }
 
     /**
+     * Determines if the computed legend area and value is correct
+     * @param sysname
+     * @param width
+     * @param value
+     */
+    verifyLegend(sysname, width, value) {
+
+        const [scale_x, scale_y] = this.getVersionPolygonScale(sysname);
+        const [version_area, version_values] = this.getTotalAreasAndValuesForVersion(sysname);
+        const tolerance = 0.001;
+
+        const legendTotalValue = (version_area * scale_x * scale_y / (width * width)) * value;
+
+        if(!(Math.abs(version_values - legendTotalValue) < tolerance)) {
+            console.warn(`The legend value (${value}) and width (${width}px) for ${sysname} is not correct. Calculating the total value from the legend yields ${legendTotalValue}, but it should be ${version_values}`);
+        } else {
+            console.log(`The legend value (${value}) and width (${width}px) for ${sysname} is correct (calculated total value=${legendTotalValue}, actual total value=${version_values})`);
+        }
+
+    }
+
+    /**
      * The following draws the legend for each map
      * @param {string} sysname The sysname of the map version
      */
 
-    drawLegend(sysname, legend_square_id, legend_text_id){
+    drawLegend(sysname, legend_square_id, legend_text_id, legend_superscript_id, legend_superscript_unit_id){
         
         var legend_square = document.getElementById(legend_square_id);
-        var legend_text_id = document.getElementById(legend_text_id);
-
+        var legend_text = document.getElementById(legend_text_id);
+        var legend_superscript = document.getElementById(legend_superscript_id);
+        var legend_superscript_unit_id = document.getElementById(legend_superscript_unit_id);
 
         // Get unit for the map that we wish to draw legend for.
         const unit = this.getLegendUnit(sysname);
@@ -772,52 +795,92 @@ class CartMap {
         const [version_area, version_values] = this.getTotalAreasAndValuesForVersion(sysname);
         const legend = version_values/(version_area*scale_x*scale_y);
 
-        console.log(`${sysname} ${legend}`);
-
         // square default is 30 by 30 px
-        const ratio = legend*900;
-        var round_ratio = Math.pow(10, (Math.round(ratio).toString().length-1));
+        var ratio = legend*900 >= 1 ? legend*900: 1;
 
-        console.log(`${sysname} round_ratio before =${round_ratio}`);
         
-        if(round_ratio.length === 2){
-            round_ratio = 100
-        } else if(round_ratio === 1){
-            round_ratio = 10
-        }
+        // If the legend ratio is smaller than 1, set to 1 in case the legend square becomes too big.
+        if(ratio == 1){
+            var exp_num = (legend*900).toExponential().split("e");
+            var first_num = exp_num[0];
+            if(Math.abs(first_num - 10) < Math.abs(first_num - 5) && Math.abs(first_num - 10) < Math.abs(first_num - 2)){
+                first_num = 10;
+            } else if (Math.abs(first_num - 5) < Math.abs(first_num - 2)){
+                first_num = 5;
+            } else {
+                first_num = 2;
+            }
+            if(exp_num[1] >= -4){
+                legend_text.innerHTML = "= " + first_num * Math.pow(10, parseInt(exp_num[1])) + unit;
+                const width = Math.sqrt(first_num * Math.pow(10, parseInt(exp_num[1]))*900/(legend*900).toExponential());
+                legend_square.setAttribute("width", width.toString() +"px");
+                legend_square.setAttribute("height", width.toString() +"px");
+                console.log(`original: ${exp_num}; new : ${width}`);
+                this.verifyLegend(sysname, width, first_num * Math.pow(10, parseInt(exp_num[1])));
 
-        console.log(`${sysname} round_ratio after =${round_ratio}`);
-
-        const r = ratio/round_ratio;
-        var final_ratio = 0;
-        if(Math.abs(r - 10) < Math.abs(r - 5) && Math.abs(r - 10) < Math.abs(r - 2)){
-            final_ratio = 10;
-        } else if (Math.abs(r - 5) < Math.abs(r - 2)){
-            final_ratio = 5;
-        } else {
-            final_ratio = 2;
-        }
-
-        const width = Math.sqrt(final_ratio*round_ratio*900/ratio);
-        var scale_word = (round_ratio > 999999) ? " million" : round_ratio.toString().substr(1);
-        if(scale_word !== " million" && scale_word.length >= 3){
-            const set_of_zeros = Math.floor(scale_word.length/3)
-            const remaining_zeros = scale_word.length%3
-            if(set_of_zeros === 1 && remaining_zeros === 0){
-                scale_word = "000".repeat(set_of_zeros);
+                
             } else{
-                scale_word = "0".repeat(remaining_zeros) + " 000".repeat(set_of_zeros);
+                const width = Math.sqrt(first_num * Math.pow(10, parseInt(exp_num[1]))*900/(legend*900).toExponential());
+                legend_square.setAttribute("width", width +"px");
+                legend_square.setAttribute("height", width +"px");
+                legend_superscript.style.display = "inline-block";
+                legend_superscript_unit_id.style.display = "inline-block";
+                legend_superscript.innerHTML = exp_num[1];
+                legend_text.innerHTML = "= " + first_num + " x 10 "
+                legend_superscript_unit_id.innerHTML = unit;
+                this.verifyLegend(sysname, width, first_num * Math.pow(10, parseInt(exp_num[1])));
+
             }
         }
+        else{
+            legend_superscript_unit_id.style.display = "none";
+            legend_superscript.style.display = "none";
+            var round_ratio = Math.pow(10, (Math.round(ratio).toString().length-1));            
+            if(round_ratio.length === 2){
+                round_ratio = 100
+            } else if(round_ratio === 1){
+                round_ratio = 10
+            }
 
-        legend_square.setAttribute("width", width.toString() +"px");
-        legend_square.setAttribute("height", width.toString() +"px")
-        if(scale_word.length === 1){
-            legend_text_id.innerHTML = "= " + final_ratio + scale_word + " " + unit
-        } else {
-            legend_text_id.innerHTML = "= " + final_ratio + scale_word + " " + unit
+            const r = ratio/round_ratio;
+            var final_ratio = 0;
+            if(Math.abs(r - 1) < Math.abs(r - 5) && Math.abs(r - 1) < Math.abs(r - 2)){
+                final_ratio = 1;
+            } else if (Math.abs(r - 5) < Math.abs(r - 2)){
+                final_ratio = 5;
+            } else {
+                final_ratio = 2;
+            }
+
+            const width = Math.sqrt(final_ratio*round_ratio*900/ratio);
+            var scale_word = (round_ratio > 999999) ? " million" : round_ratio.toString().substr(1);
+            if(scale_word == " million" && round_ratio >= 10000000){
+                if(round_ratio >= 10000000000000){
+                    scale_word = round_ratio / 10000000000000 + " billion"
+                }
+                scale_word = round_ratio/10000000 + " million"
+            } else if(scale_word !== " million" && scale_word.length >= 3){
+                const set_of_zeros = Math.floor(scale_word.length/3)
+                const remaining_zeros = scale_word.length%3
+                if(set_of_zeros === 1 && remaining_zeros === 0){
+                    scale_word = "000".repeat(set_of_zeros);
+                } else{
+                    scale_word = "0".repeat(remaining_zeros) + " 000".repeat(set_of_zeros);
+                }
+            }
+
+            this.verifyLegend(sysname, width, final_ratio*round_ratio);
+
+            legend_square.setAttribute("width", width.toString() +"px");
+            legend_square.setAttribute("height", width.toString() +"px");
+            legend_text.setAttribute("x", (width+10).toString() + "px");
+
+            if(scale_word.length === 1){
+                legend_text.innerHTML = "= " + final_ratio + scale_word + " " + unit
+            } else {
+                legend_text.innerHTML = "= " + final_ratio + scale_word + " " + unit
+            }
         }
-        
     }
 
 
@@ -1220,10 +1283,7 @@ class CartMap {
 
         }, this);        
 
-        this.drawLegend(new_sysname, "legend-square-" + element_id, "legend-text-" + element_id);
-        /*if(new_sysname == "1-conventional"){
-            this.drawLegend(new_sysname, "legend-square-2-population", "legend-text-2-population")
-        }*/
+        this.drawLegend(new_sysname, "legend-square-" + element_id, "legend-text-" + element_id, "legend-superscript-" + element_id, "legend-superscript-unit-" + element_id);
     }
 }
 
@@ -2090,10 +2150,10 @@ class Cartogram {
                         this.updateGridDocument(response.grid_document);
                     }
 
-                    this.model.map.drawLegend(this.model.current_sysname, "legend-square-cartogram-area", "legend-text-cartogram-area");
+                    this.model.map.drawLegend(this.model.current_sysname, "legend-square-cartogram-area", "legend-text-cartogram-area", "legend-superscript-cartogram-area", "legend-superscript-unit-cartogram-area");
 
                     // The following line draws the conventional legend when the page first loads.
-                    this.model.map.drawLegend("1-conventional", "legend-square-map-area", "legend-text-map-area");
+                    this.model.map.drawLegend("1-conventional", "legend-square-map-area", "legend-text-map-area", "legend-superscript-map-area", "legend-superscript-unit-map-area");
 
                     this.exitLoadingState();
                     document.getElementById('cartogram').style.display = "block";
@@ -2284,10 +2344,10 @@ class Cartogram {
             this.displayVersionSwitchButtons();
             this.updateGridDocument(mappack.griddocument);
 
-            this.model.map.drawLegend(this.model.current_sysname, "legend-square-cartogram-area", "legend-text-cartogram-area");
+            this.model.map.drawLegend(this.model.current_sysname, "legend-square-cartogram-area", "legend-text-cartogram-area", "legend-superscript-cartogram-area", "legend-superscript-unit-cartogram-area");
             
             // The following line draws the conventional legend when the page first loads.
-            this.model.map.drawLegend("1-conventional", "legend-square-map-area", "legend-text-map-area");
+            this.model.map.drawLegend("1-conventional", "legend-square-map-area", "legend-text-map-area", "legend-superscript-map-area", "legend-superscript-unit-map-area");
 
             document.getElementById('template-link').href = this.config.cartogram_data_dir+ "/" + sysname + "/template.csv";
             document.getElementById('cartogram').style.display = 'block';
