@@ -820,8 +820,9 @@ class CartMap {
 
                 
             } else{
-                legend_square.setAttribute("width", 30 +"px");
-                legend_square.setAttribute("height", 30 +"px");
+                const width = Math.sqrt(first_num * Math.pow(10, parseInt(exp_num[1]))*900/(legend*900).toExponential());
+                legend_square.setAttribute("width", width +"px");
+                legend_square.setAttribute("height", width +"px");
                 legend_superscript.style.display = "inline-block";
                 legend_superscript_unit_id.style.display = "inline-block";
                 legend_superscript.innerHTML = exp_num[1];
