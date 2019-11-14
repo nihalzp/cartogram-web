@@ -681,6 +681,9 @@ def data(map_name):
 
         with open("static/cartdata/{}/template.csv".format(map_name), "r", newline='') as template_csv_file:
 
+            print(repr(regions_populations))
+            print(repr(colors_by_name))
+
             try:
                 reader = csv.reader(template_csv_file)
 
@@ -691,6 +694,8 @@ def data(map_name):
                         final_template.append(row)
                         header_row = False
                         continue
+
+                    print(repr(row[0]))
                     
                     final_template.append([row[0], regions_populations[row[0]], row[2], colors_by_name[row[0]]])
             except Exception as e:
