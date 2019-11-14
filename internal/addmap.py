@@ -328,7 +328,11 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
                             
                             path = "M {} z {}".format(polygon_path, " ".join(hole_paths))
 
+                            print(feature["properties"]["cartogram_id"])
+
                             region = find_region_by_id(feature["properties"]["cartogram_id"])
+
+                            print(repr(region))
 
                             svg_file.write('<path gocart:regionname="{}" d="{}" id="polygon-{}" class="region-{}" fill="#aaaaaa" stroke="#000000" stroke-width="1"/>\n'.format(region["name"], path, polygon_id, feature["properties"]["cartogram_id"]))
                     else:
@@ -582,6 +586,7 @@ def data(map_name):
 
             try:
                 population_cartogramui = map_handler.csv_to_area_string_and_colors(population_csv)
+                population_cartogramui[2]["unit"] = "people"
             except Exception as e:
                 print(repr(e))
                 cleanup()
@@ -681,9 +686,6 @@ def data(map_name):
 
         with open("static/cartdata/{}/template.csv".format(map_name), "r", newline='') as template_csv_file:
 
-            print(repr(regions_populations))
-            print(repr(colors_by_name))
-
             try:
                 reader = csv.reader(template_csv_file)
 
@@ -694,8 +696,6 @@ def data(map_name):
                         final_template.append(row)
                         header_row = False
                         continue
-
-                    print(repr(row[0]))
                     
                     final_template.append([row[0], regions_populations[row[0]], row[2], colors_by_name[row[0]]])
             except Exception as e:
