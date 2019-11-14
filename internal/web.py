@@ -12,6 +12,9 @@ from handlers import singapore
 from handlers import japan2
 from handlers import france
 from handlers import uae
+from handlers import poland
+from handlers import sweden
+from handlers import croatia
 from handlers import czechrepublic3
 from handlers import hungary
 from handlers import unitedkingdom2
@@ -71,7 +74,6 @@ cartogram_handlers = {
     'china': china.CartogramHandler(),
     'germany': germany.CartogramHandler(),
     'brazil': brazil.CartogramHandler(),
-# !!!DO NOT MODFIY THE FOLLOWING SECTION
 'srilanka': srilanka.CartogramHandler(),
 'argentina': argentina.CartogramHandler(),
 'australia': australia.CartogramHandler(),
@@ -80,6 +82,9 @@ cartogram_handlers = {
 'japan2': japan2.CartogramHandler(),
 'france': france.CartogramHandler(),
 'uae': uae.CartogramHandler(),
+'poland': poland.CartogramHandler(),
+'sweden': sweden.CartogramHandler(),
+'croatia': croatia.CartogramHandler(),
 'czechrepublic3': czechrepublic3.CartogramHandler(),
 'hungary': hungary.CartogramHandler(),
 'unitedkingdom2': unitedkingdom2.CartogramHandler(),
@@ -90,7 +95,7 @@ cartogram_handlers = {
 'denmark': denmark.CartogramHandler(),
 'belgium': belgium.CartogramHandler(),
 'nigeria': nigeria.CartogramHandler(),
-# ---addmap.py body marker---
+#  ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
 

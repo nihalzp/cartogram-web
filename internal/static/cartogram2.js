@@ -1283,7 +1283,9 @@ class CartMap {
 
         }, this);        
 
+
         this.drawLegend(new_sysname, "legend-square-" + element_id, "legend-text-" + element_id, "legend-superscript-" + element_id, "legend-superscript-unit-" + element_id);
+
     }
 }
 
@@ -2154,6 +2156,7 @@ class Cartogram {
 
                     // The following line draws the conventional legend when the page first loads.
                     this.model.map.drawLegend("1-conventional", "legend-square-map-area", "legend-text-map-area", "legend-superscript-map-area", "legend-superscript-unit-map-area");
+
 
                     this.exitLoadingState();
                     document.getElementById('cartogram').style.display = "block";
