@@ -56,7 +56,8 @@
                 </div>
                 <div class="col-md-6">
                     <div class="w-100 text-center">
-                            <img src="{{ url_for('static', filename='usacartogram.svg') }}" class="img-fluid" style="width: 150%"/>
+                            <img src="{{ url_for('static', filename='worldcartogram.svg') }}" class="img-fluid" style="width: 150%"/>
+                            <p class="mt-1">A world population cartogram<a href="#disclaimer">*</a></p>
                     </div>
                     
                 </div>
@@ -69,6 +70,11 @@
         <div class="w-75 mx-auto" id="infographic-mobile">
             <img src="{{ url_for('static', filename='infographic-mobile.svg') }}" class="img-fluid"/>
         </div>
+        <p class="small mt-5 text-justify" id="disclaimer">
+            *Region boundaries and population data for the world cartogram are sourced directly from
+            <a href="https://www.naturalearthdata.com/">Natural Earth</a>, which
+            adopts boundaries based on defacto status.
+        </p>
 </div>
 
 
