@@ -81,11 +81,8 @@ cartogram_handlers = {
 'japan2': japan2.CartogramHandler(),
 'france': france.CartogramHandler(),
 'uae': uae.CartogramHandler(),
-<<<<<<< HEAD
-'spain': spain.CartogramHandler(),
 'ireland': ireland.CartogramHandler(),
 # ---addmap.py body marker---
-=======
 'poland': poland.CartogramHandler(),
 'sweden': sweden.CartogramHandler(),
 'croatia': croatia.CartogramHandler(),
@@ -93,14 +90,11 @@ cartogram_handlers = {
 'hungary': hungary.CartogramHandler(),
 'unitedkingdom2': unitedkingdom2.CartogramHandler(),
 'finland': finland.CartogramHandler(),
-#'spain': spain.CartogramHandler(),
-#'czechia': czechia.CartogramHandler(),
 'austria': austria.CartogramHandler(),
 'denmark': denmark.CartogramHandler(),
 'belgium': belgium.CartogramHandler(),
 'nigeria': nigeria.CartogramHandler(),
 #  ---addmap.py body marker---
->>>>>>> redesign
 # !!!END DO NOT MODFIY
 }
 
