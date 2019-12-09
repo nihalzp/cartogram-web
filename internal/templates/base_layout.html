@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://d3js.org/d3-ease.v1.min.js"></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -12,26 +12,61 @@
     <title>Creating Cartograms Online</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="{{ url_for('static', filename='bootstrap.min.css') }}" rel="stylesheet">
+    <!--<link href="{{ url_for('static', filename='bootstrap.min.css') }}" rel="stylesheet">-->
 
     <!-- Custom styles for this template -->
-    <link href="{{ url_for('static', filename='jumbotron.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='carousel.css') }}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Comfortaa&display=swap" rel="stylesheet"> 
+    <link href="{{ url_for('static', filename='bootstrap.min.theme.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
     <style>
+
+      body { padding-bottom: 70px; }
+
       .progress-bar {
     -webkit-transition: width 0.5s ease;
     transition: width 0.5s ease;
     }
 
     .social-link {
-      font-size: 32px;
-      color: #777;
+      font-size: 50px;
+      color: #707070;
       text-decoration: none;
     }
 
     .social-link:hover {
-      color: darkcyan;
+      color: #D76127;
+    }
+
+    .navbar-nav .nav-item {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    .navbar-nav .nav-item a {
+      text-decoration: underline;
+      font-size: 1em !important;
+      text-decoration-color: #BABAB9;
+      color: #BABAB9 !important;
+      text-transform: uppercase;
+    }
+
+    .navbar-nav .active a {
+      text-decoration: underline;
+      font-size: 1em !important;
+      text-decoration-color: #D76127;
+      color: #D76127 !important;
+    }
+
+    footer p {
+      font-size: small;
+    }
+
+    @media screen and (min-width: 1600px) {
+
+      .navbar {
+        padding-left: 150px;
+        padding-right: 150px;
+      }
+
     }
     </style>
     {% block head_extra %}
@@ -39,26 +74,39 @@
   </head>
 
   <body>
-    <nav class="navbar navbar-toggleable-md navbar-inverse fixed-top bg-inverse">
+    <div class="container-fluid" style="margin-top: 20px">
+    <nav class="navbar fixed-top navbar-expand-lg navbar-light" style="background: #f9f9f9; box-shadow: 0 6px 2px -2px #BABAB9">
       <!-- We don't need this button until we add menu items to the navbar -->
       <!--<button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>-->
-      <a class="navbar-brand" href="/">go-cart.io</a>
+        <a class="navbar-brand" href="/">
+          <img src="{{ url_for('static', filename='gocart_final.svg') }}" width="150" alt="" style="margin-left: 0px" />
+        </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
 
-      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-        <ul class="navbar-nav mr-auto">
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto" style="margin-right: 50px">
           <li class="nav-item {%if page_active=='home'%}active{%endif%}">
             <a class="nav-link" href="/">Home</a>
           </li>
+          <li class="nav-item {%if page_active=='cartogram'%}active{%endif%}">
+              <a class="nav-link" href="/cartogram">Make Cartogram</a>
+            </li>
           <li class="nav-item {%if page_active=='tutorial'%}active{%endif%}">
                 <a class="nav-link" href="/tutorial">Tutorial</a>
               </li>
+              <li class="nav-item {%if page_active=='about'%}active{%endif%}">
+                  <a class="nav-link" href="/about">About</a>
+                </li>
           <li class="nav-item {%if page_active=='faq'%}active{%endif%}">
             <a class="nav-link" href="/faq">FAQ</a>
           </li>
+          
           <li class="nav-item {%if page_active=='contact'%}active{%endif%}">
-              <a class="nav-link" href="/contact">Contact Us</a>
+              <a class="nav-link" href="/contact">Contact</a>
             </li>
          <!-- <li class="nav-item">
             <a class="nav-link disabled" href="#">Disabled</a>
@@ -72,22 +120,23 @@
             </div>
           </li>-->
         </ul>
+    </div>
         <!--<form class="form-inline my-2 my-lg-0">
           <input class="form-control mr-sm-2" type="text" placeholder="Search">
           <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
         </form>-->
-      </div>
     </nav>
+  </div>
+    <div style="margin-top: 120px">{% block content %}{% endblock %}</div>
 
-    {% block content %}{% endblock %}
 
     <div class="container-fluid">
-        <hr/>
-    <footer>
+    <footer class="text-secondary">
     <p>&copy; Michael T. Gastner<br/>
         <a href="http://michaelgastner.com/">michaelgastner.com</a><br/>
         Yale-NUS College, Division of Science <br/>
-        16 College Avenue West, #01-220 Singapore 138527</p>
+        16 College Avenue West, <br/>
+        #01-220 Singapore 138527</p>
     </footer>
     </div> <!-- /container -->
 

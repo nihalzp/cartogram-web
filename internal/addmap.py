@@ -301,9 +301,13 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
                         
                         path = "M {} z {}".format(polygon_path, " ".join(hole_paths))
 
-                        region = find_region_by_id(feature["properties"]["cartogram_id"])
+                        #region = find_region_by_id(feature["properties"]["cartogram_id"])
+                        region = find_region_by_id(feature["id"])
 
-                        svg_file.write('<path gocart:regionname="{}" d="{}" id="polygon-{}" class="region-{}" fill="#aaaaaa" stroke="#000000" stroke-width="1"/>\n'.format(region["name"], path, polygon_id, feature["properties"]["cartogram_id"]))
+                        #svg_file.write('<path gocart:regionname="{}" d="{}" id="polygon-{}" class="region-{}" fill="#aaaaaa" stroke="#000000" stroke-width="1"/>\n'.format(region["name"], path, polygon_id, feature["properties"]["cartogram_id"]))
+                        svg_file.write(
+                            '<path gocart:regionname="{}" d="{}" id="polygon-{}" class="region-{}" fill="#aaaaaa" stroke="#000000" stroke-width="1"/>\n'.format(
+                                region["name"], path, polygon_id, feature["id"]))
                     elif feature["geometry"]["type"] == "MultiPolygon":
 
                         for polygon in feature["geometry"]["coordinates"]:
@@ -328,7 +332,11 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
                             
                             path = "M {} z {}".format(polygon_path, " ".join(hole_paths))
 
+                            print(feature["properties"]["cartogram_id"])
+
                             region = find_region_by_id(feature["properties"]["cartogram_id"])
+
+                            print(repr(region))
 
                             svg_file.write('<path gocart:regionname="{}" d="{}" id="polygon-{}" class="region-{}" fill="#aaaaaa" stroke="#000000" stroke-width="1"/>\n'.format(region["name"], path, polygon_id, feature["properties"]["cartogram_id"]))
                     else:
@@ -582,6 +590,7 @@ def data(map_name):
 
             try:
                 population_cartogramui = map_handler.csv_to_area_string_and_colors(population_csv)
+                population_cartogramui[2]["unit"] = "people"
             except Exception as e:
                 print(repr(e))
                 cleanup()
