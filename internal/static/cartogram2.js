@@ -30,7 +30,7 @@
  * @property {Array<{x1: number, y1: number, x2: number, y2: number}>} lines Line labels
  */
 
- function clearFileInput(ctrl) {
+function clearFileInput(ctrl) {
     try {
       ctrl.value = null;
     } catch(ex) { }
@@ -383,7 +383,6 @@ class MapVersion {
         this.extrema = extrema;
         this.labels = labels;
     }
-
 }
 
 /**
@@ -599,6 +598,7 @@ class CartMap {
         this.config = {
             dont_draw: config.dont_draw.map(id => id.toString()),
             elevate: config.elevate.map(id => id.toString()),
+            scale: 1.3
         }
 
         /**
@@ -630,8 +630,259 @@ class CartMap {
          * @type {number}
          */
         this.height = 0.0;
+        
+    }
+
+    /**
+     * getConvenLegendUnit returns the a legend unit of the conventional map
+     * @param {string} sysname The sysname of the map version
+     * @returns {string} The legend unit of the map
+     */
+    getLegendUnit(sysname){
+        var unit = "";
+        Object.keys(this.regions).forEach(function(region_id){
+            unit = this.regions[region_id].getVersion(sysname).unit;
+        }, this);
+        return unit;
+    }
+
+
+    /**
+     * The following returns the scaling factors (x and y) of map of specified version.
+     * @param {string} sysname The sysname of the map version
+     * @returns {number[]} The total polygon area of the specified map version
+     */
+    getVersionPolygonScale(sysname) {
+
+        const version_width = this.versions[sysname].extrema.max_x - this.versions[sysname].extrema.min_x;
+        const version_height = this.versions[sysname].extrema.max_y - this.versions[sysname].extrema.min_y;
+
+        const scale_x = this.width / version_width;
+        const scale_y = this.height / version_height;
+
+        return [scale_x, scale_y];
+    }
+
+    /**
+     * getTotalAreasAndValuesForVersion returns the sum of all region values and area for the specified map version.
+     * @param {string} sysname The sysname of the map version
+     * @returns {number[]} The total value and area of the specified map version
+     */
+    getTotalAreasAndValuesForVersion(sysname) {
+
+        var area = 0;
+        var sum = 0;
+        const na_regions = [];
+        Object.keys(this.regions).forEach(function(region_id){
+            var areaValue = 0;
+            this.regions[region_id].getVersion(sysname).polygons.forEach(function(polygon){
+                const coordinates = polygon.coordinates;
+
+                areaValue += d3.polygonArea(coordinates);
+
+                polygon.holes.forEach(function(hole){
+
+                    areaValue -= d3.polygonArea(hole);
+
+                }, this);
+
+            }, this);
+
+
+
+            const regionValue = this.regions[region_id].getVersion(sysname).value;
+
+            if(regionValue !== 'NA') {
+                sum += regionValue;
+            } else {
+
+                na_regions.push({id: region_id, area: areaValue});
+            }
+
+            area += areaValue;
+        }, this);
+
+        const avg_density = sum/area;
+
+        na_regions.forEach(function(na_region){
+
+
+            sum += avg_density * na_region.area;
+
+        }, this);
+
+        return [area, sum];
+    }
+
+    /**
+     * getTotalValuesForVersion returns the sum of all region values for the specified map version.
+     * @param {string} sysname The sysname of the map version
+     * @returns {number} The total value of the specified map version
+     */
+    getTotalValuesForVersion(sysname) {
+        
+        var sum = 0;        
+        Object.keys(this.regions).forEach(function(region_id){
+            const regionValue = this.regions[region_id].getVersion(sysname).value;
+           
+            if(regionValue != 'NA') {
+                sum += regionValue;
+            }
+        }, this);
+
+        return sum;
+    }
+
+    /**
+     * The following returns the sum of all region polygon area values for the specified map version.
+     * @param {string} sysname The sysname of the map version
+     * @returns {number} The total value of the specified map version
+     */
+    getTotalAreaForVersion(sysname) {
+        var area = 0;        
+        Object.keys(this.regions).forEach(function(region_id){
+            this.regions[region_id].getVersion(sysname).polygons.forEach(function(polygon){
+                const coordinates = polygon.coordinates;
+                
+                const areaValue = d3.polygonArea(coordinates);
+
+                area += areaValue;
+
+            })
+        }, this);
+        return area;
+    }
+
+    /**
+     * Determines if the computed legend area and value is correct
+     * @param sysname
+     * @param width
+     * @param value
+     */
+    verifyLegend(sysname, width, value) {
+
+        const [scale_x, scale_y] = this.getVersionPolygonScale(sysname);
+        const [version_area, version_values] = this.getTotalAreasAndValuesForVersion(sysname);
+        const tolerance = 0.001;
+
+        const legendTotalValue = (version_area * scale_x * scale_y / (width * width)) * value;
+
+        if(!(Math.abs(version_values - legendTotalValue) < tolerance)) {
+            console.warn(`The legend value (${value}) and width (${width}px) for ${sysname} is not correct. Calculating the total value from the legend yields ${legendTotalValue}, but it should be ${version_values}`);
+        } else {
+            console.log(`The legend value (${value}) and width (${width}px) for ${sysname} is correct (calculated total value=${legendTotalValue}, actual total value=${version_values})`);
+        }
 
     }
+
+    /**
+     * The following draws the legend for each map
+     * @param {string} sysname The sysname of the map version
+     */
+
+    drawLegend(sysname, legend_square_id, legend_text_id, legend_superscript_id, legend_superscript_unit_id){
+        
+        var legend_square = document.getElementById(legend_square_id);
+        var legend_text = document.getElementById(legend_text_id);
+        var legend_superscript = document.getElementById(legend_superscript_id);
+        var legend_superscript_unit_id = document.getElementById(legend_superscript_unit_id);
+
+        // Get unit for the map that we wish to draw legend for.
+        const unit = this.getLegendUnit(sysname);
+
+        // Obtain the scaling factors for this map.
+        const [scale_x, scale_y]= this.getVersionPolygonScale(sysname);
+        const [version_area, version_values] = this.getTotalAreasAndValuesForVersion(sysname);
+        const legend = version_values/(version_area*scale_x*scale_y);
+
+        // square default is 30 by 30 px
+        var ratio = legend*900 >= 1 ? legend*900: 1;
+
+        
+        // If the legend ratio is smaller than 1, set to 1 in case the legend square becomes too big.
+        if(ratio == 1){
+            var exp_num = (legend*900).toExponential().split("e");
+            var first_num = exp_num[0];
+            if(Math.abs(first_num - 10) < Math.abs(first_num - 5) && Math.abs(first_num - 10) < Math.abs(first_num - 2)){
+                first_num = 10;
+            } else if (Math.abs(first_num - 5) < Math.abs(first_num - 2)){
+                first_num = 5;
+            } else {
+                first_num = 2;
+            }
+            if(exp_num[1] >= -4){
+                legend_text.innerHTML = "= " + first_num * Math.pow(10, parseInt(exp_num[1])) + unit;
+                const width = Math.sqrt(first_num * Math.pow(10, parseInt(exp_num[1]))*900/(legend*900).toExponential());
+                legend_square.setAttribute("width", width.toString() +"px");
+                legend_square.setAttribute("height", width.toString() +"px");
+                console.log(`original: ${exp_num}; new : ${width}`);
+                this.verifyLegend(sysname, width, first_num * Math.pow(10, parseInt(exp_num[1])));
+
+                
+            } else{
+                const width = Math.sqrt(first_num * Math.pow(10, parseInt(exp_num[1]))*900/(legend*900).toExponential());
+                legend_square.setAttribute("width", width +"px");
+                legend_square.setAttribute("height", width +"px");
+                legend_superscript.style.display = "inline-block";
+                legend_superscript_unit_id.style.display = "inline-block";
+                legend_superscript.innerHTML = exp_num[1];
+                legend_text.innerHTML = "= " + first_num + " x 10 "
+                legend_superscript_unit_id.innerHTML = unit;
+                this.verifyLegend(sysname, width, first_num * Math.pow(10, parseInt(exp_num[1])));
+
+            }
+        }
+        else{
+            legend_superscript_unit_id.style.display = "none";
+            legend_superscript.style.display = "none";
+            var round_ratio = Math.pow(10, (Math.round(ratio).toString().length-1));            
+            if(round_ratio.length === 2){
+                round_ratio = 100
+            } else if(round_ratio === 1){
+                round_ratio = 10
+            }
+
+            const r = ratio/round_ratio;
+            var final_ratio = 0;
+            if(Math.abs(r - 1) < Math.abs(r - 5) && Math.abs(r - 1) < Math.abs(r - 2)){
+                final_ratio = 1;
+            } else if (Math.abs(r - 5) < Math.abs(r - 2)){
+                final_ratio = 5;
+            } else {
+                final_ratio = 2;
+            }
+
+            const width = Math.sqrt(final_ratio*round_ratio*900/ratio);
+            var scale_word = (round_ratio > 999999) ? " million" : round_ratio.toString().substr(1);
+            if(scale_word == " million" && round_ratio >= 10000000){
+                if(round_ratio >= 10000000000000){
+                    scale_word = round_ratio / 10000000000000 + " billion"
+                }
+                scale_word = round_ratio/10000000 + " million"
+            } else if(scale_word !== " million" && scale_word.length >= 3){
+                const set_of_zeros = Math.floor(scale_word.length/3)
+                const remaining_zeros = scale_word.length%3
+                if(set_of_zeros === 1 && remaining_zeros === 0){
+                    scale_word = "000".repeat(set_of_zeros);
+                } else{
+                    scale_word = "0".repeat(remaining_zeros) + " 000".repeat(set_of_zeros);
+                }
+            }
+
+            this.verifyLegend(sysname, width, final_ratio*round_ratio);
+
+            legend_square.setAttribute("width", width.toString() +"px");
+            legend_square.setAttribute("height", width.toString() +"px");
+            legend_text.setAttribute("x", (width+10).toString() + "px");
+
+            if(scale_word.length === 1){
+                legend_text.innerHTML = "= " + final_ratio + scale_word + " " + unit
+            } else {
+                legend_text.innerHTML = "= " + final_ratio + scale_word + " " + unit
+            }
+        }
+    }
+
 
     /**
      * addVersion adds a new version to the map. If a version with the specified sysname already exists, it will be overwritten.
@@ -693,19 +944,19 @@ class CartMap {
             max_width = (max_height / max_height_old) * max_width;
         }
 
-        this.width = max_width;
-        this.height = max_height;
+        this.width = max_width * this.config.scale;
+        this.height = max_height * this.config.scale;
 
         Object.keys(this.versions).forEach(function(version_sysname){
 
             var width = this.versions[version_sysname].extrema.max_x - this.versions[version_sysname].extrema.min_x;
             var height = this.versions[version_sysname].extrema.max_y - this.versions[version_sysname].extrema.min_y;
 
-            scale_factors[version_sysname] = {x: max_width / width, y: max_height / height};
+            scale_factors[version_sysname] = {x: max_width / width * this.config.scale, y: max_height / height * this.config.scale};
 
         }, this);
 
-        scale_factors[sysname] = {x: max_width / new_version_width, y: max_height / new_version_height};
+        scale_factors[sysname] = {x: max_width / new_version_width * this.config.scale, y: max_height / new_version_height * this.config.scale};
 
         Object.keys(data.regions).forEach(function(region_id){
 
@@ -984,6 +1235,9 @@ class CartMap {
 
     }
 
+
+
+
     /**
      * switchVersion switches the map version displayed in the element with the given ID with an animation.
      * @param {string} current_sysname The sysname of the currently displayed version
@@ -1018,7 +1272,6 @@ class CartMap {
 
                     } else {
                         document.getElementById('path-' + element_id + '-' + polygon.id).setAttribute('fill', this.colors[region_id]);
-
                         document.getElementById('path-' + element_id + '-' + polygon.id).classList.add('path-' + element_id + '-' + region_id);
                         document.getElementById('path-' + element_id + '-' + polygon.id).classList.remove('path-' + element_id + '-' + region_id + '-na');
                     }
@@ -1030,8 +1283,10 @@ class CartMap {
 
         }, this);        
 
-    }
 
+        this.drawLegend(new_sysname, "legend-square-" + element_id, "legend-text-" + element_id, "legend-superscript-" + element_id, "legend-superscript-unit-" + element_id);
+
+    }
 }
 
 /**
@@ -1045,15 +1300,18 @@ class Cartogram {
      * @param {string} cui_u The cartogramui URL 
      * @param {string} c_d  The URL of the cartogram data directory
      * @param {string} g_u The URL of the gridedit page
+     * @param {srinng} gp_u The URL to retrieve progress information
      * @param {string} version The version string used to prevent improper caching of map assets
      */
-    constructor(c_u, cui_u, c_d, g_u, version) {
+
+    constructor(c_u, cui_u, c_d, g_u, gp_u, version) {
 
         this.config = {
             cartogram_url: c_u,
             cartogramui_url: cui_u,
             cartogram_data_dir: c_d,
             gridedit_url: g_u,
+            getprogress_url: gp_u,
             version: version
         };
 
@@ -1455,7 +1713,7 @@ class Cartogram {
             loading_height += document.getElementById('error').clientHeight;
         }
 
-        console.log(loading_height);
+        // console.log(loading_height);
 
         /* The loading div will be at least 100px tall */
         if(loading_height > 100)
@@ -1546,11 +1804,41 @@ class Cartogram {
 
         var svg_header = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>';
 
-        document.getElementById('map-download').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('map-area').innerHTML);
-        document.getElementById('map-download').download = "map.svg";
+        document.getElementById('map-download').onclick = (function(){
 
-        document.getElementById('cartogram-download').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('cartogram-area').innerHTML);
-        document.getElementById('cartogram-download').download = "cartogram.svg";
+            return function(e) {
+
+                e.preventDefault();
+
+                document.getElementById('download-modal-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('map-area').innerHTML);
+                document.getElementById('download-modal-link').download = "equal-area-map.svg";
+
+                $('#download-modal').modal();
+
+            };
+
+        }());
+
+        document.getElementById('cartogram-download').onclick = (function(){
+
+            return function(e) {
+
+                e.preventDefault();
+
+                document.getElementById('download-modal-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('cartogram-area').innerHTML);
+                document.getElementById('download-modal-link').download = "cartogram.svg";
+
+                $('#download-modal').modal();
+
+            };
+
+        }());
+
+        /*document.getElementById('map-download').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('map-area').innerHTML);
+        document.getElementById('map-download').download = "map.svg";*/
+
+        /*document.getElementById('cartogram-download').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('cartogram-area').innerHTML);
+        document.getElementById('cartogram-download').download = "cartogram.svg";*/
         
     }
 
@@ -1565,6 +1853,8 @@ class Cartogram {
         document.getElementById('linkedin-share').href = "https://www.linkedin.com/shareArticle?url=" + window.encodeURIComponent(url) + "&mini=true&title=Cartogram&summary=Create%20cartograms%20with%20go-cart.io&source=go-cart.io";
 
         document.getElementById('twitter-share').href = "https://twitter.com/share?url=" + window.encodeURIComponent(url);
+
+        document.getElementById('email-share').href = "mailto:?body=" + window.encodeURIComponent(url);
 
     }
 
@@ -1587,54 +1877,73 @@ class Cartogram {
 
             this.setExtendedErrorInfo("");
 
+            var progressUpdater = window.setInterval(function(cartogram_inst, key){
+
+                return function(){
+
+                    HTTP.get(cartogram_inst.config.getprogress_url + "?key=" + encodeURIComponent(key) + "&time=" + Date.now()).then(function(progress){
+
+                        if(progress.progress === null)
+                        {
+                            return;
+                        }
+
+                        if(cartogram_inst.model.loading_state === null) {
+
+                            cartogram_inst.model.loading_state = Math.log10(progress.progress);
+                            cartogram_inst.updateProgressBar(0, 100, 5);
+
+                        } else {
+
+                            if(progress.progress < 0.01) {
+                                progress.progress = 0.01
+                            }
+
+                            if(progress.progress > cartogram_inst.model.loading_state) {
+                                progress.progress = cartogram_inst.model.loading_state;
+                            }
+
+                            /*console.log("progress: " + progress.progress);
+                            console.log("distance: " + Math.abs(cartogram_inst.model.loading_state - Math.log10(progress.progress)));
+                            console.log("area: " + Math.abs(cartogram_inst.model.loading_state - (-2)));*/
+                        
+
+                            var percentage = Math.floor(Math.abs(cartogram_inst.model.loading_state - Math.log10(progress.progress)) / Math.abs(cartogram_inst.model.loading_state - (-2))*100);
+
+                            /*console.log("percentage: " + percentage);
+                            console.log("");*/
+
+                            cartogram_inst.updateProgressBar(5, 100, percentage);
+
+                            cartogram_inst.setExtendedErrorInfo(progress.stderr);
+                        }
+
+                    });
+
+                };
+
+            }(this, unique_sharing_key), 500);
+
             HTTP.streaming(
                 this.config.cartogram_url,
                 "POST",
                 {'Content-type': 'application/x-www-form-urlencoded'},
                 req_body,
-                {
-                    'loading_progress_points.*': function(loading_progress_point){
-
-                        /*
-                        For each integration of the algorithm, we receive the maximum absolute area error. Generation
-                        stops when this number is <= 0.01. As we get closer to reaching 0.01, the change in error
-                        decreases. We calculate the progress bar percentage by measuring how fast the error approaches
-                        0.01.
-                        */
-                        if(loading_progress_point.loading_point !== null)
-                        {
-                            if(this.model.loading_state === null)
-                            {
-                                this.model.loading_state = loading_progress_point.loading_point;
-                                this.updateProgressBar(0,100,20);
-                            }
-                            else
-                            {
-                                if(loading_progress_point.loading_point < 0.01)
-                                    loading_progress_point.loading_point = 0.01;
-                                
-                                var percentage = Math.floor(((this.model.loading_state - loading_progress_point.loading_point) / (this.model.loading_state - 0.01))*95);
-    
-                                /* It's unlikely to happen, but we don't want the progress bar to go in reverse */
-                                this.updateProgressBar(20,100,percentage);
-                            }
-                        }
-    
-                        console.log(loading_progress_point.stderr_line);
-    
-                        this.appendToExtendedErrorInfo(loading_progress_point.stderr_line);
-    
-                    }.bind(this)
-                }
+                {}
             ).then(function(response){
 
                 this.clearExtendedErrorInfo();
 
                 this.updateProgressBar(0,100,100);
 
+                window.clearInterval(progressUpdater);
+
                 resolve(response.cartogram_data);
                 
-            }.bind(this), () => reject(Error("There was an error retrieving the cartogram from the server.")));
+            }.bind(this), function(){
+                window.clearInterval(progressUpdater);
+                reject(Error("There was an error retrieving the cartogram from the server."));
+            });
 
         }.bind(this));
 
@@ -1653,10 +1962,14 @@ class Cartogram {
             buttons_container.removeChild(buttons_container.firstChild);
         }
 
+        var select = document.createElement("select")
+        select.className = "form-control bg-primary text-light border-primary";
+        select.value = this.model.current_sysname;
+
         // Sorting keeps the ordering of versions consistent
         Object.keys(this.model.map.versions).sort().forEach(function(sysname){
 
-            var button = document.createElement('button');
+            /*var button = document.createElement('button');
             button.innerText = this.model.map.versions[sysname].name;
 
             if(sysname == this.model.current_sysname)
@@ -1673,11 +1986,26 @@ class Cartogram {
                     }.bind(this);
 
                 }.bind(this)(sysname));
-            }
+            }*/
 
-            buttons_container.appendChild(button);
+            var option = document.createElement('option');
+            option.innerText = this.model.map.versions[sysname].name;
+            option.value = sysname;
+            option.selected = (sysname === this.model.current_sysname);
+
+            select.appendChild(option);
 
         }, this);
+
+        select.onchange = (function(cartogram_inst){
+
+            return function(_e) {
+                cartogram_inst.switchVersion(this.value);
+            };
+
+        }(this));
+
+        buttons_container.appendChild(select);
 
         document.getElementById('map1-switch').style.display = 'block';
         document.getElementById('map2-switch').style.display = 'block';
@@ -1695,7 +2023,6 @@ class Cartogram {
         this.model.current_sysname = sysname;
 
         this.displayVersionSwitchButtons();
-
     }
 
     /**
@@ -1812,6 +2139,8 @@ class Cartogram {
 
                     this.model.map.drawVersion("1-conventional", "map-area", ["map-area", "cartogram-area"]);
                     this.model.map.drawVersion("3-cartogram", "cartogram-area", ["map-area", "cartogram-area"]);
+                    
+                    
 
                     this.model.current_sysname = "3-cartogram";
 
@@ -1822,6 +2151,12 @@ class Cartogram {
                     if(update_grid_document) {
                         this.updateGridDocument(response.grid_document);
                     }
+
+                    this.model.map.drawLegend(this.model.current_sysname, "legend-square-cartogram-area", "legend-text-cartogram-area", "legend-superscript-cartogram-area", "legend-superscript-unit-cartogram-area");
+
+                    // The following line draws the conventional legend when the page first loads.
+                    this.model.map.drawLegend("1-conventional", "legend-square-map-area", "legend-text-map-area", "legend-superscript-map-area", "legend-superscript-unit-map-area");
+
 
                     this.exitLoadingState();
                     document.getElementById('cartogram').style.display = "block";
@@ -2012,8 +2347,12 @@ class Cartogram {
             this.displayVersionSwitchButtons();
             this.updateGridDocument(mappack.griddocument);
 
-            document.getElementById('template-link').href = this.config.cartogram_data_dir+ "/" + sysname + "/template.csv";
+            this.model.map.drawLegend(this.model.current_sysname, "legend-square-cartogram-area", "legend-text-cartogram-area", "legend-superscript-cartogram-area", "legend-superscript-unit-cartogram-area");
+            
+            // The following line draws the conventional legend when the page first loads.
+            this.model.map.drawLegend("1-conventional", "legend-square-map-area", "legend-text-map-area", "legend-superscript-map-area", "legend-superscript-unit-map-area");
 
+            document.getElementById('template-link').href = this.config.cartogram_data_dir+ "/" + sysname + "/template.csv";
             document.getElementById('cartogram').style.display = 'block';
 
         }.bind(this));       
