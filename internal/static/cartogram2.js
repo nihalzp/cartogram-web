@@ -30,7 +30,7 @@
  * @property {Array<{x1: number, y1: number, x2: number, y2: number}>} lines Line labels
  */
 
- function clearFileInput(ctrl) {
+function clearFileInput(ctrl) {
     try {
       ctrl.value = null;
     } catch(ex) { }
@@ -48,9 +48,10 @@ class HTTP {
      * Performs an HTTP GET request and returns a promise with the JSON value of the response
      * @param {string} url The URL of the GET request 
      * @param {number} timeout The timeout, in seconds, of the GET request
+     * @param {function} onprogress A function to be called when the request progress information is updated
      * @returns {Promise} A promise to the HTTP response
      */
-    static get(url, timeout=15000) {
+    static get(url, timeout=null, onprogress=null) {
         return new Promise(function(resolve, reject){
 
             var xhttp = new XMLHttpRequest();
@@ -79,12 +80,19 @@ class HTTP {
                 }
             };
 
+            if(onprogress !== null) {
+                xhttp.onprogress = onprogress;
+            }
+
             xhttp.ontimeout = function(e) {
                 reject(Error('The request has timed out.'));
             }
 
+            if(timeout !== null) {
+                xhttp.timeout = timeout;
+            }
+
             xhttp.open("GET", url, true);
-            xhttp.timeout = timeout;
             xhttp.send();
 
         });
@@ -267,6 +275,48 @@ class SVG {
 }
 
 /**
+ * Tooltip contains helper functions for drawing and hiding the tooltip
+ */
+class Tooltip {
+
+    /**
+     * Draws a tooltip next the mouse cursor with the given content
+     * @param event The current mouse event
+     * @param content The new content of the tooltip
+     */
+    static draw(event, content) {
+
+        document.getElementById('tooltip').innerHTML = content;
+
+        document.getElementById('tooltip').style.display = 'inline-block';
+
+        document.getElementById('tooltip').style.left = (event.pageX - 50) + 'px';
+
+        document.getElementById('tooltip').style.top = (event.pageY + 15) + 'px';
+    }
+
+    static drawWithEntries(event, name, abbreviation, entries) {
+
+        let content = "<b>" + name + " (" + abbreviation + ")</b>";
+
+        entries.forEach(entry => {
+            content += "<br/><i>" + entry.name + ":</i> " + entry.value.toLocaleString() + " " + entry.unit;
+        }, this);
+
+        Tooltip.draw(event, content);
+
+    }
+
+    /**
+     * Hides the tooltip from view
+     */
+    static hide() {
+        document.getElementById('tooltip').style.display = 'none';
+    }
+
+}
+
+/**
  * Polygon contains data for one D3 polygon
  */
 class Polygon {
@@ -375,7 +425,6 @@ class MapVersion {
         this.extrema = extrema;
         this.labels = labels;
     }
-
 }
 
 /**
@@ -591,6 +640,7 @@ class CartMap {
         this.config = {
             dont_draw: config.dont_draw.map(id => id.toString()),
             elevate: config.elevate.map(id => id.toString()),
+            scale: 1.3
         }
 
         /**
@@ -622,8 +672,259 @@ class CartMap {
          * @type {number}
          */
         this.height = 0.0;
+        
+    }
+
+    /**
+     * getConvenLegendUnit returns the a legend unit of the conventional map
+     * @param {string} sysname The sysname of the map version
+     * @returns {string} The legend unit of the map
+     */
+    getLegendUnit(sysname){
+        var unit = "";
+        Object.keys(this.regions).forEach(function(region_id){
+            unit = this.regions[region_id].getVersion(sysname).unit;
+        }, this);
+        return unit;
+    }
+
+
+    /**
+     * The following returns the scaling factors (x and y) of map of specified version.
+     * @param {string} sysname The sysname of the map version
+     * @returns {number[]} The total polygon area of the specified map version
+     */
+    getVersionPolygonScale(sysname) {
+
+        const version_width = this.versions[sysname].extrema.max_x - this.versions[sysname].extrema.min_x;
+        const version_height = this.versions[sysname].extrema.max_y - this.versions[sysname].extrema.min_y;
+
+        const scale_x = this.width / version_width;
+        const scale_y = this.height / version_height;
+
+        return [scale_x, scale_y];
+    }
+
+    /**
+     * getTotalAreasAndValuesForVersion returns the sum of all region values and area for the specified map version.
+     * @param {string} sysname The sysname of the map version
+     * @returns {number[]} The total value and area of the specified map version
+     */
+    getTotalAreasAndValuesForVersion(sysname) {
+
+        var area = 0;
+        var sum = 0;
+        const na_regions = [];
+        Object.keys(this.regions).forEach(function(region_id){
+            var areaValue = 0;
+            this.regions[region_id].getVersion(sysname).polygons.forEach(function(polygon){
+                const coordinates = polygon.coordinates;
+
+                areaValue += d3.polygonArea(coordinates);
+
+                polygon.holes.forEach(function(hole){
+
+                    areaValue -= d3.polygonArea(hole);
+
+                }, this);
+
+            }, this);
+
+
+
+            const regionValue = this.regions[region_id].getVersion(sysname).value;
+
+            if(regionValue !== 'NA') {
+                sum += regionValue;
+            } else {
+
+                na_regions.push({id: region_id, area: areaValue});
+            }
+
+            area += areaValue;
+        }, this);
+
+        const avg_density = sum/area;
+
+        na_regions.forEach(function(na_region){
+
+
+            sum += avg_density * na_region.area;
+
+        }, this);
+
+        return [area, sum];
+    }
+
+    /**
+     * getTotalValuesForVersion returns the sum of all region values for the specified map version.
+     * @param {string} sysname The sysname of the map version
+     * @returns {number} The total value of the specified map version
+     */
+    getTotalValuesForVersion(sysname) {
+        
+        var sum = 0;        
+        Object.keys(this.regions).forEach(function(region_id){
+            const regionValue = this.regions[region_id].getVersion(sysname).value;
+           
+            if(regionValue != 'NA') {
+                sum += regionValue;
+            }
+        }, this);
+
+        return sum;
+    }
+
+    /**
+     * The following returns the sum of all region polygon area values for the specified map version.
+     * @param {string} sysname The sysname of the map version
+     * @returns {number} The total value of the specified map version
+     */
+    getTotalAreaForVersion(sysname) {
+        var area = 0;        
+        Object.keys(this.regions).forEach(function(region_id){
+            this.regions[region_id].getVersion(sysname).polygons.forEach(function(polygon){
+                const coordinates = polygon.coordinates;
+                
+                const areaValue = d3.polygonArea(coordinates);
+
+                area += areaValue;
+
+            })
+        }, this);
+        return area;
+    }
+
+    /**
+     * Determines if the computed legend area and value is correct
+     * @param sysname
+     * @param width
+     * @param value
+     */
+    verifyLegend(sysname, width, value) {
+
+        const [scale_x, scale_y] = this.getVersionPolygonScale(sysname);
+        const [version_area, version_values] = this.getTotalAreasAndValuesForVersion(sysname);
+        const tolerance = 0.001;
+
+        const legendTotalValue = (version_area * scale_x * scale_y / (width * width)) * value;
+
+        if(!(Math.abs(version_values - legendTotalValue) < tolerance)) {
+            console.warn(`The legend value (${value}) and width (${width}px) for ${sysname} is not correct. Calculating the total value from the legend yields ${legendTotalValue}, but it should be ${version_values}`);
+        } else {
+            console.log(`The legend value (${value}) and width (${width}px) for ${sysname} is correct (calculated total value=${legendTotalValue}, actual total value=${version_values})`);
+        }
 
     }
+
+    /**
+     * The following draws the legend for each map
+     * @param {string} sysname The sysname of the map version
+     */
+
+    drawLegend(sysname, legend_square_id, legend_text_id, legend_superscript_id, legend_superscript_unit_id){
+        
+        var legend_square = document.getElementById(legend_square_id);
+        var legend_text = document.getElementById(legend_text_id);
+        var legend_superscript = document.getElementById(legend_superscript_id);
+        var legend_superscript_unit_id = document.getElementById(legend_superscript_unit_id);
+
+        // Get unit for the map that we wish to draw legend for.
+        const unit = this.getLegendUnit(sysname);
+
+        // Obtain the scaling factors for this map.
+        const [scale_x, scale_y]= this.getVersionPolygonScale(sysname);
+        const [version_area, version_values] = this.getTotalAreasAndValuesForVersion(sysname);
+        const legend = version_values/(version_area*scale_x*scale_y);
+
+        // square default is 30 by 30 px
+        var ratio = legend*900 >= 1 ? legend*900: 1;
+
+        
+        // If the legend ratio is smaller than 1, set to 1 in case the legend square becomes too big.
+        if(ratio == 1){
+            var exp_num = (legend*900).toExponential().split("e");
+            var first_num = exp_num[0];
+            if(Math.abs(first_num - 10) < Math.abs(first_num - 5) && Math.abs(first_num - 10) < Math.abs(first_num - 2)){
+                first_num = 10;
+            } else if (Math.abs(first_num - 5) < Math.abs(first_num - 2)){
+                first_num = 5;
+            } else {
+                first_num = 2;
+            }
+            if(exp_num[1] >= -4){
+                legend_text.innerHTML = "= " + first_num * Math.pow(10, parseInt(exp_num[1])) + unit;
+                const width = Math.sqrt(first_num * Math.pow(10, parseInt(exp_num[1]))*900/(legend*900).toExponential());
+                legend_square.setAttribute("width", width.toString() +"px");
+                legend_square.setAttribute("height", width.toString() +"px");
+                console.log(`original: ${exp_num}; new : ${width}`);
+                this.verifyLegend(sysname, width, first_num * Math.pow(10, parseInt(exp_num[1])));
+
+                
+            } else{
+                const width = Math.sqrt(first_num * Math.pow(10, parseInt(exp_num[1]))*900/(legend*900).toExponential());
+                legend_square.setAttribute("width", width +"px");
+                legend_square.setAttribute("height", width +"px");
+                legend_superscript.style.display = "inline-block";
+                legend_superscript_unit_id.style.display = "inline-block";
+                legend_superscript.innerHTML = exp_num[1];
+                legend_text.innerHTML = "= " + first_num + " x 10 "
+                legend_superscript_unit_id.innerHTML = unit;
+                this.verifyLegend(sysname, width, first_num * Math.pow(10, parseInt(exp_num[1])));
+
+            }
+        }
+        else{
+            legend_superscript_unit_id.style.display = "none";
+            legend_superscript.style.display = "none";
+            var round_ratio = Math.pow(10, (Math.round(ratio).toString().length-1));            
+            if(round_ratio.length === 2){
+                round_ratio = 100
+            } else if(round_ratio === 1){
+                round_ratio = 10
+            }
+
+            const r = ratio/round_ratio;
+            var final_ratio = 0;
+            if(Math.abs(r - 1) < Math.abs(r - 5) && Math.abs(r - 1) < Math.abs(r - 2)){
+                final_ratio = 1;
+            } else if (Math.abs(r - 5) < Math.abs(r - 2)){
+                final_ratio = 5;
+            } else {
+                final_ratio = 2;
+            }
+
+            const width = Math.sqrt(final_ratio*round_ratio*900/ratio);
+            var scale_word = (round_ratio > 999999) ? " million" : round_ratio.toString().substr(1);
+            if(scale_word == " million" && round_ratio >= 10000000){
+                if(round_ratio >= 10000000000000){
+                    scale_word = round_ratio / 10000000000000 + " billion"
+                }
+                scale_word = round_ratio/10000000 + " million"
+            } else if(scale_word !== " million" && scale_word.length >= 3){
+                const set_of_zeros = Math.floor(scale_word.length/3)
+                const remaining_zeros = scale_word.length%3
+                if(set_of_zeros === 1 && remaining_zeros === 0){
+                    scale_word = "000".repeat(set_of_zeros);
+                } else{
+                    scale_word = "0".repeat(remaining_zeros) + " 000".repeat(set_of_zeros);
+                }
+            }
+
+            this.verifyLegend(sysname, width, final_ratio*round_ratio);
+
+            legend_square.setAttribute("width", width.toString() +"px");
+            legend_square.setAttribute("height", width.toString() +"px");
+            legend_text.setAttribute("x", (width+10).toString() + "px");
+
+            if(scale_word.length === 1){
+                legend_text.innerHTML = "= " + final_ratio + scale_word + " " + unit
+            } else {
+                legend_text.innerHTML = "= " + final_ratio + scale_word + " " + unit
+            }
+        }
+    }
+
 
     /**
      * addVersion adds a new version to the map. If a version with the specified sysname already exists, it will be overwritten.
@@ -673,9 +974,9 @@ class CartMap {
             max_height = new_version_height;
         }
 
-        if(max_width > 500.0) {
+        if(max_width > 400.0) {
             var max_width_old = max_width;
-            max_width = 500.0;
+            max_width = 400.0;
             max_height = (max_width / max_width_old) * max_height;
         }
 
@@ -685,19 +986,19 @@ class CartMap {
             max_width = (max_height / max_height_old) * max_width;
         }
 
-        this.width = max_width;
-        this.height = max_height;
+        this.width = max_width * this.config.scale;
+        this.height = max_height * this.config.scale;
 
         Object.keys(this.versions).forEach(function(version_sysname){
 
             var width = this.versions[version_sysname].extrema.max_x - this.versions[version_sysname].extrema.min_x;
             var height = this.versions[version_sysname].extrema.max_y - this.versions[version_sysname].extrema.min_y;
 
-            scale_factors[version_sysname] = {x: max_width / width, y: max_height / height};
+            scale_factors[version_sysname] = {x: max_width / width * this.config.scale, y: max_height / height * this.config.scale};
 
         }, this);
 
-        scale_factors[sysname] = {x: max_width / new_version_width, y: max_height / new_version_height};
+        scale_factors[sysname] = {x: max_width / new_version_width * this.config.scale, y: max_height / new_version_height * this.config.scale};
 
         Object.keys(data.regions).forEach(function(region_id){
 
@@ -811,24 +1112,21 @@ class CartMap {
      */
     drawTooltip(event, region_id) {
 
-        document.getElementById('tooltip').innerHTML = "<b>" + this.regions[region_id].name + " (" + this.regions[region_id].abbreviation + ")</b>";
+        Tooltip.drawWithEntries(
+            event,
+            this.regions[region_id].name,
+            this.regions[region_id].abbreviation,
+            Object.keys(this.regions[region_id].versions).map((sysname, _i, _a) => {
 
-        Object.keys(this.regions[region_id].versions).forEach(function(sysname){
+                return {
+                    name: this.regions[region_id].versions[sysname].name,
+                    value: this.regions[region_id].versions[sysname].value,
+                    unit: this.regions[region_id].versions[sysname].unit
+                };
 
-            document.getElementById('tooltip').innerHTML += "<br/><i>" + this.regions[region_id].versions[sysname].name + ":</i> " + this.regions[region_id].versions[sysname].value.toLocaleString() + " " + this.regions[region_id].versions[sysname].unit;
+            }, this)
+            );
 
-        }, this);
-
-        document.getElementById('tooltip').style.display = 'inline-block';
-               
-        document.getElementById('tooltip').style.left = (event.pageX - 50) + 'px';    
-
-        document.getElementById('tooltip').style.top = (event.pageY + 15) + 'px';
-
-    }
-
-    static hideTooltip() {
-        document.getElementById('tooltip').style.display = 'none';
     }
 
     /**
@@ -866,7 +1164,8 @@ class CartMap {
                         polygon_id: polygon.id,
                         path: polygon.path,
                         color: this.colors[region_id],
-                        elevated: this.config.elevate.includes(polygon.id)
+                        elevated: this.config.elevate.includes(polygon.id),
+                        value: this.regions[region_id].getVersion(sysname).value
                     });
                 }
 
@@ -904,8 +1203,12 @@ class CartMap {
             
         var areas = group.attr("d", d => d.path
         ).attr("id", d => "path-" + element_id + "-" + d.polygon_id)
-          .attr("class", d => "area" + " path-" + element_id + "-" + d.region_id)
-          .attr("fill", d => d.color)
+          /* Giving NA regions a different class prevents them from being highlighted, preserving
+             their white fill color.
+          */
+          .attr("class", d => "area" + " path-" + element_id + "-" + d.region_id + (d.value === "NA" ? "-na" : ""))
+          /* NA regions are filled with white */
+          .attr("fill", d => d.value === "NA" ? "#CCCCCC" : d.color)
           .attr("stroke", "#000")
           .attr("stroke-width", "0.5")
           .on('mouseenter', (function(map, where_drawn){
@@ -927,7 +1230,7 @@ class CartMap {
 
                     CartMap.highlightByID(where_drawn, d.region_id, d.color, false);
 
-                    CartMap.hideTooltip();
+                    Tooltip.hide();
             };}(this, where_drawn)));
         
         if(version.labels !== null) {
@@ -967,9 +1270,14 @@ class CartMap {
                         .attr('stroke-width', 1)
                         .attr('stroke', '#000');
 
+
+
         }
 
     }
+
+
+
 
     /**
      * switchVersion switches the map version displayed in the element with the given ID with an animation.
@@ -992,14 +1300,34 @@ class CartMap {
                     .duration(1000)
                     .attr('d', this.regions[region_id].versions[new_sysname].polygons.find(poly => poly.id == polygon.id).path
                     );
+                
+                /* Change the color and ensure correct highlighting behavior after animation
+                   is complete
+                */
+                window.setTimeout(function(){
+                    if(this.regions[region_id].versions[new_sysname].value === "NA") {
+                        document.getElementById('path-' + element_id + '-' + polygon.id).setAttribute('fill', '#CCCCCC');
+
+                        document.getElementById('path-' + element_id + '-' + polygon.id).classList.remove('path-' + element_id + '-' + region_id);
+                        document.getElementById('path-' + element_id + '-' + polygon.id).classList.add('path-' + element_id + '-' + region_id + '-na');
+
+                    } else {
+                        document.getElementById('path-' + element_id + '-' + polygon.id).setAttribute('fill', this.colors[region_id]);
+                        document.getElementById('path-' + element_id + '-' + polygon.id).classList.add('path-' + element_id + '-' + region_id);
+                        document.getElementById('path-' + element_id + '-' + polygon.id).classList.remove('path-' + element_id + '-' + region_id + '-na');
+                    }
+                }.bind(this), 800);
+                
 
             }, this);
             
 
         }, this);        
 
-    }
 
+        this.drawLegend(new_sysname, "legend-square-" + element_id, "legend-text-" + element_id, "legend-superscript-" + element_id, "legend-superscript-unit-" + element_id);
+
+    }
 }
 
 /**
@@ -1012,15 +1340,20 @@ class Cartogram {
      * @param {string} c_u The URL of the cartogram generator
      * @param {string} cui_u The cartogramui URL 
      * @param {string} c_d  The URL of the cartogram data directory
-     * @param {string} g_u The URL of the gridedit page 
+     * @param {string} g_u The URL of the gridedit page
+     * @param {string} gp_u The URL to retrieve progress information
+     * @param {string} version The version string used to prevent improper caching of map assets
      */
-    constructor(c_u, cui_u, c_d, g_u) {
+
+    constructor(c_u, cui_u, c_d, g_u, gp_u, version) {
 
         this.config = {
             cartogram_url: c_u,
             cartogramui_url: cui_u,
             cartogram_data_dir: c_d,
-            gridedit_url: g_u
+            gridedit_url: g_u,
+            getprogress_url: gp_u,
+            version: version
         };
 
         /**
@@ -1359,6 +1692,213 @@ class Cartogram {
 
     }
 
+    drawPieChartFromTooltip(container, tooltip, colors) {
+
+        const containerElement = document.getElementById(container);
+
+        while(containerElement.firstChild) {
+            containerElement.removeChild(containerElement.firstChild);
+        }
+
+        const svg = d3.select('#' + container).append('svg').append('g');
+
+        svg.append("g")
+            .attr("class", "slices");
+        svg.append("g")
+            .attr("class", "labels");
+        svg.append("g")
+            .attr("class", "lines");
+
+        const width = 600,
+            height = 450,
+            radius = Math.min(width, height) / 2;
+
+        const pie = d3.layout.pie()
+            .sort(null)
+            .value(function(d) {
+                return d.value;
+            });
+
+        const arc = d3.svg.arc()
+            .outerRadius(radius * 0.8)
+            .innerRadius(radius * 0.0);
+
+        const outerArc = d3.svg.arc()
+            .innerRadius(radius * 0.9)
+            .outerRadius(radius * 0.9);
+
+        svg.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+        const key = d => d.data.label;
+
+        const data = Object.keys(this.model.map.regions).map((region_id, _i, _a) => {
+            return {
+                label: region_id,
+                value: tooltip.data["id_" + region_id].value,
+                color: colors[region_id],
+                abbreviation: this.model.map.regions[region_id].abbreviation,
+                name: this.model.map.regions[region_id].name
+            };
+        }, this).filter(d => d.value !== "NA");
+
+        // Reorder the data to reduce neighboring regions having the same color
+
+        for(let i = 0; i < data.length; i++) {
+
+            // If the (i + 1)th has the same color as ith slice...
+            if(data[i].color === data[(i + 1) % data.length].color) {
+
+                // Try to find a slice *different* color, such that swapping it won't result in neighboring slices
+                // having the same color.
+                // If we find one, swap it with the (i + 1)th slice.
+                for(let j = i + 2; j < data.length + i + 2; j++) {
+
+                    if (
+                        data[j % data.length].color !== data[(i + 1) % data.length].color &&
+                        data[(j + 1) % data.length].color !== data[(i + 1) % data.length].color &&
+                        data[(j - 1) % data.length].color !== data[(i + 1) % data.length].color
+                    ) {
+
+                        const temp = data[j % data.length];
+                        data[j % data.length] = data[(i + 1) % data.length];
+                        data[(i + 1) % data.length] = temp;
+                        break;
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        const totalValue = data.reduce((total, d, _i, _a) =>
+            d.value !== "NA" ? total + d.value : total
+            , 0);
+
+        const slice = svg
+            .select(".slices")
+            .selectAll("path.slice")
+            .data(pie(data), key);
+
+
+        slice.enter()
+            .insert("path")
+            .style("fill", d => d.data.color)
+            .attr("class", "slice")
+            .on("mouseover", function(d, i){
+
+                d3.select(this).style("fill", tinycolor(d.data.color).brighten(20));
+
+                Tooltip.drawWithEntries(
+                    d3.event,
+                    d.data.name,
+                    d.data.abbreviation,
+                    [{
+                        name: tooltip.label,
+                        value: d.data.value,
+                        unit: tooltip.unit
+                    }]
+                );
+
+            })
+            .on("mousemove", function(d, i){
+
+                Tooltip.drawWithEntries(
+                    d3.event,
+                    d.data.name,
+                    d.data.abbreviation,
+                    [{
+                        name: tooltip.label,
+                        value: d.data.value,
+                        unit: tooltip.unit
+                    }]
+                );
+            })
+            .on("mouseout", function(d, i){
+
+                d3.select(this).style("fill", d.data.color);
+                Tooltip.hide();
+
+            });
+
+        slice.transition().duration(1000)
+            .attrTween("d", d => {
+                this._current = this._current || d;
+                const interpolate = d3.interpolate(this._current, d);
+                this._current = interpolate(0);
+                return function(t) {
+                    return arc(interpolate(t));
+                };
+            });
+
+        slice.exit()
+            .remove();
+
+        const text = svg.select(".labels").selectAll("text")
+            .data(pie(data), key);
+
+        text.enter()
+            .append("text")
+            .attr("dy", ".35em")
+            .text(d => d.data.abbreviation)
+            .filter(d => d.data.value < (0.05 * totalValue))
+            .style("display", "none");
+
+        const midAngle = d => d.startAngle + (d.endAngle - d.startAngle) / 2;
+
+        text.transition().duration(1000)
+            .attrTween("transform", function(d) {
+                this._current = this._current || d;
+                var interpolate = d3.interpolate(this._current, d);
+                this._current = interpolate(0);
+                return function(t) {
+                    var d2 = interpolate(t);
+                    var pos = outerArc.centroid(d2);
+                    pos[0] = radius * (midAngle(d2) < Math.PI ? 1 : -1);
+                    return "translate(" + pos + ")";
+                };
+            })
+            .styleTween("text-anchor", function(d) {
+                this._current = this._current || d;
+                var interpolate = d3.interpolate(this._current, d);
+                this._current = interpolate(0);
+                return function(t) {
+                    var d2 = interpolate(t);
+                    return midAngle(d2) < Math.PI ? "start" : "end";
+                };
+            });
+
+        text.exit()
+            .remove();
+
+        const polyline = svg.select(".lines").selectAll("polyline")
+            .data(pie(data), key);
+
+        polyline.enter()
+            .append("polyline")
+            .filter(d => d.data.value < (0.05 * totalValue))
+            .style("display", "none");
+
+
+        polyline.transition().duration(1000)
+            .attrTween("points", function(d) {
+                this._current = this._current || d;
+                var interpolate = d3.interpolate(this._current, d);
+                this._current = interpolate(0);
+                return function(t) {
+                    var d2 = interpolate(t);
+                    var pos = outerArc.centroid(d2);
+                    pos[0] = radius * 0.95 * (midAngle(d2) < Math.PI ? 1 : -1);
+                    return [arc.centroid(d2), outerArc.centroid(d2), pos];
+                };
+            });
+
+        polyline.exit()
+            .remove();
+
+    }
+
     /**
      * doNonFatalError informs the user of a non-critical error.
      * @param {Error} err 
@@ -1421,7 +1961,12 @@ class Cartogram {
             loading_height += document.getElementById('error').clientHeight;
         }
 
-        console.log(loading_height);
+        if(document.getElementById('piechart').style.display !== "none")
+        {
+            loading_height += document.getElementById('piechart').clientHeight;
+        }
+
+        // console.log(loading_height);
 
         /* The loading div will be at least 100px tall */
         if(loading_height > 100)
@@ -1436,6 +1981,7 @@ class Cartogram {
         document.getElementById('loading').style.display = 'block';
         document.getElementById('cartogram').style.display = 'none';
         document.getElementById('error').style.display = 'none';
+        document.getElementById('piechart').style.display = 'none';
 
         /* Disable interaction with the upload form */
         document.getElementById('upload-button').disabled = true;
@@ -1512,11 +2058,41 @@ class Cartogram {
 
         var svg_header = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>';
 
-        document.getElementById('map-download').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('map-area').innerHTML);
-        document.getElementById('map-download').download = "map.svg";
+        document.getElementById('map-download').onclick = (function(){
 
-        document.getElementById('cartogram-download').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('cartogram-area').innerHTML);
-        document.getElementById('cartogram-download').download = "cartogram.svg";
+            return function(e) {
+
+                e.preventDefault();
+
+                document.getElementById('download-modal-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('map-area').innerHTML);
+                document.getElementById('download-modal-link').download = "equal-area-map.svg";
+
+                $('#download-modal').modal();
+
+            };
+
+        }());
+
+        document.getElementById('cartogram-download').onclick = (function(){
+
+            return function(e) {
+
+                e.preventDefault();
+
+                document.getElementById('download-modal-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('cartogram-area').innerHTML);
+                document.getElementById('download-modal-link').download = "cartogram.svg";
+
+                $('#download-modal').modal();
+
+            };
+
+        }());
+
+        /*document.getElementById('map-download').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('map-area').innerHTML);
+        document.getElementById('map-download').download = "map.svg";*/
+
+        /*document.getElementById('cartogram-download').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('cartogram-area').innerHTML);
+        document.getElementById('cartogram-download').download = "cartogram.svg";*/
         
     }
 
@@ -1531,6 +2107,8 @@ class Cartogram {
         document.getElementById('linkedin-share').href = "https://www.linkedin.com/shareArticle?url=" + window.encodeURIComponent(url) + "&mini=true&title=Cartogram&summary=Create%20cartograms%20with%20go-cart.io&source=go-cart.io";
 
         document.getElementById('twitter-share').href = "https://twitter.com/share?url=" + window.encodeURIComponent(url);
+
+        document.getElementById('email-share').href = "mailto:?body=" + window.encodeURIComponent(url);
 
     }
 
@@ -1553,54 +2131,73 @@ class Cartogram {
 
             this.setExtendedErrorInfo("");
 
+            var progressUpdater = window.setInterval(function(cartogram_inst, key){
+
+                return function(){
+
+                    HTTP.get(cartogram_inst.config.getprogress_url + "?key=" + encodeURIComponent(key) + "&time=" + Date.now()).then(function(progress){
+
+                        if(progress.progress === null)
+                        {
+                            return;
+                        }
+
+                        if(cartogram_inst.model.loading_state === null) {
+
+                            cartogram_inst.model.loading_state = Math.log10(progress.progress);
+                            cartogram_inst.updateProgressBar(0, 100, 5);
+
+                        } else {
+
+                            if(progress.progress < 0.01) {
+                                progress.progress = 0.01
+                            }
+
+                            if(progress.progress > cartogram_inst.model.loading_state) {
+                                progress.progress = cartogram_inst.model.loading_state;
+                            }
+
+                            /*console.log("progress: " + progress.progress);
+                            console.log("distance: " + Math.abs(cartogram_inst.model.loading_state - Math.log10(progress.progress)));
+                            console.log("area: " + Math.abs(cartogram_inst.model.loading_state - (-2)));*/
+                        
+
+                            var percentage = Math.floor(Math.abs(cartogram_inst.model.loading_state - Math.log10(progress.progress)) / Math.abs(cartogram_inst.model.loading_state - (-2))*100);
+
+                            /*console.log("percentage: " + percentage);
+                            console.log("");*/
+
+                            cartogram_inst.updateProgressBar(5, 100, percentage);
+
+                            cartogram_inst.setExtendedErrorInfo(progress.stderr);
+                        }
+
+                    });
+
+                };
+
+            }(this, unique_sharing_key), 500);
+
             HTTP.streaming(
                 this.config.cartogram_url,
                 "POST",
                 {'Content-type': 'application/x-www-form-urlencoded'},
                 req_body,
-                {
-                    'loading_progress_points.*': function(loading_progress_point){
-
-                        /*
-                        For each integration of the algorithm, we receive the maximum absolute area error. Generation
-                        stops when this number is <= 0.01. As we get closer to reaching 0.01, the change in error
-                        decreases. We calculate the progress bar percentage by measuring how fast the error approaches
-                        0.01.
-                        */
-                        if(loading_progress_point.loading_point !== null)
-                        {
-                            if(this.model.loading_state === null)
-                            {
-                                this.model.loading_state = loading_progress_point.loading_point;
-                                this.updateProgressBar(0,100,20);
-                            }
-                            else
-                            {
-                                if(loading_progress_point.loading_point < 0.01)
-                                    loading_progress_point.loading_point = 0.01;
-                                
-                                var percentage = Math.floor(((this.model.loading_state - loading_progress_point.loading_point) / (this.model.loading_state - 0.01))*95);
-    
-                                /* It's unlikely to happen, but we don't want the progress bar to go in reverse */
-                                this.updateProgressBar(20,100,percentage);
-                            }
-                        }
-    
-                        console.log(loading_progress_point.stderr_line);
-    
-                        this.appendToExtendedErrorInfo(loading_progress_point.stderr_line);
-    
-                    }.bind(this)
-                }
+                {}
             ).then(function(response){
 
                 this.clearExtendedErrorInfo();
 
                 this.updateProgressBar(0,100,100);
 
+                window.clearInterval(progressUpdater);
+
                 resolve(response.cartogram_data);
                 
-            }.bind(this), () => reject(Error("There was an error retrieving the cartogram from the server.")));
+            }.bind(this), function(){
+                window.clearInterval(progressUpdater);
+                reject(Error("There was an error retrieving the cartogram from the server."));
+            });
 
         }.bind(this));
 
@@ -1619,10 +2216,14 @@ class Cartogram {
             buttons_container.removeChild(buttons_container.firstChild);
         }
 
+        var select = document.createElement("select")
+        select.className = "form-control bg-primary text-light border-primary";
+        select.value = this.model.current_sysname;
+
         // Sorting keeps the ordering of versions consistent
         Object.keys(this.model.map.versions).sort().forEach(function(sysname){
 
-            var button = document.createElement('button');
+            /*var button = document.createElement('button');
             button.innerText = this.model.map.versions[sysname].name;
 
             if(sysname == this.model.current_sysname)
@@ -1639,11 +2240,26 @@ class Cartogram {
                     }.bind(this);
 
                 }.bind(this)(sysname));
-            }
+            }*/
 
-            buttons_container.appendChild(button);
+            var option = document.createElement('option');
+            option.innerText = this.model.map.versions[sysname].name;
+            option.value = sysname;
+            option.selected = (sysname === this.model.current_sysname);
+
+            select.appendChild(option);
 
         }, this);
+
+        select.onchange = (function(cartogram_inst){
+
+            return function(_e) {
+                cartogram_inst.switchVersion(this.value);
+            };
+
+        }(this));
+
+        buttons_container.appendChild(select);
 
         document.getElementById('map1-switch').style.display = 'block';
         document.getElementById('map2-switch').style.display = 'block';
@@ -1661,7 +2277,6 @@ class Cartogram {
         this.model.current_sysname = sysname;
 
         this.displayVersionSwitchButtons();
-
     }
 
     /**
@@ -1752,52 +2367,98 @@ class Cartogram {
 
                 this.model.map.colors = colors;
 
-                this.getGeneratedCartogram(sysname, response.areas_string, response.unique_sharing_key).then(function(cartogram){
+                const pieChartButtonsContainer = document.getElementById('piechart-buttons');
 
-                    /* We need to find out the map format. If the extrema is located in the bbox property, then we have
-                       GeoJSON. Otherwise, we have the old JSON format.
-                    */
+                while(pieChartButtonsContainer.firstChild) {
+                    pieChartButtonsContainer.removeChild(pieChartButtonsContainer.firstChild);
+                }
 
-                    if(cartogram.hasOwnProperty("bbox")) {
+                const noButton = document.createElement("button");
+                noButton.className = "btn btn-primary";
+                noButton.innerText = "Cancel";
+                noButton.addEventListener('click', function(e){
+                    document.getElementById('piechart').style.display = 'none';
+                    document.getElementById('cartogram').style.display = 'block';
+                });
 
-                        var extrema = {
-                            min_x: cartogram.bbox[0],
-                            min_y: cartogram.bbox[1],
-                            max_x: cartogram.bbox[2],
-                            max_y: cartogram.bbox[3]
-                        };
+                const yesButton = document.createElement("button");
+                yesButton.className = "btn btn-primary mr-5";
+                yesButton.innerText = "Yes, I Confirm";
+                yesButton.addEventListener('click', function(sysname, response){
 
-                        this.model.map.addVersion("cartogram", new MapVersionData(cartogram.features, extrema, response.tooltip, null, null, MapDataFormat.GEOJSON));
+                    return function(e) {
+
+                        this.enterLoadingState();
+                        this.showProgressBar();
+
+                       window.scrollTo(0, 0);
+
+                        this.getGeneratedCartogram(sysname, response.areas_string, response.unique_sharing_key).then(function(cartogram){
+
+                            /* We need to find out the map format. If the extrema is located in the bbox property, then we have
+                               GeoJSON. Otherwise, we have the old JSON format.
+                            */
+
+                            if(cartogram.hasOwnProperty("bbox")) {
+
+                                var extrema = {
+                                    min_x: cartogram.bbox[0],
+                                    min_y: cartogram.bbox[1],
+                                    max_x: cartogram.bbox[2],
+                                    max_y: cartogram.bbox[3]
+                                };
+
+                                this.model.map.addVersion("3-cartogram", new MapVersionData(cartogram.features, extrema, response.tooltip, null, null, MapDataFormat.GEOJSON));
 
 
-                    } else {
-                        this.model.map.addVersion("cartogram", new MapVersionData(cartogram.features, cartogram.extrema, response.tooltip,null, null,  MapDataFormat.GOCARTJSON));
-                    }
+                            } else {
+                                this.model.map.addVersion("3-cartogram", new MapVersionData(cartogram.features, cartogram.extrema, response.tooltip,null, null,  MapDataFormat.GOCARTJSON));
+                            }
 
-                    
 
-                    this.model.map.drawVersion("original", "map-area", ["map-area", "cartogram-area"]);
-                    this.model.map.drawVersion("cartogram", "cartogram-area", ["map-area", "cartogram-area"]);
 
-                    this.model.current_sysname = "cartogram";
+                            this.model.map.drawVersion("1-conventional", "map-area", ["map-area", "cartogram-area"]);
+                            this.model.map.drawVersion("3-cartogram", "cartogram-area", ["map-area", "cartogram-area"]);
 
-                    this.generateSocialMediaLinks("https://go-cart.io/cart/" + response.unique_sharing_key);
-                    this.generateSVGDownloadLinks();
-                    this.displayVersionSwitchButtons();
 
-                    if(update_grid_document) {
-                        this.updateGridDocument(response.grid_document);
-                    }
 
-                    this.exitLoadingState();
-                    document.getElementById('cartogram').style.display = "block";
+                            this.model.current_sysname = "3-cartogram";
 
-                }.bind(this), function(err){
-                    this.doFatalError(err);
+                            this.generateSocialMediaLinks("https://go-cart.io/cart/" + response.unique_sharing_key);
+                            this.generateSVGDownloadLinks();
+                            this.displayVersionSwitchButtons();
 
-                    this.drawBarChartFromTooltip('barchart', response.tooltip);
-                    document.getElementById('barchart-container').style.display = "block";
-                }.bind(this))
+                            if(update_grid_document) {
+                                this.updateGridDocument(response.grid_document);
+                            }
+
+                            this.model.map.drawLegend(this.model.current_sysname, "legend-square-cartogram-area", "legend-text-cartogram-area", "legend-superscript-cartogram-area", "legend-superscript-unit-cartogram-area");
+
+                            // The following line draws the conventional legend when the page first loads.
+                            this.model.map.drawLegend("1-conventional", "legend-square-map-area", "legend-text-map-area", "legend-superscript-map-area", "legend-superscript-unit-map-area");
+
+
+                            this.exitLoadingState();
+                            document.getElementById('cartogram').style.display = "block";
+
+                        }.bind(this), function(err){
+                            this.doFatalError(err);
+
+                            this.drawBarChartFromTooltip('barchart', response.tooltip);
+                            document.getElementById('barchart-container').style.display = "block";
+                        }.bind(this))
+
+
+                    }.bind(this);
+
+                }.bind(this)(sysname, response));
+
+                pieChartButtonsContainer.appendChild(yesButton);
+                pieChartButtonsContainer.appendChild(noButton);
+
+                this.drawPieChartFromTooltip('piechart-area', response.tooltip, colors);
+                this.exitLoadingState();
+                document.getElementById('piechart').style.display = 'block';
 
             } else {
 
@@ -1869,6 +2530,25 @@ class Cartogram {
     }
 
     /**
+     * getMapMap returns an HTTP get request for all of the static data (abbreviations, original and population map
+     * geometries, etc.) for a map. The progress bar is automatically updated with the download progress.
+     * 
+     * A map pack is a JSON object containing all of this information, which used to be located in separate JSON files.
+     * Combining all of this information into one file increases download speed, especially for users on mobile devices,
+     * and makes it easier to display a progress bar of map information download progress, which is useful for users
+     * with slow Internet connections.
+     * @param {string} sysname The sysname of the map
+     * @returns {Promise}
+     */
+    getMapPack(sysname) {
+        return HTTP.get(this.config.cartogram_data_dir + "/" + sysname + "/mappack.json?v=" + this.config.version, null, function(e){
+
+            this.updateProgressBar(0, 100, Math.floor(e.loaded / e.total * 100));
+
+        }.bind(this));
+    }
+
+    /**
      * switchMap loads a new map with the given sysname, and displays the conventional and population versions, as well
      * as an optional extra cartogram.
      * @param {string} sysname The sysname of the new map to load
@@ -1880,55 +2560,49 @@ class Cartogram {
         if(this.model.in_loading_state)
             return;
         
-        Promise.all(
-            [ this.getPregeneratedVersion(sysname, 'original')
-            , this.getPregeneratedVersion(sysname, 'population')
-            , colors === null ? this.getDefaultColors(sysname) : Promise.resolve(colors)
-            , this.getGridDocumentTemplate(sysname)
-            , this.getAbbreviations(sysname)
-            , this.getLabels(sysname)
-            , this.getConfig(sysname)
-            ]
-        ).then(function([original, population, default_colors, grid_document, abbreviations, labels, config]){
+        this.enterLoadingState();
+        this.showProgressBar();
+        
+        this.getMapPack(sysname).then(function(mappack){
 
-            var map = new CartMap(hrname, config);
+            var map = new CartMap(hrname, mappack.config);
 
             /* We need to find out the map format. If the extrema is located in the bbox property, then we have
                GeoJSON. Otherwise, we have the old JSON format.
             */
 
-            if(original.hasOwnProperty("bbox")) {
+            if(mappack.original.hasOwnProperty("bbox")) {
 
                 var extrema = {
-                    min_x: original.bbox[0],
-                    min_y: original.bbox[1],
-                    max_x: original.bbox[2],
-                    max_y: original.bbox[3]
+                    min_x: mappack.original.bbox[0],
+                    min_y: mappack.original.bbox[1],
+                    max_x: mappack.original.bbox[2],
+                    max_y: mappack.original.bbox[3]
                 };
 
-                map.addVersion("original", new MapVersionData(original.features, extrema, original.tooltip, abbreviations, labels, MapDataFormat.GEOJSON));
+                map.addVersion("1-conventional", new MapVersionData(mappack.original.features, extrema, mappack.original.tooltip, mappack.abbreviations, mappack.labels, MapDataFormat.GEOJSON));
 
             } else {
-                map.addVersion("original", new MapVersionData(original.features, original.extrema, original.tooltip, abbreviations, labels, MapDataFormat.GOCARTJSON));
+                map.addVersion("1-conventional", new MapVersionData(mappack.original.features, mappack.original.extrema, mappack.original.tooltip, mappack.abbreviations, mappack.labels, MapDataFormat.GOCARTJSON));
             }
 
-            if(population.hasOwnProperty("bbox")) {
+            if(mappack.population.hasOwnProperty("bbox")) {
 
                 var extrema = {
-                    min_x: population.bbox[0],
-                    min_y: population.bbox[1],
-                    max_x: population.bbox[2],
-                    max_y: population.bbox[3]
+                    min_x: mappack.population.bbox[0],
+                    min_y: mappack.population.bbox[1],
+                    max_x: mappack.population.bbox[2],
+                    max_y: mappack.population.bbox[3]
                 };
 
-                map.addVersion("population", new MapVersionData(population.features, extrema, population.tooltip, null, null, MapDataFormat.GEOJSON));
+                map.addVersion("2-population", new MapVersionData(mappack.population.features, extrema, mappack.population.tooltip, null, null, MapDataFormat.GEOJSON));
 
             } else {
-                map.addVersion("population", new MapVersionData(population.features, population.extrema, population.tooltip, null, null, MapDataFormat.GOCARTJSON));
+                map.addVersion("2-population", new MapVersionData(mappack.population.features, mappack.population.extrema, mappack.population.tooltip, null, null, MapDataFormat.GOCARTJSON));
             }            
 
             if(cartogram !== null) {
-                map.addVersion("cartogram", cartogram);
+                map.addVersion("3-cartogram", cartogram);
             }
 
             /*
@@ -1940,20 +2614,20 @@ class Cartogram {
 
             Object.keys(map.regions).forEach(function(region_id){
 
-                colors[region_id] = default_colors["id_" + region_id];
+                colors[region_id] = mappack.colors["id_" + region_id];
 
             }, this);
 
             map.colors = colors;
 
-            map.drawVersion("original", "map-area", ["map-area", "cartogram-area"]);
+            map.drawVersion("1-conventional", "map-area", ["map-area", "cartogram-area"]);
 
             if(cartogram !== null) {
-                map.drawVersion("cartogram", "cartogram-area", ["map-area", "cartogram-area"]);
-                this.model.current_sysname = "cartogram";
+                map.drawVersion("3-cartogram", "cartogram-area", ["map-area", "cartogram-area"]);
+                this.model.current_sysname = "1-cartogram";
             } else {
-                map.drawVersion("population", "cartogram-area", ["map-area", "cartogram-area"]);
-                this.model.current_sysname = "population";
+                map.drawVersion("2-population", "cartogram-area", ["map-area", "cartogram-area"]);
+                this.model.current_sysname = "2-population";
             }           
 
             this.model.map = map;           
@@ -1963,10 +2637,14 @@ class Cartogram {
             this.generateSocialMediaLinks(window.location.href);
             this.generateSVGDownloadLinks();
             this.displayVersionSwitchButtons();
-            this.updateGridDocument(grid_document);
+            this.updateGridDocument(mappack.griddocument);
+
+            this.model.map.drawLegend(this.model.current_sysname, "legend-square-cartogram-area", "legend-text-cartogram-area", "legend-superscript-cartogram-area", "legend-superscript-unit-cartogram-area");
+            
+            // The following line draws the conventional legend when the page first loads.
+            this.model.map.drawLegend("1-conventional", "legend-square-map-area", "legend-text-map-area", "legend-superscript-map-area", "legend-superscript-unit-map-area");
 
             document.getElementById('template-link').href = this.config.cartogram_data_dir+ "/" + sysname + "/template.csv";
-
             document.getElementById('cartogram').style.display = 'block';
 
         }.bind(this));       
