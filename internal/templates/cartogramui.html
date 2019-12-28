@@ -61,7 +61,21 @@
         }
     }
 
+    path.slice {
+        stroke-width: 2px;
+    }
 
+    polyline {
+        opacity: .3;
+        stroke: black;
+        stroke-width: 2px;
+        fill: none;
+    }
+
+    #piechart-area svg {
+        width: 960px;
+        height: 450px;
+    }
     
 </style> 
 
@@ -151,6 +165,24 @@
 
               <pre id="error-extended-content"></pre>
             </div>
+      </div>
+
+      <div id="piechart" style="display: none">
+          <div class="row">
+              <div class="col-md-6">
+                  <h4>Confirm your data are appropriate for a cartogram</h4>
+                  <p>
+                      Do your numbers add up to a <a href="/faq#what-kind-of-data">meaningful total</a>?
+                      If the pie chart below would be an acceptable visualization, then you can present your data as a cartogram.
+                      Otherwise, please choose a different dataset to continue.
+                  </p>
+              </div>
+          </div>
+          <div id="piechart-area"></div>
+          <div class="row" id="piechart-buttons">
+                  <button class="btn btn-primary mr-5" id="piechart-yes">Yes, I Confirm</button>
+                  <button class="btn btn-primary" id="piechart-no">Cancel</button>
+          </div>
       </div>
 
       <div id="cartogram">

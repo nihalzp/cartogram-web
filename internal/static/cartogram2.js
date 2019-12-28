@@ -275,6 +275,48 @@ class SVG {
 }
 
 /**
+ * Tooltip contains helper functions for drawing and hiding the tooltip
+ */
+class Tooltip {
+
+    /**
+     * Draws a tooltip next the mouse cursor with the given content
+     * @param event The current mouse event
+     * @param content The new content of the tooltip
+     */
+    static draw(event, content) {
+
+        document.getElementById('tooltip').innerHTML = content;
+
+        document.getElementById('tooltip').style.display = 'inline-block';
+
+        document.getElementById('tooltip').style.left = (event.pageX - 50) + 'px';
+
+        document.getElementById('tooltip').style.top = (event.pageY + 15) + 'px';
+    }
+
+    static drawWithEntries(event, name, abbreviation, entries) {
+
+        let content = "<b>" + name + " (" + abbreviation + ")</b>";
+
+        entries.forEach(entry => {
+            content += "<br/><i>" + entry.name + ":</i> " + entry.value.toLocaleString() + " " + entry.unit;
+        }, this);
+
+        Tooltip.draw(event, content);
+
+    }
+
+    /**
+     * Hides the tooltip from view
+     */
+    static hide() {
+        document.getElementById('tooltip').style.display = 'none';
+    }
+
+}
+
+/**
  * Polygon contains data for one D3 polygon
  */
 class Polygon {
@@ -1070,24 +1112,21 @@ class CartMap {
      */
     drawTooltip(event, region_id) {
 
-        document.getElementById('tooltip').innerHTML = "<b>" + this.regions[region_id].name + " (" + this.regions[region_id].abbreviation + ")</b>";
+        Tooltip.drawWithEntries(
+            event,
+            this.regions[region_id].name,
+            this.regions[region_id].abbreviation,
+            Object.keys(this.regions[region_id].versions).map((sysname, _i, _a) => {
 
-        Object.keys(this.regions[region_id].versions).forEach(function(sysname){
+                return {
+                    name: this.regions[region_id].versions[sysname].name,
+                    value: this.regions[region_id].versions[sysname].value,
+                    unit: this.regions[region_id].versions[sysname].unit
+                };
 
-            document.getElementById('tooltip').innerHTML += "<br/><i>" + this.regions[region_id].versions[sysname].name + ":</i> " + this.regions[region_id].versions[sysname].value.toLocaleString() + " " + this.regions[region_id].versions[sysname].unit;
+            }, this)
+            );
 
-        }, this);
-
-        document.getElementById('tooltip').style.display = 'inline-block';
-               
-        document.getElementById('tooltip').style.left = (event.pageX - 50) + 'px';    
-
-        document.getElementById('tooltip').style.top = (event.pageY + 15) + 'px';
-
-    }
-
-    static hideTooltip() {
-        document.getElementById('tooltip').style.display = 'none';
     }
 
     /**
@@ -1191,7 +1230,7 @@ class CartMap {
 
                     CartMap.highlightByID(where_drawn, d.region_id, d.color, false);
 
-                    CartMap.hideTooltip();
+                    Tooltip.hide();
             };}(this, where_drawn)));
         
         if(version.labels !== null) {
@@ -1230,6 +1269,8 @@ class CartMap {
                         .attr('y2', d => d.y2 * scale_y)
                         .attr('stroke-width', 1)
                         .attr('stroke', '#000');
+
+
 
         }
 
@@ -1300,7 +1341,7 @@ class Cartogram {
      * @param {string} cui_u The cartogramui URL 
      * @param {string} c_d  The URL of the cartogram data directory
      * @param {string} g_u The URL of the gridedit page
-     * @param {srinng} gp_u The URL to retrieve progress information
+     * @param {string} gp_u The URL to retrieve progress information
      * @param {string} version The version string used to prevent improper caching of map assets
      */
 
@@ -1651,6 +1692,213 @@ class Cartogram {
 
     }
 
+    drawPieChartFromTooltip(container, tooltip, colors) {
+
+        const containerElement = document.getElementById(container);
+
+        while(containerElement.firstChild) {
+            containerElement.removeChild(containerElement.firstChild);
+        }
+
+        const svg = d3.select('#' + container).append('svg').append('g');
+
+        svg.append("g")
+            .attr("class", "slices");
+        svg.append("g")
+            .attr("class", "labels");
+        svg.append("g")
+            .attr("class", "lines");
+
+        const width = 600,
+            height = 450,
+            radius = Math.min(width, height) / 2;
+
+        const pie = d3.layout.pie()
+            .sort(null)
+            .value(function(d) {
+                return d.value;
+            });
+
+        const arc = d3.svg.arc()
+            .outerRadius(radius * 0.8)
+            .innerRadius(radius * 0.0);
+
+        const outerArc = d3.svg.arc()
+            .innerRadius(radius * 0.9)
+            .outerRadius(radius * 0.9);
+
+        svg.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+        const key = d => d.data.label;
+
+        const data = Object.keys(this.model.map.regions).map((region_id, _i, _a) => {
+            return {
+                label: region_id,
+                value: tooltip.data["id_" + region_id].value,
+                color: colors[region_id],
+                abbreviation: this.model.map.regions[region_id].abbreviation,
+                name: this.model.map.regions[region_id].name
+            };
+        }, this).filter(d => d.value !== "NA");
+
+        // Reorder the data to reduce neighboring regions having the same color
+
+        for(let i = 0; i < data.length; i++) {
+
+            // If the (i + 1)th has the same color as ith slice...
+            if(data[i].color === data[(i + 1) % data.length].color) {
+
+                // Try to find a slice *different* color, such that swapping it won't result in neighboring slices
+                // having the same color.
+                // If we find one, swap it with the (i + 1)th slice.
+                for(let j = i + 2; j < data.length + i + 2; j++) {
+
+                    if (
+                        data[j % data.length].color !== data[(i + 1) % data.length].color &&
+                        data[(j + 1) % data.length].color !== data[(i + 1) % data.length].color &&
+                        data[(j - 1) % data.length].color !== data[(i + 1) % data.length].color
+                    ) {
+
+                        const temp = data[j % data.length];
+                        data[j % data.length] = data[(i + 1) % data.length];
+                        data[(i + 1) % data.length] = temp;
+                        break;
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        const totalValue = data.reduce((total, d, _i, _a) =>
+            d.value !== "NA" ? total + d.value : total
+            , 0);
+
+        const slice = svg
+            .select(".slices")
+            .selectAll("path.slice")
+            .data(pie(data), key);
+
+
+        slice.enter()
+            .insert("path")
+            .style("fill", d => d.data.color)
+            .attr("class", "slice")
+            .on("mouseover", function(d, i){
+
+                d3.select(this).style("fill", tinycolor(d.data.color).brighten(20));
+
+                Tooltip.drawWithEntries(
+                    d3.event,
+                    d.data.name,
+                    d.data.abbreviation,
+                    [{
+                        name: tooltip.label,
+                        value: d.data.value,
+                        unit: tooltip.unit
+                    }]
+                );
+
+            })
+            .on("mousemove", function(d, i){
+
+                Tooltip.drawWithEntries(
+                    d3.event,
+                    d.data.name,
+                    d.data.abbreviation,
+                    [{
+                        name: tooltip.label,
+                        value: d.data.value,
+                        unit: tooltip.unit
+                    }]
+                );
+            })
+            .on("mouseout", function(d, i){
+
+                d3.select(this).style("fill", d.data.color);
+                Tooltip.hide();
+
+            });
+
+        slice.transition().duration(1000)
+            .attrTween("d", d => {
+                this._current = this._current || d;
+                const interpolate = d3.interpolate(this._current, d);
+                this._current = interpolate(0);
+                return function(t) {
+                    return arc(interpolate(t));
+                };
+            });
+
+        slice.exit()
+            .remove();
+
+        const text = svg.select(".labels").selectAll("text")
+            .data(pie(data), key);
+
+        text.enter()
+            .append("text")
+            .attr("dy", ".35em")
+            .text(d => d.data.abbreviation)
+            .filter(d => d.data.value < (0.05 * totalValue))
+            .style("display", "none");
+
+        const midAngle = d => d.startAngle + (d.endAngle - d.startAngle) / 2;
+
+        text.transition().duration(1000)
+            .attrTween("transform", function(d) {
+                this._current = this._current || d;
+                var interpolate = d3.interpolate(this._current, d);
+                this._current = interpolate(0);
+                return function(t) {
+                    var d2 = interpolate(t);
+                    var pos = outerArc.centroid(d2);
+                    pos[0] = radius * (midAngle(d2) < Math.PI ? 1 : -1);
+                    return "translate(" + pos + ")";
+                };
+            })
+            .styleTween("text-anchor", function(d) {
+                this._current = this._current || d;
+                var interpolate = d3.interpolate(this._current, d);
+                this._current = interpolate(0);
+                return function(t) {
+                    var d2 = interpolate(t);
+                    return midAngle(d2) < Math.PI ? "start" : "end";
+                };
+            });
+
+        text.exit()
+            .remove();
+
+        const polyline = svg.select(".lines").selectAll("polyline")
+            .data(pie(data), key);
+
+        polyline.enter()
+            .append("polyline")
+            .filter(d => d.data.value < (0.05 * totalValue))
+            .style("display", "none");
+
+
+        polyline.transition().duration(1000)
+            .attrTween("points", function(d) {
+                this._current = this._current || d;
+                var interpolate = d3.interpolate(this._current, d);
+                this._current = interpolate(0);
+                return function(t) {
+                    var d2 = interpolate(t);
+                    var pos = outerArc.centroid(d2);
+                    pos[0] = radius * 0.95 * (midAngle(d2) < Math.PI ? 1 : -1);
+                    return [arc.centroid(d2), outerArc.centroid(d2), pos];
+                };
+            });
+
+        polyline.exit()
+            .remove();
+
+    }
+
     /**
      * doNonFatalError informs the user of a non-critical error.
      * @param {Error} err 
@@ -1713,6 +1961,11 @@ class Cartogram {
             loading_height += document.getElementById('error').clientHeight;
         }
 
+        if(document.getElementById('piechart').style.display !== "none")
+        {
+            loading_height += document.getElementById('piechart').clientHeight;
+        }
+
         // console.log(loading_height);
 
         /* The loading div will be at least 100px tall */
@@ -1728,6 +1981,7 @@ class Cartogram {
         document.getElementById('loading').style.display = 'block';
         document.getElementById('cartogram').style.display = 'none';
         document.getElementById('error').style.display = 'none';
+        document.getElementById('piechart').style.display = 'none';
 
         /* Disable interaction with the upload form */
         document.getElementById('upload-button').disabled = true;
@@ -2113,60 +2367,98 @@ class Cartogram {
 
                 this.model.map.colors = colors;
 
-                this.getGeneratedCartogram(sysname, response.areas_string, response.unique_sharing_key).then(function(cartogram){
+                const pieChartButtonsContainer = document.getElementById('piechart-buttons');
 
-                    /* We need to find out the map format. If the extrema is located in the bbox property, then we have
-                       GeoJSON. Otherwise, we have the old JSON format.
-                    */
+                while(pieChartButtonsContainer.firstChild) {
+                    pieChartButtonsContainer.removeChild(pieChartButtonsContainer.firstChild);
+                }
 
-                    if(cartogram.hasOwnProperty("bbox")) {
+                const noButton = document.createElement("button");
+                noButton.className = "btn btn-primary";
+                noButton.innerText = "Cancel";
+                noButton.addEventListener('click', function(e){
+                    document.getElementById('piechart').style.display = 'none';
+                    document.getElementById('cartogram').style.display = 'block';
+                });
 
-                        var extrema = {
-                            min_x: cartogram.bbox[0],
-                            min_y: cartogram.bbox[1],
-                            max_x: cartogram.bbox[2],
-                            max_y: cartogram.bbox[3]
-                        };
+                const yesButton = document.createElement("button");
+                yesButton.className = "btn btn-primary mr-5";
+                yesButton.innerText = "Yes, I Confirm";
+                yesButton.addEventListener('click', function(sysname, response){
 
-                        this.model.map.addVersion("3-cartogram", new MapVersionData(cartogram.features, extrema, response.tooltip, null, null, MapDataFormat.GEOJSON));
+                    return function(e) {
 
+                        this.enterLoadingState();
+                        this.showProgressBar();
 
-                    } else {
-                        this.model.map.addVersion("3-cartogram", new MapVersionData(cartogram.features, cartogram.extrema, response.tooltip,null, null,  MapDataFormat.GOCARTJSON));
-                    }
+                       window.scrollTo(0, 0);
 
-                    
+                        this.getGeneratedCartogram(sysname, response.areas_string, response.unique_sharing_key).then(function(cartogram){
 
-                    this.model.map.drawVersion("1-conventional", "map-area", ["map-area", "cartogram-area"]);
-                    this.model.map.drawVersion("3-cartogram", "cartogram-area", ["map-area", "cartogram-area"]);
-                    
-                    
+                            /* We need to find out the map format. If the extrema is located in the bbox property, then we have
+                               GeoJSON. Otherwise, we have the old JSON format.
+                            */
 
-                    this.model.current_sysname = "3-cartogram";
+                            if(cartogram.hasOwnProperty("bbox")) {
 
-                    this.generateSocialMediaLinks("https://go-cart.io/cart/" + response.unique_sharing_key);
-                    this.generateSVGDownloadLinks();
-                    this.displayVersionSwitchButtons();
+                                var extrema = {
+                                    min_x: cartogram.bbox[0],
+                                    min_y: cartogram.bbox[1],
+                                    max_x: cartogram.bbox[2],
+                                    max_y: cartogram.bbox[3]
+                                };
 
-                    if(update_grid_document) {
-                        this.updateGridDocument(response.grid_document);
-                    }
-
-                    this.model.map.drawLegend(this.model.current_sysname, "legend-square-cartogram-area", "legend-text-cartogram-area", "legend-superscript-cartogram-area", "legend-superscript-unit-cartogram-area");
-
-                    // The following line draws the conventional legend when the page first loads.
-                    this.model.map.drawLegend("1-conventional", "legend-square-map-area", "legend-text-map-area", "legend-superscript-map-area", "legend-superscript-unit-map-area");
+                                this.model.map.addVersion("3-cartogram", new MapVersionData(cartogram.features, extrema, response.tooltip, null, null, MapDataFormat.GEOJSON));
 
 
-                    this.exitLoadingState();
-                    document.getElementById('cartogram').style.display = "block";
+                            } else {
+                                this.model.map.addVersion("3-cartogram", new MapVersionData(cartogram.features, cartogram.extrema, response.tooltip,null, null,  MapDataFormat.GOCARTJSON));
+                            }
 
-                }.bind(this), function(err){
-                    this.doFatalError(err);
 
-                    this.drawBarChartFromTooltip('barchart', response.tooltip);
-                    document.getElementById('barchart-container').style.display = "block";
-                }.bind(this))
+
+                            this.model.map.drawVersion("1-conventional", "map-area", ["map-area", "cartogram-area"]);
+                            this.model.map.drawVersion("3-cartogram", "cartogram-area", ["map-area", "cartogram-area"]);
+
+
+
+                            this.model.current_sysname = "3-cartogram";
+
+                            this.generateSocialMediaLinks("https://go-cart.io/cart/" + response.unique_sharing_key);
+                            this.generateSVGDownloadLinks();
+                            this.displayVersionSwitchButtons();
+
+                            if(update_grid_document) {
+                                this.updateGridDocument(response.grid_document);
+                            }
+
+                            this.model.map.drawLegend(this.model.current_sysname, "legend-square-cartogram-area", "legend-text-cartogram-area", "legend-superscript-cartogram-area", "legend-superscript-unit-cartogram-area");
+
+                            // The following line draws the conventional legend when the page first loads.
+                            this.model.map.drawLegend("1-conventional", "legend-square-map-area", "legend-text-map-area", "legend-superscript-map-area", "legend-superscript-unit-map-area");
+
+
+                            this.exitLoadingState();
+                            document.getElementById('cartogram').style.display = "block";
+
+                        }.bind(this), function(err){
+                            this.doFatalError(err);
+
+                            this.drawBarChartFromTooltip('barchart', response.tooltip);
+                            document.getElementById('barchart-container').style.display = "block";
+                        }.bind(this))
+
+
+                    }.bind(this);
+
+                }.bind(this)(sysname, response));
+
+                pieChartButtonsContainer.appendChild(yesButton);
+                pieChartButtonsContainer.appendChild(noButton);
+
+                this.drawPieChartFromTooltip('piechart-area', response.tooltip, colors);
+                this.exitLoadingState();
+                document.getElementById('piechart').style.display = 'block';
 
             } else {
 
