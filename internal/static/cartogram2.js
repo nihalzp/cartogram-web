@@ -345,6 +345,12 @@ class Polygon {
 
         this.holes = holes;
     }
+
+    toGeoJSONCoordinates() {
+
+        return [this.coordinates].concat(this.holes);
+
+    }
 }
 
 /**
@@ -364,6 +370,25 @@ class RegionVersion {
         this.unit = unit;
         this.value = value;
         this.polygons = polygons;
+    }
+
+    toGeoJSON(name, cartogram_id) {
+
+        return {
+            type: "Feature",
+            properties: {
+                cartogram_id: cartogram_id,
+                name: name,
+                value: this.value,
+                unit: this.unit
+            },
+            geometry: {
+                type: "MultiPolygon",
+                coordinates: this.polygons.map(polygon => polygon.toGeoJSONCoordinates())
+            }
+
+        };
+
     }
 }
 
@@ -641,7 +666,7 @@ class CartMap {
             dont_draw: config.dont_draw.map(id => id.toString()),
             elevate: config.elevate.map(id => id.toString()),
             scale: 1.3
-        }
+        };
 
         /**
          * The map colors. The keys are region IDs.
@@ -673,6 +698,18 @@ class CartMap {
          */
         this.height = 0.0;
         
+    }
+
+    getVersionGeoJSON(sysname) {
+
+        const version = this.versions[sysname];
+
+        return {
+            type: "FeatureCollection",
+            bbox: [version.extrema.min_x, version.extrema.min_y, version.extrema.max_x, version.extrema.max_y],
+            features: Object.keys(this.regions).map(region_id => this.regions[region_id].getVersion(sysname).toGeoJSON(this.regions[region_id].name, region_id))
+        };
+
     }
 
     /**
@@ -868,7 +905,7 @@ class CartMap {
                 legend_superscript.style.display = "inline-block";
                 legend_superscript_unit_id.style.display = "inline-block";
                 legend_superscript.innerHTML = exp_num[1];
-                legend_text.innerHTML = "= " + first_num + " x 10 "
+                legend_text.innerHTML = "= " + first_num + " &times; 10 "
                 legend_superscript_unit_id.innerHTML = unit;
                 this.verifyLegend(sysname, width, first_num * Math.pow(10, parseInt(exp_num[1])));
 
@@ -895,20 +932,22 @@ class CartMap {
             }
 
             const width = Math.sqrt(final_ratio*round_ratio*900/ratio);
-            var scale_word = (round_ratio > 999999) ? " million" : round_ratio.toString().substr(1);
-            if(scale_word == " million" && round_ratio >= 10000000){
-                if(round_ratio >= 10000000000000){
-                    scale_word = round_ratio / 10000000000000 + " billion"
-                }
-                scale_word = round_ratio/10000000 + " million"
-            } else if(scale_word !== " million" && scale_word.length >= 3){
-                const set_of_zeros = Math.floor(scale_word.length/3)
-                const remaining_zeros = scale_word.length%3
-                if(set_of_zeros === 1 && remaining_zeros === 0){
-                    scale_word = "000".repeat(set_of_zeros);
-                } else{
-                    scale_word = "0".repeat(remaining_zeros) + " 000".repeat(set_of_zeros);
-                }
+
+            const scale_words = ["", "0", "00", "000", "0 000", "00 000", " million", "0 million", "00 million"
+                                ," billion", "0 billion", "00 billion"];
+
+            if(Math.log10(round_ratio) < scale_words.length) {
+
+                legend_text.innerHTML = "= " + final_ratio + scale_words[Math.log10(round_ratio)] + " " + unit;
+
+            } else {
+
+                legend_superscript.style.display = "inline-block";
+                legend_superscript_unit_id.style.display = "inline-block";
+                legend_superscript.innerHTML = Math.log10(round_ratio);
+                legend_superscript_unit_id.innerHTML = unit;
+                legend_text.innerHTML = "= " + final_ratio + " &times; 10 ";
+
             }
 
             this.verifyLegend(sysname, width, final_ratio*round_ratio);
@@ -917,11 +956,6 @@ class CartMap {
             legend_square.setAttribute("height", width.toString() +"px");
             legend_text.setAttribute("x", (width+10).toString() + "px");
 
-            if(scale_word.length === 1){
-                legend_text.innerHTML = "= " + final_ratio + scale_word + " " + unit
-            } else {
-                legend_text.innerHTML = "= " + final_ratio + scale_word + " " + unit
-            }
         }
     }
 
@@ -1731,7 +1765,7 @@ class Cartogram {
 
         const key = d => d.data.label;
 
-        const data = Object.keys(this.model.map.regions).map((region_id, _i, _a) => {
+        const dataWithOthers = Object.keys(this.model.map.regions).map((region_id, _i, _a) => {
             return {
                 label: region_id,
                 value: tooltip.data["id_" + region_id].value,
@@ -1740,6 +1774,38 @@ class Cartogram {
                 name: this.model.map.regions[region_id].name
             };
         }, this).filter(d => d.value !== "NA");
+
+        const total = dataWithOthers.reduce((acc, datum) => acc + datum.value, 0);
+        document.getElementById('data-total').innerText = total.toLocaleString() + (tooltip.unit === "" ? "" : " " + tooltip.unit);
+
+        const othersThreshold = total*0.025;
+
+        let others = {
+            label: "_others",
+            value: 0,
+            color: "#aaaaaa",
+            abbreviation: "Others",
+            name: "Others"
+        };
+
+        dataWithOthers.forEach((datum) => {
+
+            if(datum.value < othersThreshold) {
+
+                others.value += datum.value;
+
+            }
+
+        });
+
+        let data = dataWithOthers;
+
+        if(others.value > 0) {
+
+            data = dataWithOthers.filter(d => d.value >= othersThreshold);
+            data.push(others);
+
+        }
 
         // Reorder the data to reduce neighboring regions having the same color
 
@@ -2058,35 +2124,41 @@ class Cartogram {
 
         var svg_header = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>';
 
-        document.getElementById('map-download').onclick = (function(){
+        document.getElementById('map-download').onclick = (function(geojson){
 
             return function(e) {
 
                 e.preventDefault();
 
-                document.getElementById('download-modal-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('map-area').innerHTML);
-                document.getElementById('download-modal-link').download = "equal-area-map.svg";
+                document.getElementById('download-modal-svg-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('map-area').innerHTML);
+                document.getElementById('download-modal-svg-link').download = "equal-area-map.svg";
+
+                document.getElementById('download-modal-geojson-link').href = "data:application/json;base64," + window.btoa(geojson);
+                document.getElementById('download-modal-geojson-link').download = "equal-area-map.geojson";
 
                 $('#download-modal').modal();
 
             };
 
-        }());
+        }(JSON.stringify(this.model.map.getVersionGeoJSON("1-conventional"))));
 
-        document.getElementById('cartogram-download').onclick = (function(){
+        document.getElementById('cartogram-download').onclick = (function(geojson){
 
             return function(e) {
 
                 e.preventDefault();
 
-                document.getElementById('download-modal-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('cartogram-area').innerHTML);
-                document.getElementById('download-modal-link').download = "cartogram.svg";
+                document.getElementById('download-modal-svg-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('cartogram-area').innerHTML);
+                document.getElementById('download-modal-svg-link').download = "cartogram.svg";
+
+                document.getElementById('download-modal-geojson-link').href = "data:application/json;base64," + window.btoa(geojson);
+                document.getElementById('download-modal-geojson-link').download = "cartogram.geojson";
 
                 $('#download-modal').modal();
 
             };
 
-        }());
+        }(JSON.stringify(this.model.map.getVersionGeoJSON(this.model.current_sysname))));
 
         /*document.getElementById('map-download').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('map-area').innerHTML);
         document.getElementById('map-download').download = "map.svg";*/
@@ -2277,6 +2349,7 @@ class Cartogram {
         this.model.current_sysname = sysname;
 
         this.displayVersionSwitchButtons();
+        this.generateSVGDownloadLinks();
     }
 
     /**

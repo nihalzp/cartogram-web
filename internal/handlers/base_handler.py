@@ -1,3 +1,4 @@
+import re
 
 class BaseCartogramHandler:
 
@@ -57,6 +58,8 @@ class BaseCartogramHandler:
         tooltip = {'label': 'User Data', 'unit': '', 'data': {}}
         grid_document = {'name': self.get_name(), 'width': 4, 'height': len(order) + 1, 'edit_mask': [{'row': None, 'col': 0, 'editable': False}, {'row': None, 'col': 1, 'editable': False}, {'row': 0, 'col': None, 'editable': False}, {'row': None, 'col': 3, 'type': 'color'}, {'row': None, 'col': 2, 'type': 'number', 'min': 0, 'max': None}, {'row': 0, 'col': None, 'type': 'text'}, {'row': 0, 'col': 2, 'editable': True}], 'contents': [region_name, 'Population', 'User Data', 'Colour']}
 
+        dataset_title = ""
+
         for row in csv_reader:
 
             if len(row) < (max(name_column, data_column, population_column, color_column) + 1):
@@ -66,6 +69,7 @@ class BaseCartogramHandler:
                 first_row = False
                 tooltip['label'] = row[data_column]
                 grid_document['contents'][2] = row[data_column]
+                dataset_title = row[data_column]
                 continue
 
             #if name_column not in row or data_column not in row or color_column not in row:
@@ -91,6 +95,12 @@ class BaseCartogramHandler:
 
         for area in result:
             areas_string += "{};".format(area)
+
+        unit_re = re.compile(r'\(([^\)]*)\)')
+        unit_matches = unit_re.findall(dataset_title)
+
+        if len(unit_matches) > 0:
+            tooltip['unit'] = unit_matches[-1]
         
         return areas_string.rstrip(';'), color_values, tooltip, grid_document
 
