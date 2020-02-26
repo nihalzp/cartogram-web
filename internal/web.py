@@ -1,4 +1,4 @@
-import cartwrap, gen2dict, geojson_extrema, awslambda
+import cartwrap, gen2dict, geojson_extrema, awslambda, tracking, custom_captcha
 import settings
 import recaptcha_verify
 from handlers import usa, india, china, germany, brazil
@@ -121,15 +121,30 @@ def get_random_string(length):
 
     return ''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(length))
 
+@app.route('/consent', methods=['POST'])
+def consent():
+
+
+    user_consent = request.form.get("consent", "")
+
+    if user_consent == "yes":
+        resp = Response(json.dumps({'error': 'none', 'tracking_id': settings.CARTOGRAM_GA_TRACKING_ID}), content_type='application/json', status=200)
+        resp.set_cookie("tracking", "track", max_age=31556926)  # One year
+        return resp
+    else:
+        resp = Response(json.dumps({'error': 'none'}), content_type='application/json', status=200)
+        resp.set_cookie("tracking", "do_not_track", max_age=31556926)
+        return resp
+
 @app.route('/', methods=['GET'])
 def index():
 
-    return render_template('welcome.html', page_active='home')
+    return render_template('welcome.html', page_active='home', tracking=tracking.determine_tracking_action(request))
 
 @app.route('/about', methods=['GET'])
 def about():
 
-    return render_template('about.html', page_active='about')
+    return render_template('about.html', page_active='about', tracking=tracking.determine_tracking_action(request))
 
 @app.route('/cartogram', methods=['GET'])
 def make_cartogram():
@@ -142,17 +157,17 @@ def make_cartogram():
 
     cartogram_handlers_select.sort(key = lambda h : h['display_name'])
 
-    return render_template('new_index.html', page_active='cartogram', cartogram_url=url_for('cartogram'), cartogramui_url=url_for('cartogram_ui'), getprogress_url=url_for('getprogress'),cartogram_data_dir=url_for('static', filename='cartdata'), cartogram_handlers=cartogram_handlers_select, default_cartogram_handler=default_cartogram_handler, cartogram_version=settings.VERSION)
+    return render_template('new_index.html', page_active='cartogram', cartogram_url=url_for('cartogram'), cartogramui_url=url_for('cartogram_ui'), getprogress_url=url_for('getprogress'),cartogram_data_dir=url_for('static', filename='cartdata'), cartogram_handlers=cartogram_handlers_select, default_cartogram_handler=default_cartogram_handler, cartogram_version=settings.VERSION, tracking=tracking.determine_tracking_action(request))
 
 @app.route('/faq', methods=['GET'])
 def faq():
 
-    return render_template('faq.html', page_active='faq')
+    return render_template('faq.html', page_active='faq', tracking=tracking.determine_tracking_action(request))
 
 @app.route('/tutorial', methods=['GET'])
 def tutorial():
 
-    return render_template('tutorial.html', page_active='tutorial')
+    return render_template('tutorial.html', page_active='tutorial', tracking=tracking.determine_tracking_action(request))
 
 
 @app.route('/gridedit', methods=['GET'])
@@ -167,7 +182,10 @@ def contact():
         csrf_token = get_random_string(50)
         session['csrf_token'] = csrf_token
 
-        return render_template('contact.html', page_active='contact',name="",message="",email_address="",subject="", csrf_token=csrf_token,recaptcha_site_key=settings.RECAPTCHA_SITE_KEY)
+        captcha = custom_captcha.generate_captcha()
+        session['captcha_hashed'] = captcha['captcha_hashed']
+
+        return render_template('contact.html', page_active='contact',name="",message="",email_address="",subject="", csrf_token=csrf_token,tracking=tracking.determine_tracking_action(request), captcha_image=captcha['captcha_image'])
     else:
         
         name = request.form.get('name', '')
@@ -175,35 +193,53 @@ def contact():
         subject = request.form.get('subject', '')
         message = request.form.get('message', '')
         csrf = request.form.get('csrftoken', '')
-        recaptcha_response = request.form.get('g-recaptcha-response')
+        captcha = custom_captcha.generate_captcha()
+
 
         if 'csrf_token' not in session:
+            session['captcha_hashed'] = captcha['captcha_hashed']
             flash('Invalid CSRF token.', 'danger')
             csrf_token = get_random_string(50)
             session['csrf_token'] = csrf_token
-            return render_template('contact.html', page_active='contact',name=name,message=message,email_address=email_address,subject=subject, csrf_token=csrf_token,recaptcha_site_key=settings.RECAPTCHA_SITE_KEY)
+            return render_template('contact.html', page_active='contact',name=name,message=message,email_address=email_address,subject=subject, csrf_token=csrf_token,tracking=tracking.determine_tracking_action(request), captcha_image=captcha['captcha_image'])
         
         if session['csrf_token'] != csrf or len(session['csrf_token'].strip()) < 1:
+            session['captcha_hashed'] = captcha['captcha_hashed']
             flash('Invalid CSRF token.', 'danger')
             csrf_token = get_random_string(50)
             session['csrf_token'] = csrf_token
-            return render_template('contact.html', page_active='contact',name=name,message=message,email_address=email_address,subject=subject, csrf_token=csrf_token,recaptcha_site_key=settings.RECAPTCHA_SITE_KEY)
+            return render_template('contact.html', page_active='contact',name=name,message=message,email_address=email_address,subject=subject, csrf_token=csrf_token,tracking=tracking.determine_tracking_action(request), captcha_image=captcha['captcha_image'])
         
         csrf_token = get_random_string(50)
         session['csrf_token'] = csrf_token
 
         if len(name.strip()) < 1 or len(subject.strip()) < 1 or len(message.strip()) < 1:
+            session['captcha_hashed'] = captcha['captcha_hashed']
             flash('You must fill out all of the form fields', 'danger')
-            return render_template('contact.html', page_active='contact',name=name,message=message,email_address=email_address,subject=subject, csrf_token=csrf_token,recaptcha_site_key=settings.RECAPTCHA_SITE_KEY)
+            return render_template('contact.html', page_active='contact',name=name,message=message,email_address=email_address,subject=subject, csrf_token=csrf_token,tracking=tracking.determine_tracking_action(request), captcha_image=captcha['captcha_image'])
         
         if not validate_email.validate_email(email_address):
+            session['captcha_hashed'] = captcha['captcha_hashed']
             flash('You must enter a valid email address.', 'danger')
-            return render_template('contact.html', page_active='contact',name=name,message=message,email_address=email_address,subject=subject, csrf_token=csrf_token,recaptcha_site_key=settings.RECAPTCHA_SITE_KEY)
-        
-        if not recaptcha_verify.verify_recaptcha_response(settings.RECAPTCHA_SECRET_KEY, recaptcha_response):
+            return render_template('contact.html', page_active='contact',name=name,message=message,email_address=email_address,subject=subject, csrf_token=csrf_token,tracking=tracking.determine_tracking_action(request), captcha_image=captcha['captcha_image'])
+
+        if 'captcha_hashed' not in session:
+            session['captcha_hashed'] = captcha['captcha_hashed']
             flash('Please retry completing the CAPTCHA.', 'danger')
-            return render_template('contact.html', page_active='contact',name=name,message=message,email_address=email_address,subject=subject, csrf_token=csrf_token,recaptcha_site_key=settings.RECAPTCHA_SITE_KEY)
-        
+            csrf_token = get_random_string(50)
+            session['csrf_token'] = csrf_token
+            return render_template('contact.html', page_active='contact', name=name, message=message,
+                                   email_address=email_address, subject=subject, csrf_token=csrf_token,
+                                   tracking=tracking.determine_tracking_action(request),
+                                   captcha_image=captcha['captcha_image'])
+
+        if not custom_captcha.validate_captcha(request.form.get("captcha", ""), session['captcha_hashed']):
+            session['captcha_hashed'] = captcha['captcha_hashed']
+            flash('Please retry completing the CAPTCHA.', 'danger')
+            return render_template('contact.html', page_active='contact',name=name,message=message,email_address=email_address,subject=subject, csrf_token=csrf_token,tracking=tracking.determine_tracking_action(request), captcha_image=captcha['captcha_image'])
+
+
+
         # Escape all of the variables:
         name = name.replace("<", "&lt;")
         name = name.replace(">", "&gt;")
@@ -242,9 +278,11 @@ Message:
         # For some reason connect doesn't catch the socket error
         # *sigh*
         except (smtplib.SMTPException,socket.gaierror):
+            session['captcha_hashed'] = captcha['captcha_hashed']
             flash('There was an error sending your message.', 'danger')
-            return render_template('contact.html', page_active='contact',name=name,message=message,email_address=email_address,subject=subject, csrf_token=csrf_token,recaptcha_site_key=settings.RECAPTCHA_SITE_KEY)
+            return render_template('contact.html', page_active='contact',name=name,message=message,email_address=email_address,subject=subject, csrf_token=csrf_token,tracking=tracking.determine_tracking_action(request), captcha_image=captcha['captcha_image'])
 
+        session['captcha_hashed'] = ""
         flash('Your message was successfully sent.', 'success')
         return redirect(url_for('contact'))
 
@@ -261,7 +299,7 @@ def cartogram_by_key(string_key):
     
     cartogram_handlers_select = [{'id': key, 'display_name': handler.get_name()} for key, handler in cartogram_handlers.items()]
 
-    return render_template('new_cartogram.html', page_active='cartogram',cartogram_url=url_for('cartogram'), cartogramui_url=url_for('cartogram_ui'), getprogress_url=url_for('getprogress'), cartogram_data_dir=url_for('static', filename='cartdata'), cartogram_handlers=cartogram_handlers_select, default_cartogram_handler=cartogram_entry.handler, cartogram_data=cartogram_entry.cartogram_data, cartogramui_data=cartogram_entry.cartogramui_data, cartogram_version=settings.VERSION)
+    return render_template('new_cartogram.html', page_active='cartogram',cartogram_url=url_for('cartogram'), cartogramui_url=url_for('cartogram_ui'), getprogress_url=url_for('getprogress'), cartogram_data_dir=url_for('static', filename='cartdata'), cartogram_handlers=cartogram_handlers_select, default_cartogram_handler=cartogram_entry.handler, cartogram_data=cartogram_entry.cartogram_data, cartogramui_data=cartogram_entry.cartogramui_data, cartogram_version=settings.VERSION, tracking=tracking.determine_tracking_action(request))
     
 
 @app.route('/setprogress', methods=['POST'])

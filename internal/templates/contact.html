@@ -34,7 +34,7 @@
                               <span aria-hidden="true">&times;</span>
                             </button>
                       </div>
-                    <form action="{{url_for('contact')}}" method="POST" onsubmit="return onContactFormSubmit();">
+                    <form action="{{url_for('contact')}}" method="POST">
                     <div class="row">
                         <div class="col-md-5 d-flex flex-column justify-content-between">
                             <div class="form-group">
@@ -52,6 +52,13 @@
                                     Subject</label>
                                 <input type="text" class="form-control" id="subject" name="subject"  required="required" value="{{subject}}"/>
                             </div>
+                            <div class="form-group">
+                                <label for="captcha" class="text-success">
+                                    Captcha</label>
+                                <br/>
+                                <img src="{{ captcha_image }}" class="mb-1"/>
+                                <input type="text" class="form-control" id="captcha" name="captcha"  required="required" value="" style="width: 160px;"/>
+                            </div>
                         </div>
                         <div class="col-md-7">
                             <div class="form-group">
@@ -63,9 +70,7 @@
                         </div>
                         <div class="col-md-12">
                             <input type="hidden" name="csrftoken" value="{{csrf_token}}"/>
-                            <div class="g-recaptcha" data-sitekey="{{recaptcha_site_key}}" data-callback="onCaptchaSubmit"></div>
-                            <br/>
-                            <button type="submit" class="btn btn-primary pull-right" id="btnContactUs" disabled>
+                            <button type="submit" class="btn btn-primary pull-right" id="btnContactUs">
                                 Send Message</button>
                         </div>
                     </div>
@@ -95,26 +100,5 @@
 {% endblock %}
 
 {% block javascript %}
-<script>
-    var captchaSubmitted = false;
-
-    window.onCaptchaSubmit = () => {
-        captchaSubmitted = true;
-        document.getElementById('btnContactUs').disabled = false;
-    };
-
-    const onContactFormSubmit = () => {
-
-        if(!captchaSubmitted) {
-            document.getElementById('captcha-alert').style.display = 'block';
-            return false;
-        }
-
-        return true;
-
-    };
-
-
-</script>
 {% endblock %}
 
