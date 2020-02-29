@@ -1492,8 +1492,9 @@ class Cartogram {
         }
         else
         {
-            this.gridedit_window.gridedit.load_document(this.grid_document);
-            this.gridedit_window.focus();
+            console.log('hi');
+            this.model.gridedit_window.gridedit.load_document(this.model.grid_document);
+            this.model.gridedit_window.focus();
         }
 
     }

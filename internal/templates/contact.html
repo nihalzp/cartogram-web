@@ -1,7 +1,6 @@
 {% extends 'base_layout.html' %}
 
 {% block head_extra %}
- <script src="https://www.google.com/recaptcha/api.js?" async defer></script>
 {% endblock %}
 
 {% block content %}
@@ -56,7 +55,29 @@
                                 <label for="captcha" class="text-success">
                                     Captcha</label>
                                 <br/>
-                                <img src="{{ captcha_image }}" class="mb-1"/>
+                                <div id="captcha-ui-image">
+                                    <img src="{{ captcha_image }}" id="captcha-image" class="mb-1"/>
+                                </div>
+                                <div id="captcha-ui-audio" style="display: none">
+                                    <audio id="captcha-audio" controls>
+                                        <source id="captcha-audio-source" src="{{ captcha_audio }}" type="audio/wav"/>
+                                    </audio>
+                                </div>
+                                <div class="btn-toolbar my-2" role="toolbar" aria-label="Captcha toolbar">
+                                    <div class="btn-group btn-group-sm mr-2" role="group" aria-label="Captcha type">
+                                        <button type="button" class="btn btn-secondary active" id="captcha-button-image">
+                                            Image
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" id="captcha-button-audio">
+                                            Audio
+                                        </button>
+                                    </div>
+                                    <div class="btn-group btn-group-sm" role="group" aria-label="Captcha regeneration">
+                                        <button id="captcha-regenerate" type="button" class="btn btn-secondary" aria-label="Regenerate captcha">
+                                            <i class="fas fa-redo"></i>
+                                        </button>
+                                    </div>
+                                </div>
                                 <input type="text" class="form-control" id="captcha" name="captcha"  required="required" value="" style="width: 160px;"/>
                             </div>
                         </div>
@@ -100,5 +121,9 @@
 {% endblock %}
 
 {% block javascript %}
+    <script src="{{ url_for('static', filename='gocartcaptcha.js') }}"></script>
+    <script>
+        window.gocartcaptcha = new GoCartCaptcha();
+    </script>
 {% endblock %}
 
