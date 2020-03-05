@@ -15,6 +15,7 @@ from handlers import spain
 from handlers import italyvat
 from handlers import italyvat
 from handlers import italyvat
+from handlers import libya
 # ---addmap.py header marker---
 # !!!END DO NOT MODFIY
 
@@ -72,6 +73,7 @@ cartogram_handlers = {
 'italyvat': italyvat.CartogramHandler(),
 'italyvat': italyvat.CartogramHandler(),
 'italyvat': italyvat.CartogramHandler(),
+'libya': libya.CartogramHandler(),
 # ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
