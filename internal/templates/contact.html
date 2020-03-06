@@ -1,7 +1,6 @@
 {% extends 'base_layout.html' %}
 
 {% block head_extra %}
- <script src="https://www.google.com/recaptcha/api.js?" async defer></script>
 {% endblock %}
 
 {% block content %}
@@ -34,7 +33,7 @@
                               <span aria-hidden="true">&times;</span>
                             </button>
                       </div>
-                    <form action="{{url_for('contact')}}" method="POST" onsubmit="return onContactFormSubmit();">
+                    <form action="{{url_for('contact')}}" method="POST">
                     <div class="row">
                         <div class="col-md-5 d-flex flex-column justify-content-between">
                             <div class="form-group">
@@ -52,6 +51,35 @@
                                     Subject</label>
                                 <input type="text" class="form-control" id="subject" name="subject"  required="required" value="{{subject}}"/>
                             </div>
+                            <div class="form-group">
+                                <label for="captcha" class="text-success">
+                                    Captcha</label>
+                                <br/>
+                                <div id="captcha-ui-image">
+                                    <img src="{{ captcha_image }}" id="captcha-image" class="mb-1"/>
+                                </div>
+                                <div id="captcha-ui-audio" style="display: none">
+                                    <audio id="captcha-audio" controls>
+                                        <source id="captcha-audio-source" src="{{ captcha_audio }}" type="audio/wav"/>
+                                    </audio>
+                                </div>
+                                <div class="btn-toolbar my-2" role="toolbar" aria-label="Captcha toolbar">
+                                    <div class="btn-group btn-group-sm mr-2" role="group" aria-label="Captcha type">
+                                        <button type="button" class="btn btn-secondary active" id="captcha-button-image">
+                                            Image
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" id="captcha-button-audio">
+                                            Audio
+                                        </button>
+                                    </div>
+                                    <div class="btn-group btn-group-sm" role="group" aria-label="Captcha regeneration">
+                                        <button id="captcha-regenerate" type="button" class="btn btn-secondary" aria-label="Regenerate captcha">
+                                            <i class="fas fa-redo"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <input type="text" class="form-control" id="captcha" name="captcha"  required="required" value="" style="width: 160px;"/>
+                            </div>
                         </div>
                         <div class="col-md-7">
                             <div class="form-group">
@@ -63,9 +91,7 @@
                         </div>
                         <div class="col-md-12">
                             <input type="hidden" name="csrftoken" value="{{csrf_token}}"/>
-                            <div class="g-recaptcha" data-sitekey="{{recaptcha_site_key}}" data-callback="onCaptchaSubmit"></div>
-                            <br/>
-                            <button type="submit" class="btn btn-primary pull-right" id="btnContactUs" disabled>
+                            <button type="submit" class="btn btn-primary pull-right" id="btnContactUs">
                                 Send Message</button>
                         </div>
                     </div>
@@ -95,26 +121,9 @@
 {% endblock %}
 
 {% block javascript %}
-<script>
-    var captchaSubmitted = false;
-
-    window.onCaptchaSubmit = () => {
-        captchaSubmitted = true;
-        document.getElementById('btnContactUs').disabled = false;
-    };
-
-    const onContactFormSubmit = () => {
-
-        if(!captchaSubmitted) {
-            document.getElementById('captcha-alert').style.display = 'block';
-            return false;
-        }
-
-        return true;
-
-    };
-
-
-</script>
+    <script src="{{ url_for('static', filename='gocartcaptcha.js') }}"></script>
+    <script>
+        window.gocartcaptcha = new GoCartCaptcha();
+    </script>
 {% endblock %}
 
