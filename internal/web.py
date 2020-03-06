@@ -13,20 +13,21 @@ from handlers import japan2
 from handlers import france
 from handlers import uae
 from handlers import pakistan
+from handlers import switzerland
+from handlers import ireland
 from handlers import poland
 from handlers import sweden
 from handlers import croatia
 from handlers import czechrepublic3
 from handlers import hungary
 from handlers import unitedkingdom2
-#from handlers import spain
 from handlers import finland
-#from handlers import czechia
 from handlers import austria
 from handlers import denmark
 from handlers import belgium
-#from handlers import russia
+from handlers import russia
 from handlers import nigeria
+#from handlers import spain
 # ---addmap.py header marker---
 # !!!END DO NOT MODFIY
 
@@ -83,6 +84,8 @@ cartogram_handlers = {
 'france': france.CartogramHandler(),
 'uae': uae.CartogramHandler(),
 'pakistan': pakistan.CartogramHandler(),
+'switzerland': switzerland.CartogramHandler(),
+'ireland': ireland.CartogramHandler(),
 'poland': poland.CartogramHandler(),
 'sweden': sweden.CartogramHandler(),
 'croatia': croatia.CartogramHandler(),
@@ -90,12 +93,11 @@ cartogram_handlers = {
 'hungary': hungary.CartogramHandler(),
 'unitedkingdom2': unitedkingdom2.CartogramHandler(),
 'finland': finland.CartogramHandler(),
-#'spain': spain.CartogramHandler(),
-#'czechia': czechia.CartogramHandler(),
 'austria': austria.CartogramHandler(),
 'denmark': denmark.CartogramHandler(),
 'belgium': belgium.CartogramHandler(),
 'nigeria': nigeria.CartogramHandler(),
+'russia':russia.CartogramHandler(),
 #  ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
@@ -124,9 +126,25 @@ def get_random_string(length):
 @app.route('/', methods=['GET'])
 def index():
 
-    cartogram_handlers_select = [{'id': key, 'display_name': handler.get_name()} for key, handler in cartogram_handlers.items()]
+    return render_template('welcome.html', page_active='home')
 
-    return render_template('new_index.html', page_active='home', cartogram_url=url_for('cartogram'), cartogramui_url=url_for('cartogram_ui'), getprogress_url=url_for('getprogress'),cartogram_data_dir=url_for('static', filename='cartdata'), cartogram_handlers=cartogram_handlers_select, default_cartogram_handler=default_cartogram_handler, cartogram_version=settings.VERSION)
+@app.route('/about', methods=['GET'])
+def about():
+
+    return render_template('about.html', page_active='about')
+
+@app.route('/cartogram', methods=['GET'])
+def make_cartogram():
+
+    cartogram_handlers_select = []
+
+    for key, handler in cartogram_handlers.items():
+        for selector_name in handler.selector_names():
+            cartogram_handlers_select.append({'id': key, 'display_name': selector_name})
+
+    cartogram_handlers_select.sort(key = lambda h : h['display_name'])
+
+    return render_template('new_index.html', page_active='cartogram', cartogram_url=url_for('cartogram'), cartogramui_url=url_for('cartogram_ui'), getprogress_url=url_for('getprogress'),cartogram_data_dir=url_for('static', filename='cartdata'), cartogram_handlers=cartogram_handlers_select, default_cartogram_handler=default_cartogram_handler, cartogram_version=settings.VERSION)
 
 @app.route('/faq', methods=['GET'])
 def faq():
@@ -245,7 +263,7 @@ def cartogram_by_key(string_key):
     
     cartogram_handlers_select = [{'id': key, 'display_name': handler.get_name()} for key, handler in cartogram_handlers.items()]
 
-    return render_template('new_cartogram.html', page_active='home',cartogram_url=url_for('cartogram'), cartogramui_url=url_for('cartogram_ui'), getprogress_url=url_for('getprogress'), cartogram_data_dir=url_for('static', filename='cartdata'), cartogram_handlers=cartogram_handlers_select, default_cartogram_handler=cartogram_entry.handler, cartogram_data=cartogram_entry.cartogram_data, cartogramui_data=cartogram_entry.cartogramui_data, cartogram_version=settings.VERSION)
+    return render_template('new_cartogram.html', page_active='cartogram',cartogram_url=url_for('cartogram'), cartogramui_url=url_for('cartogram_ui'), getprogress_url=url_for('getprogress'), cartogram_data_dir=url_for('static', filename='cartdata'), cartogram_handlers=cartogram_handlers_select, default_cartogram_handler=cartogram_entry.handler, cartogram_data=cartogram_entry.cartogram_data, cartogramui_data=cartogram_entry.cartogramui_data, cartogram_version=settings.VERSION)
     
 
 @app.route('/setprogress', methods=['POST'])
