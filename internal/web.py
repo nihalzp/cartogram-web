@@ -12,6 +12,7 @@ from handlers import singapore
 from handlers import japan2
 from handlers import france
 from handlers import uae
+from handlers import libya
 #from handlers import pakistan
 from handlers import switzerland
 from handlers import ireland
@@ -27,7 +28,6 @@ from handlers import denmark
 from handlers import belgium
 from handlers import russia
 from handlers import nigeria
-# from handlers import spain
 # ---addmap.py header marker---
 # !!!END DO NOT MODFIY
 
@@ -83,6 +83,7 @@ cartogram_handlers = {
 'japan2': japan2.CartogramHandler(),
 'france': france.CartogramHandler(),
 'uae': uae.CartogramHandler(),
+'libya': libya.CartogramHandler(),
 #'pakistan': pakistan.CartogramHandler(),
 'switzerland': switzerland.CartogramHandler(),
 'ireland': ireland.CartogramHandler(),
