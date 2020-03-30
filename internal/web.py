@@ -15,6 +15,7 @@ from handlers import spain
 from handlers import indonesia
 from handlers import indonesia
 from handlers import italy
+from handlers import asean
 # ---addmap.py header marker---
 # !!!END DO NOT MODFIY
 
@@ -72,6 +73,7 @@ cartogram_handlers = {
 'indonesia': indonesia.CartogramHandler(),
 'indonesia': indonesia.CartogramHandler(),
 'italy': italy.CartogramHandler(),
+'asean': asean.CartogramHandler(),
 # ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
