@@ -2698,7 +2698,7 @@ class Cartogram {
 
             if(cartogram !== null) {
                 map.drawVersion("3-cartogram", "cartogram-area", ["map-area", "cartogram-area"]);
-                this.model.current_sysname = "1-cartogram";
+                this.model.current_sysname = "3-cartogram";
             } else {
                 map.drawVersion("2-population", "cartogram-area", ["map-area", "cartogram-area"]);
                 this.model.current_sysname = "2-population";
