@@ -9,7 +9,7 @@ Bukit Panjang,139280,139030,#e6ab02
 Bukit Timah,77430,74470,#7570b3
 Central Water Catchment,NA,10,#d95f02
 Changi,1830,2530,#e6ab02
-Changi Bay,NA,NA,#66a61e
+Changi Bay,NA,0,#66a61e
 Choa Chu Kang,190890,174330,#d95f02
 Clementi,92420,91630,#66a61e
 Downtown Core,2720,3720,#1b9e77
@@ -20,8 +20,8 @@ Jurong West,264860,272660,#7570b3
 Kallang,101520,101210,#e7298a
 Lim Chu Kang,110,90,#a6761d
 Mandai,2090,2120,#7570b3
-Marina East,NA,NA,#66a61e
-Marina South,NA,NA,#e7298a
+Marina East,NA,0,#66a61e
+Marina South,NA,0,#e7298a
 Marine Parade,46390,48730,#a6761d
 Museum,450,380,#66a61e
 Newton,8030,6920,#e6ab02
@@ -40,17 +40,17 @@ Seletar,280,270,#1b9e77
 Sembawang,95920,76530,#e7298a
 Sengkang,244600,206680,#7570b3
 Serangoon,116310,120670,#66a61e
-Simpang,NA,NA,#1b9e77
+Simpang,NA,0,#1b9e77
 Singapore River,3070,2720,#a6761d
 Southern Islands,1880,1480,#7570b3
-Straits View,NA,NA,#7570b3
+Straits View,NA,0,#7570b3
 Sungei Kadut,780,850,#e7298a
 Tampines,256730,261230,#d95f02
 Tanglin,21630,19000,#66a61e
 Tengah,10,10,#e7298a
 Toa Payoh,120650,124940,#a6761d
 Tuas,80,70,#d95f02
-Western Islands,10,NA,#e7298a
+Western Islands,10,0,#e7298a
 Western Water Catchment,690,900,#1b9e77
 Woodlands,254730,250290,#a6761d
 Yishun,220320,201970,#e6ab02
