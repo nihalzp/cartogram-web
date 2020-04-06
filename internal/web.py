@@ -15,6 +15,7 @@ from handlers import uae
 from handlers import italy
 from handlers import asean
 from handlers import mexico
+from handlers import singaporePA
 from handlers import europe
 from handlers import algeria
 from handlers import libya
@@ -92,6 +93,7 @@ cartogram_handlers = {
 'italy': italy.CartogramHandler(),
 'asean': asean.CartogramHandler(),
 'mexico': mexico.CartogramHandler(),
+'singaporePA': singaporePA.CartogramHandler(),
 'europe': europe.CartogramHandler(),
 'algeria': algeria.CartogramHandler(),
 'libya': libya.CartogramHandler(),
