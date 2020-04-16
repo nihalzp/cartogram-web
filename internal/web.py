@@ -18,6 +18,12 @@ from handlers import italy
 from handlers import asean
 from handlers import mexico
 from handlers import singaporePA
+from handlers import singaporePA3
+from handlers import southKorea
+from handlers import southKorea
+from handlers import spain
+from handlers import spain2
+from handlers import spain3
 # ---addmap.py header marker---
 # !!!END DO NOT MODFIY
 
@@ -78,6 +84,12 @@ cartogram_handlers = {
 'asean': asean.CartogramHandler(),
 'mexico': mexico.CartogramHandler(),
 'singaporePA': singaporePA.CartogramHandler(),
+'singaporePA3': singaporePA3.CartogramHandler(),
+'southKorea': southKorea.CartogramHandler(),
+'southKorea': southKorea.CartogramHandler(),
+'spain': spain.CartogramHandler(),
+'spain2': spain2.CartogramHandler(),
+'spain3': spain3.CartogramHandler(),
 # ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
