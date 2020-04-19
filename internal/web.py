@@ -21,6 +21,7 @@ from handlers import singaporePA
 from handlers import southKorea
 from handlers import saudiArabia
 from handlers import netherlands
+from handlers import spain4
 # ---addmap.py header marker---
 # !!!END DO NOT MODFIY
 
@@ -84,6 +85,7 @@ cartogram_handlers = {
 'southKorea': southKorea.CartogramHandler(),
 'saudiArabia': saudiArabia.CartogramHandler(),
 'netherlands': netherlands.CartogramHandler(),
+'spain4': spain4.CartogramHandler(),
 # ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
