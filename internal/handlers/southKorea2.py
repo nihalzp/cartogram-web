@@ -8,7 +8,7 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return "South Korea"
 
     def get_gen_file(self):
-        return "{}/southKorea_processedmap.json".format(settings.CARTOGRAM_DATA_DIR)
+        return "{}/southKorea2_processedmap.json".format(settings.CARTOGRAM_DATA_DIR)
     
     def validate_values(self, values):
 
