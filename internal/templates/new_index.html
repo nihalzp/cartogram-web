@@ -2,7 +2,7 @@
 
 {% block content %}
 
-{% include 'carousel.html' %}
+
 {% include 'cartogramui.html' %}
 
 {% endblock %}
@@ -17,7 +17,7 @@
     <script>
       window.onload = function() {
 
-            window.cartogram = new Cartogram("{{cartogram_url}}", "{{cartogramui_url}}", "{{cartogram_data_dir}}", "{{url_for('gridedit')}}", "{{cartogram_version}}");
+            window.cartogram = new Cartogram("{{cartogram_url}}", "{{cartogramui_url}}", "{{cartogram_data_dir}}", "{{url_for('gridedit')}}","{{getprogress_url}}", "{{cartogram_version}}");
 
 
             // When user uses the dropdown list and changes the map
@@ -27,8 +27,7 @@
 
             });
 
-            // load the default map
-            window.cartogram.switchMap("{{default_cartogram_handler}}", "");
+          window.cartogram.switchMap(document.getElementById('handler').value, "");
 
         };
     </script>
