@@ -129,7 +129,7 @@ cartogram_handlers = {
 'nigeria': nigeria.CartogramHandler(),
 'russia':russia.CartogramHandler(),
 'indonesia':indonesia.CartogramHandler(),
-#  ---addmap.py body marker---
+# ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
 

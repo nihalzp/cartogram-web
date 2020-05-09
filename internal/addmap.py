@@ -13,6 +13,15 @@ import traceback
 import importlib
 import cartwrap
 import mappackify
+import random
+import string
+import redis
+import settings
+import awslambda
+import threading, queue
+
+def get_random_string(length):
+    return ''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(length))
 
 def print_welcome():
 
@@ -626,26 +635,80 @@ def data(map_name):
     print()
 
     print("Generating population map...")
+    print("Making request to AWS Lambda function at {}.".format(settings.CARTOGRAM_LAMBDA_URL))
     try:
 
         areas = population_cartogramui[0].split(";")
-        #areas = list(map(lambda area: float(area), areas))
 
-        gen_output_lines = []
+        def serverless_generate():
 
-        for source, line in cartwrap.generate_cartogram(map_handler.gen_area_data(areas), map_handler.get_gen_file(), os.environ["CARTOGRAM_EXE"]):
+            redis_conn = redis.Redis(host=settings.CARTOGRAM_REDIS_HOST, port=settings.CARTOGRAM_REDIS_PORT, db=0)
+            q = queue.Queue()
+            unique_key = get_random_string(50)
 
-            if source == "stdout":
-                gen_output_lines.append(line.decode().strip())
+            def downloader_worker():
+                lambda_result = awslambda.generate_cartogram(map_handler.gen_area_data(areas),
+                                             map_handler.get_gen_file(), settings.CARTOGRAM_LAMBDA_URL,
+                                             settings.CARTOGRAM_LAMDA_API_KEY, unique_key)
+
+                cartogram_gen_output = lambda_result['stdout']
+
+                q.put(cartogram_gen_output)
+
+            threading.Thread(target=downloader_worker(), daemon=True).start()
+
+            current_stderr = ""
+            current_progress_level = None
+            gen_output = ""
+
+            while True:
+                current_progress = redis_conn.get("cartprogress-{}".format(unique_key))
+
+                if current_progress == None:
+                    pass
+                else:
+                    current_progress = json.loads(current_progress.decode())
+                    if current_progress['progress'] != current_progress_level:
+                        to_print = current_progress['stderr'].replace(current_stderr, "")
+                        for line in to_print.split("\n"):
+                            print("Generating population map: {}".format(line), flush=True)
+                        current_stderr = current_progress['stderr']
+                        current_progress_level = current_progress['progress']
+
+                try:
+                    gen_output = q.get(False, timeout=0.1)
+                    break
+                except queue.Empty:
+                    pass
+
+            current_progress = redis_conn.get("cartprogress-{}".format(unique_key))
+
+            if current_progress == None:
+                pass
             else:
-                print("Generating population map: {}".format(line.decode().strip()))
-        
-        gen_output = "\n".join(gen_output_lines)
+                current_progress = json.loads(current_progress.decode())
+                if current_progress['progress'] != current_progress_level:
+                    to_print = current_progress['stderr'].replace(current_stderr, "")
+                    for line in to_print.split("\n"):
+                        print("Generating population map: {}".format(line), flush=True)
 
-        with open("{}-population.gen".format(map_name), "w") as population_gen_file:
-            population_gen_file.write(gen_output)
+            return json.loads(gen_output)
 
-        cartogram_json = json.loads(gen_output)
+        def self_generate():
+
+            gen_output_lines = []
+
+            for source, line in cartwrap.generate_cartogram(map_handler.gen_area_data(areas), map_handler.get_gen_file(), os.environ["CARTOGRAM_EXE"]):
+
+                if source == "stdout":
+                    gen_output_lines.append(line.decode().strip())
+                else:
+                    print("Generating population map: {}".format(line.decode().strip()))
+
+            gen_output = "\n".join(gen_output_lines)
+            return json.loads(gen_output)
+
+        cartogram_json = serverless_generate() if settings.CARTOGRAM_LOCAL_DOCKERIZED else self_generate()
 
         # Calculate the bounding box if necessary
         if "bbox" not in cartogram_json:
