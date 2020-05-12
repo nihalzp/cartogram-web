@@ -26,6 +26,7 @@ from handlers import thailand
 from handlers import phl
 from handlers import israel3
 from handlers import vietnam
+from handlers import southAfrica
 # ---addmap.py header marker---
 # !!!END DO NOT MODFIY
 
@@ -94,6 +95,7 @@ cartogram_handlers = {
 'phl': phl.CartogramHandler(),
 'israel3': israel3.CartogramHandler(),
 'vietnam': vietnam.CartogramHandler(),
+'southAfrica': southAfrica.CartogramHandler(),
 # ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
