@@ -28,6 +28,8 @@ from handlers import israel3
 from handlers import vietnam
 from handlers import southAfrica
 from handlers import italy2
+from handlers import colombia
+from handlers import colombia
 # ---addmap.py header marker---
 # !!!END DO NOT MODFIY
 
@@ -98,6 +100,8 @@ cartogram_handlers = {
 'vietnam': vietnam.CartogramHandler(),
 'southAfrica': southAfrica.CartogramHandler(),
 'italy2': italy2.CartogramHandler(),
+'colombia': colombia.CartogramHandler(),
+'colombia': colombia.CartogramHandler(),
 # ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
