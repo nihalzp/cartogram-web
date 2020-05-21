@@ -22,6 +22,7 @@ from handlers import spain4
 from handlers import thailand
 from handlers import phl
 from handlers import israel3
+from handlers import vietnam
 from handlers import southKorea2
 from handlers import newZealand
 from handlers import europe
@@ -108,6 +109,7 @@ cartogram_handlers = {
 'thailand': thailand.CartogramHandler(),
 'phl': phl.CartogramHandler(),
 'israel3': israel3.CartogramHandler(),
+'vietnam': vietnam.CartogramHandler(),
 'southKorea2': southKorea2.CartogramHandler(),
 'newZealand': newZealand.CartogramHandler(),
 'europe': europe.CartogramHandler(),
