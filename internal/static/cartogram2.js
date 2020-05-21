@@ -1776,8 +1776,21 @@ class Cartogram {
             };
         }, this).filter(d => d.value !== "NA");
 
+        const formatAsScientificNotation = (num) => {
+
+            const rounded = num.toPrecision(4);
+            const parts = rounded.split("e");
+
+            if(parts.length === 2) {
+                return `${parts[0]}&nbsp;&times;&nbsp;10<sup>${parts[1].replace("+", "")}</sup>`
+            } else {
+                return rounded;
+            }
+
+        };
+
         const total = dataWithOthers.reduce((acc, datum) => acc + datum.value, 0);
-        document.getElementById('data-total').innerText = total.toLocaleString() + (tooltip.unit === "" ? "" : " " + tooltip.unit);
+        document.getElementById('data-total').innerHTML = formatAsScientificNotation(total) + (tooltip.unit === "" ? "" : " " + tooltip.unit);
 
         const othersThreshold = total*0.025;
 
