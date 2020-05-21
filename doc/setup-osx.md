@@ -51,19 +51,7 @@ Now, you need to download and compile the cartogram generator. You must use the 
     ...
     $ cd cartogram
 
-There is a slight bug in the current version of the cartogram generator that prevents it from working properly in the web application. However, it's easy to fix. You'll need to make a small change in `main.c`:
-
-    $ open -a textedit cartogram_generator/main.c
-
-Find line 264. It should read:
-
-    printf("correction_factor = %f\n", correction_factor);
-
-Replace the contents of this line with:
-
-    fprintf(stderr, "correction_factor = %f\n", correction_factor);
-
-Save the file and quit TextEdit. Now you're ready to compile:
+Now you're ready to compile:
 
     $ chmod +x autobuild.sh
     $ ./autobuild.sh
