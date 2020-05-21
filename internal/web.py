@@ -12,7 +12,6 @@ from handlers import singapore
 from handlers import japan2
 from handlers import france
 from handlers import uae
-from handlers import italy
 from handlers import asean
 from handlers import mexico
 from handlers import singaporePA
@@ -21,7 +20,11 @@ from handlers import netherlands
 from handlers import spain4
 from handlers import thailand
 from handlers import phl
-from handlers import israel2
+from handlers import israel3
+from handlers import vietnam
+from handlers import southAfrica
+from handlers import italy2
+from handlers import colombia
 from handlers import southKorea2
 from handlers import newZealand
 from handlers import europe
@@ -100,7 +103,6 @@ cartogram_handlers = {
 'japan2': japan2.CartogramHandler(),
 'france': france.CartogramHandler(),
 'uae': uae.CartogramHandler(),
-'italy': italy.CartogramHandler(),
 'asean': asean.CartogramHandler(),
 'mexico': mexico.CartogramHandler(),
 'singaporePA': singaporePA.CartogramHandler(),
@@ -109,7 +111,11 @@ cartogram_handlers = {
 'spain4': spain4.CartogramHandler(),
 'thailand': thailand.CartogramHandler(),
 'phl': phl.CartogramHandler(),
-'israel2': israel2.CartogramHandler(),
+'israel3': israel3.CartogramHandler(),
+'vietnam': vietnam.CartogramHandler(),
+'southAfrica': southAfrica.CartogramHandler(),
+'italy2': italy2.CartogramHandler(),
+'colombia': colombia.CartogramHandler(),
 'southKorea2': southKorea2.CartogramHandler(),
 'newZealand': newZealand.CartogramHandler(),
 'europe': europe.CartogramHandler(),

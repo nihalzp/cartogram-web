@@ -67,11 +67,20 @@ class BaseCartogramHandler:
 
             if first_row:
                 first_row = False
-                tooltip['label'] = row[data_column]
-                # txt = row[data_column]
-                # tooltip['label'] = txt[:txt.rfind('(') - 1 if txt.rfind('(') > 0 else len(txt)]
                 grid_document['contents'][2] = row[data_column]
+                # added 15 May
                 dataset_title = row[data_column]
+                m = re.match(r'(.+)\s?\((.+)\)$', dataset_title)
+                if m:
+                    tooltip['label'] = m.group(1).strip()
+                    tooltip['unit'] = m.group(2).strip()
+                else:
+                    tooltip['label'] = dataset_title.strip()
+                # end of added 15 May
+                '''
+                tooltip['label'] = row[data_column]
+                dataset_title = row[data_column]
+                '''
                 continue
 
             #if name_column not in row or data_column not in row or color_column not in row:
@@ -97,12 +106,13 @@ class BaseCartogramHandler:
 
         for area in result:
             areas_string += "{};".format(area)
-
+        '''
         unit_re = re.compile(r'\(([^\)]*)\)')
         unit_matches = unit_re.findall(dataset_title)
 
         if len(unit_matches) > 0:
             tooltip['unit'] = unit_matches[-1]
+        '''
         
         return areas_string.rstrip(';'), color_values, tooltip, grid_document
 
