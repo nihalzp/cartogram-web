@@ -5,7 +5,7 @@ import csv
 class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
 
     def get_name(self):
-        return "Singapore"
+        return "Singapore (by Region)"
 
     def get_gen_file(self):
         return "{}/singapore_map_processedmap.json".format(settings.CARTOGRAM_DATA_DIR)
