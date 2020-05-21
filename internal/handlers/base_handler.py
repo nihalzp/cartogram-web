@@ -68,6 +68,8 @@ class BaseCartogramHandler:
             if first_row:
                 first_row = False
                 tooltip['label'] = row[data_column]
+                # txt = row[data_column]
+                # tooltip['label'] = txt[:txt.rfind('(') - 1 if txt.rfind('(') > 0 else len(txt)]
                 grid_document['contents'][2] = row[data_column]
                 dataset_title = row[data_column]
                 continue
