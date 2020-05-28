@@ -71,6 +71,7 @@ class BaseCartogramHandler:
                 # added 15 May
                 dataset_title = row[data_column]
                 m = re.match(r'(.+)\s?\((.+)\)$', dataset_title)
+
                 if m:
                     tooltip['label'] = m.group(1).strip()
                     tooltip['unit'] = m.group(2).strip()

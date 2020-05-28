@@ -43,6 +43,7 @@ from handlers import belgium
 from handlers import russia
 from handlers import nigeria
 from handlers import indonesia
+from handlers import world_med
 # ---addmap.py header marker---
 # !!!END DO NOT MODFIY
 
@@ -129,6 +130,7 @@ cartogram_handlers = {
 'nigeria': nigeria.CartogramHandler(),
 'russia':russia.CartogramHandler(),
 'indonesia':indonesia.CartogramHandler(),
+'world_med': world_med.CartogramHandler(),
 # ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }

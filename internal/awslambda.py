@@ -14,6 +14,7 @@ def generate_cartogram(area_data, gen_file, lambda_url, lambda_api_key, cartogra
         'gen_file': gen_file_contents,
         'area_data': area_data,
         'key': cartogram_key
+        ## Need to pass flag here to represent that it is worldmap
     }
 
     r = requests.post(lambda_url, headers=headers, json=lambda_event)
