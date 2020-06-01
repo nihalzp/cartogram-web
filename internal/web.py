@@ -53,6 +53,7 @@ from handlers import portugal
 from handlers import greece
 from handlers import malaysia
 from handlers import qatar
+from handlers import turkey
 # ---addmap.py header marker---
 # !!!END DO NOT MODFIY
 
@@ -149,6 +150,7 @@ cartogram_handlers = {
 'greece': greece.CartogramHandler(),
 'malaysia': malaysia.CartogramHandler(),
 'qatar': qatar.CartogramHandler(),
+'turkey': turkey.CartogramHandler(),
 # ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
