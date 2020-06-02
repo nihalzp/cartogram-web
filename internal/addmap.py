@@ -720,8 +720,7 @@ def data(map_name):
         print(repr(e))
         cleanup()
         return
-    
-    print()
+
     print("Generating conventional map...")
     try:
 
@@ -746,6 +745,7 @@ def data(map_name):
     print()
     print("I will now generate the finalized data entry template.")
     print()
+
 
     print("Reading static/cartdata/{}/template.csv...".format(map_name))
     final_template = []
