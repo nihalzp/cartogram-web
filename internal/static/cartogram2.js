@@ -479,8 +479,9 @@ class MapVersionData {
      * @param {Object.<string,string>} abbreviations A map of region names to abbreviations. Only needs to be specified once per map.
      * @param {Labels} labels Labels for the map version
      * @param {number} format The format of the given map data.
+     * @param {boolean} world Whether it is a world map.
      */
-    constructor(features, extrema, tooltip, abbreviations=null, labels=null, format=MapDataFormat.GOCARTJSON) {
+    constructor(features, extrema, tooltip, abbreviations=null, labels=null, format=MapDataFormat.GOCARTJSON, world = false) {
 
         /**
          * @type {Object.<string,{polygons: Array<{id: string, coordinates: Array<Array<number,number>>}>, name: string, value: string}}
@@ -526,7 +527,7 @@ class MapVersionData {
             features.forEach(function(feature){
 
                 switch(feature.geometry.type) {
-                case "Polygon":
+                    case "Polygon":
                     
                     var polygon_coords;
                     var polygon_holes = [];
@@ -543,11 +544,27 @@ class MapVersionData {
                         }
 
                         polygon_holes.push(feature.geometry.coordinates[i]);
-
                         /* We increase the polygon ID for holes for compatibility reasons. This is what the gen2json
                            Python script does.
                         */
                         next_polygon_id++;
+                    }
+
+                    /* If the map is a world map, we transform the coordinates
+                    using Gall-Peters projection.
+                    */
+                    if (world) {
+                        let projection = new GallPetersProjection();
+
+                        for (let i = 0; i < polygon_coords.length; i++) {
+                            polygon_coords[i] = projection.transformLongLat(polygon_coords[i]);
+                        }
+
+                        for (let i = 0; i < polygon_holes.length; i++) {
+                            for (let j = 0; j < polygon_holes[i].length; j++) {
+                                polygon_holes[i][j] = projection.transformLongLat(polygon_holes[i][j]);
+                            }
+                        }
                     }
 
                     this.regions[feature.properties.cartogram_id] = {
@@ -584,11 +601,24 @@ class MapVersionData {
                             }
 
                             polygon_holes.push(polygon[i]);
-
-                            /* We increase the polygon ID for holes for compatibility reasons. This is what the gen2json
-                            Python script does.
-                            */
                             next_polygon_id++;
+                        }
+
+                        /* If the map is a world map, we transform the coordinates
+                        using Gall-Peters projection.
+                        */
+                        if (world) {
+                            let projection = new GallPetersProjection();
+
+                            for (let i = 0; i < polygon_coords.length; i++) {
+                                polygon_coords[i] = projection.transformLongLat(polygon_coords[i]);
+                            }
+
+                            for (let i = 0; i < polygon_holes.length; i++) {
+                                for (let j = 0; j < polygon_holes[i].length; j++) {
+                                    polygon_holes[i][j] = projection.transformLongLat(polygon_holes[i][j]);
+                                }
+                            }
                         }
 
                         polygons.push({
@@ -621,7 +651,16 @@ class MapVersionData {
         /**
          * @type {Extrema}
          */
-        this.extrema = extrema;
+        if (world) {
+            let projection = new GallPetersProjection();
+            this.extrema = {
+                min_x: projection.transformLongitude(-180),
+                min_y: projection.transformLatitude(-90),
+                max_x: projection.transformLongitude(180),
+                max_y: projection.transformLatitude(90)
+            };
+        } else
+            this.extrema = extrema;
 
         /**
          * @type {string}
@@ -2641,6 +2680,30 @@ class Cartogram {
 
             var map = new CartMap(hrname, mappack.config);
 
+            /* We check if the map is a world map by searching for the 'extent' key in mappack.original.
+               We then pass a boolean to the MapVersionData constructor.
+             */
+            let world = false;
+            if ('extent' in mappack.original) {
+                world = (mappack.original.extent === "world");
+            }
+            console.log("This is a world map: " + world);
+
+            /* If it is a world map, we add a class name to the html elements,
+               and we use this class name in implementing the CSS which draws a border
+             */
+            if (world) {
+                let conventional_map = document.getElementById("map-area");
+                let cartogram_map = document.getElementById("cartogram-area");
+                conventional_map.className += "world-border";
+                cartogram_map.className += "world-border";
+            } else {
+                let conventional_map = document.getElementById("map-area");
+                let cartogram_map = document.getElementById("cartogram-area");
+                conventional_map.classList.remove("world-border");
+                cartogram_map.classList.remove("world-border");
+            }
+
             /* We need to find out the map format. If the extrema is located in the bbox property, then we have
                GeoJSON. Otherwise, we have the old JSON format.
             */
@@ -2654,10 +2717,10 @@ class Cartogram {
                     max_y: mappack.original.bbox[3]
                 };
 
-                map.addVersion("1-conventional", new MapVersionData(mappack.original.features, extrema, mappack.original.tooltip, mappack.abbreviations, mappack.labels, MapDataFormat.GEOJSON));
+                map.addVersion("1-conventional", new MapVersionData(mappack.original.features, extrema, mappack.original.tooltip, mappack.abbreviations, mappack.labels, MapDataFormat.GEOJSON, world));
 
             } else {
-                map.addVersion("1-conventional", new MapVersionData(mappack.original.features, mappack.original.extrema, mappack.original.tooltip, mappack.abbreviations, mappack.labels, MapDataFormat.GOCARTJSON));
+                map.addVersion("1-conventional", new MapVersionData(mappack.original.features, mappack.original.extrema, mappack.original.tooltip, mappack.abbreviations, mappack.labels, MapDataFormat.GOCARTJSON, world));
             }
 
             if(mappack.population.hasOwnProperty("bbox")) {
@@ -2669,10 +2732,10 @@ class Cartogram {
                     max_y: mappack.population.bbox[3]
                 };
 
-                map.addVersion("2-population", new MapVersionData(mappack.population.features, extrema, mappack.population.tooltip, null, null, MapDataFormat.GEOJSON));
+                map.addVersion("2-population", new MapVersionData(mappack.population.features, extrema, mappack.population.tooltip, null, null, MapDataFormat.GEOJSON, world));
 
             } else {
-                map.addVersion("2-population", new MapVersionData(mappack.population.features, mappack.population.extrema, mappack.population.tooltip, null, null, MapDataFormat.GOCARTJSON));
+                map.addVersion("2-population", new MapVersionData(mappack.population.features, mappack.population.extrema, mappack.population.tooltip, null, null, MapDataFormat.GOCARTJSON, world));
             }            
 
             if(cartogram !== null) {
@@ -2725,4 +2788,48 @@ class Cartogram {
 
     }
 
+}
+
+/**
+ * WorldMapProjection is an abstract class which contains methods for transforming
+ * longitude and latitude to a different projection.
+ */
+class WorldMapProjection {
+    constructor() {
+        if (this.constructor == WorldMapProjection)
+            throw new Error("Abstract classes cannot be instantiated.");
+    }
+
+    transformLongitude(longitude) {
+        throw new Error("Method 'transformLongitude()' must be implemented.");
+    }
+
+    transformLatitude(latitude) {
+        throw new Error("Method 'transformLatitude()' must be implemented.");
+    }
+
+    transformLongLat(longlat) {
+        return [this.transformLongitude(longlat[0]), this.transformLatitude(longlat[1])];
+    }
+}
+
+/**
+ * GallPetersProjection is a concrete class that implements the methods in WorldMapProjection.
+ */
+
+class GallPetersProjection extends WorldMapProjection {
+    constructor() {
+        super();
+        this.R = 80;
+    }
+
+    transformLongitude(longitude) {
+        let longitudeInRadians = longitude * Math.PI / 180;
+        return longitudeInRadians * this.R / Math.SQRT2;
+    }
+
+    transformLatitude(latitude) {
+        let latitudeInRadians = latitude * Math.PI / 180;
+        return this.R * Math.SQRT2 * Math.sin(latitudeInRadians);
+    }
 }
