@@ -12,7 +12,6 @@ from handlers import singapore
 from handlers import japan2
 from handlers import france
 from handlers import uae
-from handlers import italy
 from handlers import asean
 from handlers import mexico
 from handlers import singaporePA
@@ -21,7 +20,11 @@ from handlers import netherlands
 from handlers import spain4
 from handlers import thailand
 from handlers import phl
-from handlers import israel2
+from handlers import israel3
+from handlers import vietnam
+from handlers import southAfrica
+from handlers import italy2
+from handlers import colombia
 from handlers import southKorea2
 from handlers import newZealand
 from handlers import europe
@@ -43,6 +46,18 @@ from handlers import belgium
 from handlers import russia
 from handlers import nigeria
 from handlers import indonesia
+from handlers import luxembourg
+from handlers import bangladesh
+from handlers import sanMarino
+from handlers import portugal
+from handlers import greece
+from handlers import malaysia
+from handlers import qatar
+from handlers import turkey
+from handlers import cambodia
+from handlers import andorra
+from handlers import ethiopia
+from handlers import myanmar
 from handlers import world_med
 from handlers import world_test
 # ---addmap.py header marker---
@@ -100,7 +115,6 @@ cartogram_handlers = {
 'japan2': japan2.CartogramHandler(),
 'france': france.CartogramHandler(),
 'uae': uae.CartogramHandler(),
-'italy': italy.CartogramHandler(),
 'asean': asean.CartogramHandler(),
 'mexico': mexico.CartogramHandler(),
 'singaporePA': singaporePA.CartogramHandler(),
@@ -109,7 +123,11 @@ cartogram_handlers = {
 'spain4': spain4.CartogramHandler(),
 'thailand': thailand.CartogramHandler(),
 'phl': phl.CartogramHandler(),
-'israel2': israel2.CartogramHandler(),
+'israel3': israel3.CartogramHandler(),
+'vietnam': vietnam.CartogramHandler(),
+'southAfrica': southAfrica.CartogramHandler(),
+'italy2': italy2.CartogramHandler(),
+'colombia': colombia.CartogramHandler(),
 'southKorea2': southKorea2.CartogramHandler(),
 'newZealand': newZealand.CartogramHandler(),
 'europe': europe.CartogramHandler(),
@@ -131,8 +149,20 @@ cartogram_handlers = {
 'nigeria': nigeria.CartogramHandler(),
 'russia':russia.CartogramHandler(),
 'indonesia':indonesia.CartogramHandler(),
+'luxembourg': luxembourg.CartogramHandler(),
+'bangladesh': bangladesh.CartogramHandler(),
+'sanMarino': sanMarino.CartogramHandler(),
+'portugal': portugal.CartogramHandler(),
+'greece': greece.CartogramHandler(),
+'malaysia': malaysia.CartogramHandler(),
+'qatar': qatar.CartogramHandler(),
+'turkey': turkey.CartogramHandler(),
+'cambodia': cambodia.CartogramHandler(),
+'andorra': andorra.CartogramHandler(),
+'ethiopia': ethiopia.CartogramHandler(),
+'myanmar': myanmar.CartogramHandler(),
 'world_med': world_med.CartogramHandler(),
-'world_test': world_test.CartogramHandler(),
+'world_test': world_test.CartogramHandler()
 # ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }

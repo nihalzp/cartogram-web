@@ -310,13 +310,13 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
                         
                         path = "M {} z {}".format(polygon_path, " ".join(hole_paths))
 
-                        #region = find_region_by_id(feature["properties"]["cartogram_id"])
-                        region = find_region_by_id(feature["id"])
+                        region = find_region_by_id(feature["properties"]["cartogram_id"])
+                        #region = find_region_by_id(feature["id"])
 
                         #svg_file.write('<path gocart:regionname="{}" d="{}" id="polygon-{}" class="region-{}" fill="#aaaaaa" stroke="#000000" stroke-width="1"/>\n'.format(region["name"], path, polygon_id, feature["properties"]["cartogram_id"]))
                         svg_file.write(
                             '<path gocart:regionname="{}" d="{}" id="polygon-{}" class="region-{}" fill="#aaaaaa" stroke="#000000" stroke-width="1"/>\n'.format(
-                                region["name"], path, polygon_id, feature["id"]))
+                                region["name"], path, polygon_id, feature["properties"]["cartogram_id"]))
                     elif feature["geometry"]["type"] == "MultiPolygon":
 
                         for polygon in feature["geometry"]["coordinates"]:
@@ -720,8 +720,7 @@ def data(map_name):
         print(repr(e))
         cleanup()
         return
-    
-    print()
+
     print("Generating conventional map...")
     try:
 
@@ -746,6 +745,7 @@ def data(map_name):
     print()
     print("I will now generate the finalized data entry template.")
     print()
+
 
     print("Reading static/cartdata/{}/template.csv...".format(map_name))
     final_template = []
