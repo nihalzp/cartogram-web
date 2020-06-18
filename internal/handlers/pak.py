@@ -12,7 +12,7 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
     
     def validate_values(self, values):
 
-        if len(values) != 7:
+        if len(values) != 8:
             return False
         
         for v in values:
@@ -24,15 +24,16 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
     def gen_area_data(self, values):
         return """1 {} Azad Kashmir
 2 {} Balochistan
-3 {} Islamabad Capital Territory
-4 {} Khyber Pakhtunkhwa
-5 {} Gilgit-Baltistan
-6 {} Punjab
-7 {} Sindh""".format(*values)
+3 {} Federally Administered Tribal Areas
+4 {} Gilgit-Baltistan
+5 {} Islamabad Capital Territory
+6 {} Khyber Pakhtunkhwa
+7 {} Punjab
+8 {} Sindh""".format(*values)
     
     def expect_geojson_output(self):
         return True
 
     def csv_to_area_string_and_colors(self, csvfile):
 
-        return self.order_by_example(csv.reader(csvfile), "Province", 0, 1, 2, 3, ["Azad Kashmir","Balochistan","Islamabad Capital Territory","Khyber Pakhtunkhwa","Gilgit-Baltistan","Punjab","Sindh"], [0.0 for i in range(0,7)], {"Azad Kashmir":"1","Balochistan":"2","Islamabad Capital Territory":"3","Khyber Pakhtunkhwa":"4","Gilgit-Baltistan":"5","Punjab":"6","Sindh":"7"})
+        return self.order_by_example(csv.reader(csvfile), "Division", 0, 1, 2, 3, ["Azad Kashmir","Balochistan","Federally Administered Tribal Areas","Gilgit-Baltistan","Islamabad Capital Territory","Khyber Pakhtunkhwa","Punjab","Sindh"], [0.0 for i in range(0,8)], {"Azad Kashmir":"1","Balochistan":"2","Federally Administered Tribal Areas":"3","Gilgit-Baltistan":"4","Islamabad Capital Territory":"5","Khyber Pakhtunkhwa":"6","Punjab":"7","Sindh":"8"})
