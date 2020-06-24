@@ -1366,6 +1366,9 @@ class CartMap {
 
             this.regions[region_id].versions[current_sysname].polygons.forEach(function(polygon){
 
+                // const targetPath = this.regions[region_id].versions[new_sysname].polygons.find(poly => poly.id == polygon.id).path;
+                // console.log(targetPath);
+
                 d3.select('#path-' + element_id + '-' + polygon.id)
                     .attr('d', polygon.path)
                     .transition()
@@ -1373,6 +1376,9 @@ class CartMap {
                     .duration(1000)
                     .attr('d', this.regions[region_id].versions[new_sysname].polygons.find(poly => poly.id == polygon.id).path
                     );
+                    // .attrTween('d', function() {
+                    //     return d3.interpolatePath(polygon.path, targetPath);
+                    // })
                 
                 /* Change the color and ensure correct highlighting behavior after animation
                    is complete
@@ -2524,7 +2530,6 @@ class Cartogram {
                             /* We need to find out the map format. If the extrema is located in the bbox property, then we have
                                GeoJSON. Otherwise, we have the old JSON format.
                             */
-
                             if(cartogram.hasOwnProperty("bbox")) {
 
                                 var extrema = {
@@ -2534,7 +2539,14 @@ class Cartogram {
                                     max_y: cartogram.bbox[3]
                                 };
 
-                                this.model.map.addVersion("3-cartogram", new MapVersionData(cartogram.features, extrema, response.tooltip, null, null, MapDataFormat.GEOJSON));
+                            // We check if the generated cartogram is a world map by checking the extent key
+                            let world = false;
+                            if ("extent" in cartogram) {
+                                world = (cartogram.extent === 'world');
+                            }
+                            console.log('The generated cartogram is a world map: ' + world);
+
+                                this.model.map.addVersion("3-cartogram", new MapVersionData(cartogram.features, extrema, response.tooltip, null, null, MapDataFormat.GEOJSON, world));
 
 
                             } else {
