@@ -1,0 +1,242 @@
+Region Id,Region Data,Region Name,Region Abbreviation
+1,NA,Afghanistan,AFG
+2,NA,Aland,FI1
+3,NA,Albania,ALB
+4,NA,Algeria,DZA
+5,NA,American Samoa,US1
+6,NA,Andorra,AND
+7,NA,Angola,AGO
+8,NA,Anguilla,GB1
+9,NA,Antarctica,ATA
+10,NA,Antigua and Barb.,ATG
+11,NA,Argentina,ARG
+12,NA,Armenia,ARM
+13,NA,Aruba,NL1
+14,NA,Ashmore and Cartier Is.,AU1
+15,NA,Australia,AU1
+16,NA,Austria,AUT
+17,NA,Azerbaijan,AZE
+18,NA,Bahamas,BHS
+19,NA,Bahrain,BHR
+20,NA,Bangladesh,BGD
+21,NA,Barbados,BRB
+22,NA,Belarus,BLR
+23,NA,Belgium,BEL
+24,NA,Belize,BLZ
+25,NA,Benin,BEN
+26,NA,Bermuda,GB1
+27,NA,Bhutan,BTN
+28,NA,Bolivia,BOL
+29,NA,Bosnia and Herz.,BIH
+30,NA,Botswana,BWA
+31,NA,Br. Indian Ocean Ter.,GB1
+32,NA,Brazil,BRA
+33,NA,British Virgin Is.,GB1
+34,NA,Brunei,BRN
+35,NA,Bulgaria,BGR
+36,NA,Burkina Faso,BFA
+37,NA,Burundi,BDI
+38,NA,Cabo Verde,CPV
+39,NA,Cambodia,KHM
+40,NA,Cameroon,CMR
+41,NA,Canada,CAN
+42,NA,Cayman Is.,GB1
+43,NA,Central African Rep.,CAF
+44,NA,Chad,TCD
+45,NA,Chile,CHL
+46,NA,China,CH1
+47,NA,Colombia,COL
+48,NA,Comoros,COM
+49,NA,Congo,COG
+50,NA,Cook Is.,NZ1
+51,NA,Costa Rica,CRI
+52,NA,Cote d'Ivoire,CIV
+53,NA,Croatia,HRV
+54,NA,Cuba,CUB
+55,NA,Curacao,NL1
+56,NA,Cyprus,CYP
+57,NA,Czechia,CZE
+58,NA,Dem. Rep. Congo,COD
+59,NA,Denmark,DN1
+60,NA,Djibouti,DJI
+61,NA,Dominica,DMA
+62,NA,Dominican Rep.,DOM
+63,NA,Ecuador,ECU
+64,NA,Egypt,EGY
+65,NA,El Salvador,SLV
+66,NA,Eq. Guinea,GNQ
+67,NA,Eritrea,ERI
+68,NA,Estonia,EST
+69,NA,eSwatini,SWZ
+70,NA,Ethiopia,ETH
+71,NA,Faeroe Is.,DN1
+72,NA,Falkland Is.,GB1
+73,NA,Fiji,FJI
+74,NA,Finland,FI1
+75,NA,Fr. Polynesia,FR1
+76,NA,Fr. S. Antarctic Lands,FR1
+77,NA,France,FR1
+78,NA,Gabon,GAB
+79,NA,Gambia,GMB
+80,NA,Georgia,GEO
+81,NA,Germany,DEU
+82,NA,Ghana,GHA
+83,NA,Greece,GRC
+84,NA,Greenland,DN1
+85,NA,Grenada,GRD
+86,NA,Guam,US1
+87,NA,Guatemala,GTM
+88,NA,Guernsey,GB1
+89,NA,Guinea,GIN
+90,NA,Guinea-Bissau,GNB
+91,NA,Guyana,GUY
+92,NA,Haiti,HTI
+93,NA,Heard I. and McDonald Is.,AU1
+94,NA,Honduras,HND
+95,NA,Hong Kong,CH1
+96,NA,Hungary,HUN
+97,NA,Iceland,ISL
+98,NA,India,IND
+99,NA,Indian Ocean Ter.,AU1
+100,NA,Indonesia,IDN
+101,NA,Iran,IRN
+102,NA,Iraq,IRQ
+103,NA,Ireland,IRL
+104,NA,Isle of Man,GB1
+105,NA,Israel,IS1
+106,NA,Italy,ITA
+107,NA,Jamaica,JAM
+108,NA,Japan,JPN
+109,NA,Jersey,GB1
+110,NA,Jordan,JOR
+111,NA,Kazakhstan,KAZ
+112,NA,Kenya,KEN
+113,NA,Kiribati,KIR
+114,NA,Kosovo,KOS
+115,NA,Kuwait,KWT
+116,NA,Kyrgyzstan,KGZ
+117,NA,Laos,LAO
+118,NA,Latvia,LVA
+119,NA,Lebanon,LBN
+120,NA,Lesotho,LSO
+121,NA,Liberia,LBR
+122,NA,Libya,LBY
+123,NA,Liechtenstein,LIE
+124,NA,Lithuania,LTU
+125,NA,Luxembourg,LUX
+126,NA,Macao,CH1
+127,NA,Macedonia,MKD
+128,NA,Madagascar,MDG
+129,NA,Malawi,MWI
+130,NA,Malaysia,MYS
+131,NA,Maldives,MDV
+132,NA,Mali,MLI
+133,NA,Malta,MLT
+134,NA,Marshall Is.,MHL
+135,NA,Mauritania,MRT
+136,NA,Mauritius,MUS
+137,NA,Mexico,MEX
+138,NA,Micronesia,FSM
+139,NA,Moldova,MDA
+140,NA,Monaco,MCO
+141,NA,Mongolia,MNG
+142,NA,Montenegro,MNE
+143,NA,Montserrat,GB1
+144,NA,Morocco,MAR
+145,NA,Mozambique,MOZ
+146,NA,Myanmar,MMR
+147,NA,N. Cyprus,CYN
+148,NA,N. Mariana Is.,US1
+149,NA,Namibia,NAM
+150,NA,Nauru,NRU
+151,NA,Nepal,NPL
+152,NA,Netherlands,NL1
+153,NA,New Caledonia,FR1
+154,NA,New Zealand,NZ1
+155,NA,Nicaragua,NIC
+156,NA,Niger,NER
+157,NA,Nigeria,NGA
+158,NA,Niue,NZ1
+159,NA,Norfolk Island,AU1
+160,NA,North Korea,PRK
+161,NA,Norway,NOR
+162,NA,Oman,OMN
+163,NA,Pakistan,PAK
+164,NA,Palau,PLW
+165,NA,Palestine,IS1
+166,NA,Panama,PAN
+167,NA,Papua New Guinea,PNG
+168,NA,Paraguay,PRY
+169,NA,Peru,PER
+170,NA,Philippines,PHL
+171,NA,Pitcairn Is.,GB1
+172,NA,Poland,POL
+173,NA,Portugal,PRT
+174,NA,Puerto Rico,US1
+175,NA,Qatar,QAT
+176,NA,Romania,ROU
+177,NA,Russia,RUS
+178,NA,Rwanda,RWA
+179,NA,S. Geo. and the Is.,GB1
+180,NA,S. Sudan,SDS
+181,NA,Saint Helena,GB1
+182,NA,Saint Lucia,LCA
+183,NA,Samoa,WSM
+184,NA,San Marino,SMR
+185,NA,Sao Tome and Principe,STP
+186,NA,Saudi Arabia,SAU
+187,NA,Senegal,SEN
+188,NA,Serbia,SRB
+189,NA,Seychelles,SYC
+190,NA,Siachen Glacier,KAS
+191,NA,Sierra Leone,SLE
+192,NA,Singapore,SGP
+193,NA,Sint Maarten,NL1
+194,NA,Slovakia,SVK
+195,NA,Slovenia,SVN
+196,NA,Solomon Is.,SLB
+197,NA,Somalia,SOM
+198,NA,Somaliland,SOL
+199,NA,South Africa,ZAF
+200,NA,South Korea,KOR
+201,NA,Spain,ESP
+202,NA,Sri Lanka,LKA
+203,NA,St-Barthelemy,FR1
+204,NA,St-Martin,FR1
+205,NA,St. Kitts and Nevis,KNA
+206,NA,St. Pierre and Miquelon,FR1
+207,NA,St. Vin. and Gren.,VCT
+208,NA,Sudan,SDN
+209,NA,Suriname,SUR
+210,NA,Sweden,SWE
+211,NA,Switzerland,CHE
+212,NA,Syria,SYR
+213,NA,Taiwan,TWN
+214,NA,Tajikistan,TJK
+215,NA,Tanzania,TZA
+216,NA,Thailand,THA
+217,NA,Timor-Leste,TLS
+218,NA,Togo,TGO
+219,NA,Tonga,TON
+220,NA,Trinidad and Tobago,TTO
+221,NA,Tunisia,TUN
+222,NA,Turkey,TUR
+223,NA,Turkmenistan,TKM
+224,NA,Turks and Caicos Is.,GB1
+225,NA,U.S. Virgin Is.,US1
+226,NA,Uganda,UGA
+227,NA,Ukraine,UKR
+228,NA,United Arab Emirates,ARE
+229,NA,United Kingdom,GB1
+230,NA,United States of America,US1
+231,NA,Uruguay,URY
+232,NA,Uzbekistan,UZB
+233,NA,Vanuatu,VUT
+234,NA,Vatican,VAT
+235,NA,Venezuela,VEN
+236,NA,Vietnam,VNM
+237,NA,W. Sahara,SAH
+238,NA,Wallis and Futuna Is.,FR1
+239,NA,Yemen,YEM
+240,NA,Zambia,ZMB
+241,NA,Zimbabwe,ZWE
