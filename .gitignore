@@ -1,7 +1,3 @@
 *.pyc
 **/__pycache__
-internal/web.py.bak
 .idea/
-internal/static/cartdata/
-data/
-internal/handlers/

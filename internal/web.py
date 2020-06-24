@@ -162,12 +162,9 @@ cartogram_handlers = {
 'andorra': andorra.CartogramHandler(),
 'ethiopia': ethiopia.CartogramHandler(),
 'myanmar': myanmar.CartogramHandler(),
-<<<<<<< HEAD
 'world_med': world_med.CartogramHandler(),
 'world_test': world_test.CartogramHandler()
-=======
 'chile': chile.CartogramHandler(),
->>>>>>> upstream/master
 # ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
