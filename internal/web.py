@@ -66,7 +66,7 @@ from handlers import peru
 from handlers import pak
 from handlers import bolivia
 from handlers import iceland
-from handlers import domrep
+from handlers import laos
 # ---addmap.py header marker---
 # !!!END DO NOT MODFIY
 
@@ -176,7 +176,7 @@ cartogram_handlers = {
 'pak': pak.CartogramHandler(),
 'bolivia': bolivia.CartogramHandler(),
 'iceland': iceland.CartogramHandler(),
-'domrep': domrep.CartogramHandler(),
+'laos': laos.CartogramHandler(),
 # ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
