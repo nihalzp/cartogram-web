@@ -38,7 +38,12 @@
                    max_y: cartogram_data.bbox[3]
                };
 
-               window.cartogram.switchMap("{{default_cartogram_handler}}", "", new MapVersionData(cartogram_data.features, extrema, cartogramui_data.tooltip, null, null, MapDataFormat.GEOJSON), cartogramui_data.color_data);
+           // We check if the generated cartogram is a world map by detecting the extent key
+           let world = false;
+           if ("extent" in cartogram_data) {
+               world = (cartogram_data.extent === 'world');
+           }
+               window.cartogram.switchMap("{{default_cartogram_handler}}", "", new MapVersionData(cartogram_data.features, extrema, cartogramui_data.tooltip, null, null, MapDataFormat.GEOJSON, world), cartogramui_data.color_data);
 
 
            } else {
