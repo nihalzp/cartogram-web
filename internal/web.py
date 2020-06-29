@@ -61,6 +61,15 @@ from handlers import myanmar
 from handlers import world_med
 from handlers import world_test
 from handlers import chile
+from handlers import kaz
+from handlers import sudan
+from handlers import mongolia
+from handlers import peru
+from handlers import pak
+from handlers import bolivia
+from handlers import iceland
+from handlers import laos
+from handlers import domrep
 # ---addmap.py header marker---
 # !!!END DO NOT MODFIY
 
@@ -165,6 +174,15 @@ cartogram_handlers = {
 'world_med': world_med.CartogramHandler(),
 'world_test': world_test.CartogramHandler()
 'chile': chile.CartogramHandler(),
+'kaz': kaz.CartogramHandler(),
+'sudan': sudan.CartogramHandler(),
+'mongolia': mongolia.CartogramHandler(),
+'peru': peru.CartogramHandler(),
+'pak': pak.CartogramHandler(),
+'bolivia': bolivia.CartogramHandler(),
+'iceland': iceland.CartogramHandler(),
+'laos': laos.CartogramHandler(),
+'domrep': domrep.CartogramHandler(),
 # ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
