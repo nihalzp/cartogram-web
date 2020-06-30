@@ -197,3 +197,23 @@ You should also create a pull request on GitHub to let me know that you have fin
 
 ![Pull Request](pull-request.png)
 
+
+## Preparing the World Map 
+
+Please follow these steps for preparing the world map.
+
+1. Prepare 2 seperate processedmap.json files, one to display on the left and one to display on the right (for cartogram calculations). E.g. normal_map.json, pre_expanded_map.json.
+
+2. Go through the addmap wizard process as per normal using the processedmap.json which you would like to display on the left (e.g. normal_map.json).
+
+3. Go through the addmap wizard process as per normal using the processedmap.json which you would like to use for the cartogram calculation (e.g. pre_expanded_map.json).
+
+4. Now you should have 2 maps which you created with the addmap wizard and their respective files (in handlers/..., cartdata/..., etc.).
+
+5. Navigate to cartogram-web/internal/static/cartdata/normal_map and copy original.json and paste it into cartogram-web/internal/static/cartdata/pre_expanded_map. (You can temporarily move the original.json from cartogram-web/internal/static/cartdata/pre_expanded_map somewhere else first in case you need it later).
+
+6. cd to cartogram/web-internal
+
+7. Run this command: ../../runcmd.sh web python mappackify.py pre_expanded_map. I believe this combines all the files, including original.json in the map's cartdata folder into its mappack.json.
+
+8. Open up your browser and visit the website on your local machine. You should now see the left map as the one generated from normal_map.json and the right map generated from pre_expanded_map.json.
