@@ -445,10 +445,11 @@ class MapVersion {
      * @param {Extrema} extrema Extrema for this map version
      * @param {Labels} labels The labels of the map version. Optional.
      */
-    constructor(name, extrema, labels=null) {
+    constructor(name, extrema, labels=null, world = false) {
         this.name = name;
         this.extrema = extrema;
         this.labels = labels;
+        this.world = world;
     }
 }
 
@@ -676,7 +677,11 @@ class MapVersionData {
          * @type {Labels}
          */
         this.labels = labels;
-        
+
+        /**
+         * @type {boolean}
+         */
+        this.world = world;
     }
 
 }
@@ -1150,6 +1155,7 @@ class CartMap {
             data.name,
             data.extrema,
             data.labels,
+            data.world
         );
     }
 
@@ -1316,41 +1322,104 @@ class CartMap {
             I created labels using Inkscape with the maps that were scaled for the purposes of area equalization.
             Scaling the labels like this ensures that they are displayed properly.
             */
-            var scale_x = this.width / ((version.extrema.max_x - version.extrema.min_x) * labels.scale_x);
-            var scale_y = this.height / ((version.extrema.max_y - version.extrema.min_y) * labels.scale_y);
 
-            var text = canvas.selectAll("text")
-                        .data(labels.labels)
-                        .enter()
-                        .append("text");
+            // Label transformation for world map projection
+            if (version.world) {
 
-            var textLabels = text.attr('x', d => d.x * scale_x)
-                        .attr('y', d => d.y * scale_y)
-                        .attr('font-family', 'sans-serif')
-                        .attr('font-size', '7.5px')
-                        .attr('fill', '#000')
-                        .text(d => d.text)
+                /* We define the transformations that the label coordinates have to go through:
+                   Inkscape SVG -> Longitude & Latitude -> Gall-Peters -> Inkscape SVG
+                 */
 
-            var lines = canvas.selectAll("line")
-                        .data(labels.lines)
-                        .enter()
-                        .append("line");
+                // 1) Inkscape svg -> longitude latitude
+                const xMinLong = -180
+                const yMaxLat = 90
+                const x2LongLat = x => (x / labels.scale_x) + xMinLong;
+                const y2LongLat = y => yMaxLat - (y / labels.scale_y);
 
-            var labelLines = lines.attr('x1', d => d.x1 * scale_x)
-                        .attr('x2', d => d.x2 * scale_x)
-                        .attr('y1', d => d.y1 * scale_y)
-                        .attr('y2', d => d.y2 * scale_y)
-                        .attr('stroke-width', 1)
-                        .attr('stroke', '#000');
+                // 2) longlat -> gall peters
+                let project = new GallPetersProjection();
+                const x2Gall = project.transformLongitude;
+                const y2Gall = project.transformLatitude;
 
+                // 3) gall peters -> inkscape svg
+                const xMinGall = project.transformLongitude(-180);
+                const yMaxGall = project.transformLatitude(90);
+                const gallWidth = project.transformLongitude(180) - xMinGall;
+                const gallScale = 750 / gallWidth;
+                const x2Ink = x => (x - xMinGall) * gallScale;
+                const y2Ink = y => (yMaxGall - y) * gallScale;
 
+                // We define a pipe function to accumulate the transformations.
+                const pipe = (...fns) => (x) => fns.reduce((accumulator, currentFunction) =>
+                                                           currentFunction(accumulator), x);
 
+                const xPipeline = pipe(x2LongLat,
+                                       x2Gall,
+                                       x2Ink);
+                const yPipeLine = pipe(y2LongLat,
+                                       y2Gall,
+                                       y2Ink);
+
+                var scale_x = this.width / ((version.extrema.max_x - version.extrema.min_x) * gallScale);
+                var scale_y = this.height / ((version.extrema.max_y - version.extrema.min_y) * gallScale);
+
+                var text = canvas.selectAll("text")
+                    .data(labels.labels)
+                    .enter()
+                    .append("text");
+
+                var textLabels = text.attr('x', d => xPipeline(d.x) * scale_x)
+                    .attr('y', d => yPipeLine(d.y) * scale_y)
+                    .attr('font-family', 'sans-serif')
+                    .attr('font-size', '7.5px')
+                    .attr('fill', '#000')
+                    .text(d => d.text)
+
+                var lines = canvas.selectAll("line")
+                    .data(labels.lines)
+                    .enter()
+                    .append("line");
+
+                var labelLines = lines.attr('x1', d => xPipeline(d.x1) * scale_x)
+                    .attr('x2', d => xPipeline(d.x2) * scale_x)
+                    .attr('y1', d => yPipeLine(d.y1) * scale_y)
+                    .attr('y2', d => yPipeLine(d.y2) * scale_y)
+                    .attr('stroke-width', 1)
+                    .attr('stroke', '#000');
+
+            } else {
+                // Label transformation for non-World Maps.
+
+                var scale_x = this.width / ((version.extrema.max_x - version.extrema.min_x) * labels.scale_x);
+                var scale_y = this.height / ((version.extrema.max_y - version.extrema.min_y) * labels.scale_y);
+
+                var text = canvas.selectAll("text")
+                    .data(labels.labels)
+                    .enter()
+                    .append("text");
+
+                var textLabels = text.attr('x', d => d.x * scale_x)
+                    .attr('y', d => d.y * scale_y)
+                    .attr('font-family', 'sans-serif')
+                    .attr('font-size', '7.5px')
+                    .attr('fill', '#000')
+                    .text(d => d.text)
+
+                var lines = canvas.selectAll("line")
+                    .data(labels.lines)
+                    .enter()
+                    .append("line");
+
+                var labelLines = lines.attr('x1', d => d.x1 * scale_x)
+                    .attr('x2', d => d.x2 * scale_x)
+                    .attr('y1', d => d.y1 * scale_y)
+                    .attr('y2', d => d.y2 * scale_y)
+                    .attr('stroke-width', 1)
+                    .attr('stroke', '#000');
+
+            }
         }
-
     }
-
-
-
 
     /**
      * switchVersion switches the map version displayed in the element with the given ID with an animation.
@@ -1385,7 +1454,7 @@ class CartMap {
                 */
                 window.setTimeout(function(){
                     if(this.regions[region_id].versions[new_sysname].value === "NA") {
-                        document.getElementById('path-' + element_id + '-' + polygon.id).setAttribute('fill', '#CCCCCC');
+                        document.getElementById('path-' + element_id + '-' + polygon.id).setAttribute('fill', '#cccccc');
 
                         document.getElementById('path-' + element_id + '-' + polygon.id).classList.remove('path-' + element_id + '-' + region_id);
                         document.getElementById('path-' + element_id + '-' + polygon.id).classList.add('path-' + element_id + '-' + region_id + '-na');
@@ -1686,25 +1755,22 @@ class Cartogram {
      */
     drawBarChartFromTooltip(container, tooltip) {
 
-        var margin = {top: 5, right: 5, bottom: 5, left: 5},
+        var margin = {top: 5, right: 5, bottom: 5, left: 50},
         width = 800 - margin.left - margin.right,
         height = 400 - margin.top - margin.bottom;
         
         // ranges
-        var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+        var x = d3.scaleBand()
+                  .rangeRound([0, width])
+                  .padding(0.05);
 
-        var y = d3.scale.linear().range([height, 0]);
+        var y = d3.scaleLinear().range([height, 0]);
 
         // axes
-        var xAxis = d3.svg.axis()
-            .scale(x)
-            .orient("bottom")
+        var xAxis = d3.axisBottom(x);
 
-
-        var yAxis = d3.svg.axis()
-            .scale(y)
-            .orient("left")
-            .ticks(10);
+        var yAxis = d3.axisLeft(y)
+                      .ticks(10);
         
         // SVG element
         var svg = d3.select("#" + container).append("svg")
@@ -1766,7 +1832,7 @@ class Cartogram {
         .enter().append("rect")
         .attr("class", "bar")
         .attr("x", function(d) { return x(d.name); })
-        .attr("width", x.rangeBand())
+        .attr("width", x.bandwidth())
         .attr("y", function(d) { return y(d.value); })
         .attr("height", function(d) { return height - y(d.value); });
 
@@ -1793,17 +1859,15 @@ class Cartogram {
             height = 450,
             radius = Math.min(width, height) / 2;
 
-        const pie = d3.layout.pie()
+        const pie = d3.pie()
             .sort(null)
-            .value(function(d) {
-                return d.value;
-            });
+            .value(d => d.value);
 
-        const arc = d3.svg.arc()
+        const arc = d3.arc()
             .outerRadius(radius * 0.8)
-            .innerRadius(radius * 0.0);
+            .innerRadius(0);
 
-        const outerArc = d3.svg.arc()
+        const outerArc = d3.arc()
             .innerRadius(radius * 0.9)
             .outerRadius(radius * 0.9);
 
@@ -1901,76 +1965,75 @@ class Cartogram {
             d.value !== "NA" ? total + d.value : total
             , 0);
 
-        const slice = svg
+        let slice = svg
             .select(".slices")
             .selectAll("path.slice")
-            .data(pie(data), key);
+            .data(pie(data));
 
+        slice = slice.enter()
+                     .insert("path")
+                     .style("fill", d => d.data.color)
+                     .attr("class", "slice")
+                     .on("mouseover", function(d, i){
 
-        slice.enter()
-            .insert("path")
-            .style("fill", d => d.data.color)
-            .attr("class", "slice")
-            .on("mouseover", function(d, i){
+                         d3.select(this).style("fill", tinycolor(d.data.color).brighten(20));
 
-                d3.select(this).style("fill", tinycolor(d.data.color).brighten(20));
+                         Tooltip.drawWithEntries(
+                             d3.event,
+                             d.data.name,
+                             d.data.abbreviation,
+                             [{
+                                 name: tooltip.label,
+                                 value: d.data.value,
+                                 unit: tooltip.unit
+                             }]
+                         );
+                     })
+                     .on("mousemove", function(d, i){
 
-                Tooltip.drawWithEntries(
-                    d3.event,
-                    d.data.name,
-                    d.data.abbreviation,
-                    [{
-                        name: tooltip.label,
-                        value: d.data.value,
-                        unit: tooltip.unit
-                    }]
-                );
+                         Tooltip.drawWithEntries(
+                             d3.event,
+                             d.data.name,
+                             d.data.abbreviation,
+                             [{
+                                 name: tooltip.label,
+                                 value: d.data.value,
+                                 unit: tooltip.unit
+                             }]
+                         );
+                     })
+                     .on("mouseout", function(d, i){
 
-            })
-            .on("mousemove", function(d, i){
+                         d3.select(this).style("fill", d.data.color);
+                         Tooltip.hide();
 
-                Tooltip.drawWithEntries(
-                    d3.event,
-                    d.data.name,
-                    d.data.abbreviation,
-                    [{
-                        name: tooltip.label,
-                        value: d.data.value,
-                        unit: tooltip.unit
-                    }]
-                );
-            })
-            .on("mouseout", function(d, i){
-
-                d3.select(this).style("fill", d.data.color);
-                Tooltip.hide();
-
-            });
+                     })
+                     .merge(slice)
 
         slice.transition().duration(1000)
-            .attrTween("d", d => {
-                this._current = this._current || d;
-                const interpolate = d3.interpolate(this._current, d);
-                this._current = interpolate(0);
-                return function(t) {
-                    return arc(interpolate(t));
-                };
-            });
+             .attrTween("d", d => {
+                 this._current = this._current || d;
+                 const interpolate = d3.interpolate(this._current, d);
+                 this._current = interpolate(0);
+                 return function(t) {
+                     return arc(interpolate(t));
+                 };
+             })
 
         slice.exit()
             .remove();
 
-        const text = svg.select(".labels").selectAll("text")
-            .data(pie(data), key);
-
-        text.enter()
-            .append("text")
-            .attr("dy", ".35em")
-            .text(d => d.data.abbreviation)
-            .filter(d => d.data.value < (0.05 * totalValue))
-            .style("display", "none");
-
         const midAngle = d => d.startAngle + (d.endAngle - d.startAngle) / 2;
+
+        let text = svg.select(".labels").selectAll("text")
+            .data(pie(data), key)
+
+        text = text.enter()
+                   .filter(d => d.data.value >= (0.05 * totalValue))  // keep labels for slices that make up >= 5%
+                   .append("text")
+                   .attr("dy", ".35em")
+                   .text(d => d.data.abbreviation)
+                   .merge(text);
 
         text.transition().duration(1000)
             .attrTween("transform", function(d) {
@@ -1997,30 +2060,28 @@ class Cartogram {
         text.exit()
             .remove();
 
-        const polyline = svg.select(".lines").selectAll("polyline")
-            .data(pie(data), key);
+        let polyline = svg.select(".lines").selectAll("polyline")
+            .data(pie(data), key)
 
         polyline.enter()
-            .append("polyline")
-            .filter(d => d.data.value < (0.05 * totalValue))
-            .style("display", "none");
-
-
-        polyline.transition().duration(1000)
-            .attrTween("points", function(d) {
-                this._current = this._current || d;
-                var interpolate = d3.interpolate(this._current, d);
-                this._current = interpolate(0);
-                return function(t) {
-                    var d2 = interpolate(t);
-                    var pos = outerArc.centroid(d2);
-                    pos[0] = radius * 0.95 * (midAngle(d2) < Math.PI ? 1 : -1);
-                    return [arc.centroid(d2), outerArc.centroid(d2), pos];
-                };
-            });
+                .filter(d => d.data.value >= (0.05 * totalValue))  // keep polylines for slices that make up >= 5%
+                .append("polyline")
+                .transition()
+                .duration(1000)
+                .attrTween("points", function(d) {
+                    this._current = this._current || d;
+                    var interpolate = d3.interpolateObject(this._current, d);
+                    this._current = interpolate(0);
+                    return function(t) {
+                        var d2 = interpolate(t);
+                        var pos = outerArc.centroid(d2);
+                        pos[0] = radius * 0.95 * (midAngle(d2) < Math.PI ? 1 : -1);
+                        return [arc.centroid(d2), outerArc.centroid(d2), pos];
+                    };
+                });
 
         polyline.exit()
-            .remove();
+                .remove();
 
     }
 
@@ -2189,7 +2250,35 @@ class Cartogram {
 
                 e.preventDefault();
 
-                document.getElementById('download-modal-svg-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('map-area').innerHTML);
+                // document.getElementById('download-modal-svg-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('map-area').innerHTML);
+
+                /*
+                Append legend elements and total count to the map SVG.
+                 */
+                let mapArea = document.getElementById('map-area').cloneNode(true);
+                let mapAreaSVG = mapArea.getElementsByTagName('svg')[0];
+                const mapHeight = parseFloat(mapAreaSVG.getAttribute('height'));
+
+                // Increase height of SVG to accommodate legend and total
+                mapAreaSVG.setAttribute('height', mapHeight + 100);
+
+                let legendSVG = document.getElementById('map-area-legend').cloneNode(true);
+
+                // Iterate legend SVG's text elements and add font attribute
+                for (let i = 0; i < legendSVG.getElementsByTagName('text').length; i++) {
+                    legendSVG.getElementsByTagName('text')[i].setAttribute('font-family', 'sans-serif')
+                }
+
+                // Iterate legend SVG's elements and append them to map SVG
+                for (let i = 0; i < legendSVG.children.length; i++) {
+                    let newY = parseFloat(legendSVG.children[i].getAttribute('y')) + mapHeight;
+                    legendSVG.children[i].setAttribute('y', newY);
+                    let newX = parseFloat(legendSVG.children[i].getAttribute('x')) + 20;
+                    legendSVG.children[i].setAttribute('x', newX);
+                    mapAreaSVG.appendChild(legendSVG.children[i].cloneNode(true));
+                };
+
+                document.getElementById('download-modal-svg-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + mapArea.innerHTML)
                 document.getElementById('download-modal-svg-link').download = "equal-area-map.svg";
 
                 document.getElementById('download-modal-geojson-link').href = "data:application/json;base64," + window.btoa(geojson);
@@ -2207,7 +2296,33 @@ class Cartogram {
 
                 e.preventDefault();
 
-                document.getElementById('download-modal-svg-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('cartogram-area').innerHTML);
+                //document.getElementById('download-modal-svg-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('cartogram-area').innerHTML);
+
+                /*
+                Append legend elements and total count to the cartogram SVG.
+                 */
+                let cartogramArea = document.getElementById('cartogram-area').cloneNode(true);
+                let cartogramAreaSVG = cartogramArea.getElementsByTagName('svg')[0];
+                const cartogramHeight = parseFloat(cartogramAreaSVG.getAttribute('height'));
+                cartogramAreaSVG.setAttribute('height', cartogramHeight + 100);
+
+                let legendSVG = document.getElementById('cartogram-area-legend').cloneNode(true);
+
+                // Iterate legend SVG's text elements and add font attribute
+                for (let i = 0; i < legendSVG.getElementsByTagName('text').length; i++) {
+                    legendSVG.getElementsByTagName('text')[i].setAttribute('font-family', 'sans-serif')
+                }
+
+                // Iterate legend SVG's elements and append them to map SVG
+                for (let i = 0; i < legendSVG.children.length; i++) {
+                    let newY = parseFloat(legendSVG.children[i].getAttribute('y')) + cartogramHeight;
+                    legendSVG.children[i].setAttribute('y', newY);
+                    let newX = parseFloat(legendSVG.children[i].getAttribute('x')) + 20;
+                    legendSVG.children[i].setAttribute('x', newX);
+                    cartogramAreaSVG.appendChild(legendSVG.children[i].cloneNode(true));
+                };
+
+                document.getElementById('download-modal-svg-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + cartogramArea.innerHTML);
                 document.getElementById('download-modal-svg-link').download = "cartogram.svg";
 
                 document.getElementById('download-modal-geojson-link').href = "data:application/json;base64," + window.btoa(geojson);
@@ -2309,13 +2424,20 @@ class Cartogram {
 
             }(this, unique_sharing_key), 500);
 
-            HTTP.streaming(
+            // HTTP.streaming(
+            //     this.config.cartogram_url,
+            //     "POST",
+            //     {'Content-type': 'application/x-www-form-urlencoded'},
+            //     req_body,
+            //     {}
+            // )
+
+            HTTP.post(
                 this.config.cartogram_url,
-                "POST",
-                {'Content-type': 'application/x-www-form-urlencoded'},
                 req_body,
-                {}
-            ).then(function(response){
+                {'Content-type': 'application/x-www-form-urlencoded'}
+            )
+                .then(function(response){
 
                 this.clearExtendedErrorInfo();
 
@@ -2720,8 +2842,12 @@ class Cartogram {
             if (world) {
                 let conventional_map = document.getElementById("map-area");
                 let cartogram_map = document.getElementById("cartogram-area");
-                conventional_map.className += "world-border";
-                cartogram_map.className += "world-border";
+
+                if (!conventional_map.classList.contains('world-border')) {
+                    conventional_map.className += "world-border";
+                    cartogram_map.className += "world-border";
+                }
+
             } else {
                 let conventional_map = document.getElementById("map-area");
                 let cartogram_map = document.getElementById("cartogram-area");
@@ -2845,16 +2971,15 @@ class WorldMapProjection {
 class GallPetersProjection extends WorldMapProjection {
     constructor() {
         super();
-        this.R = 80;
     }
 
     transformLongitude(longitude) {
         let longitudeInRadians = longitude * Math.PI / 180;
-        return longitudeInRadians * this.R / Math.SQRT2;
+        return longitudeInRadians * 80 / Math.SQRT2;
     }
 
     transformLatitude(latitude) {
         let latitudeInRadians = latitude * Math.PI / 180;
-        return this.R * Math.SQRT2 * Math.sin(latitudeInRadians);
+        return 80 * Math.SQRT2 * Math.sin(latitudeInRadians);
     }
 }
