@@ -14,7 +14,7 @@ To add a map, you will need the following files, information, and software:
 
 ## Preparing Your Data
 
-* Please refer to the bottom of this README for displaying a different map on the left (equal-area map) from the map on the right (for cartogram calculations)
+\* Please refer to the bottom of this README for displaying a different map on the left (equal-area map) from the map on the right (for cartogram calculations)
 
 The first step in adding a map is to prepare your data. Follow the steps at https://github.com/bbkc22113/geojson-to-csv-cartogram-web to generate a GeoJSON file (`_processedmap.json`) and a CSV file for your map.  Then, copy the GeoJSON file for the conventional map into `cartogram-docker/cartogram-web/data`. 
 
