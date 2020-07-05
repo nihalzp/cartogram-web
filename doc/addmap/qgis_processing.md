@@ -41,5 +41,29 @@ Once you are done, click "Run", and once it is finished click "View output". A n
 ### Step 2.3: Simplification
 Now that we have the world map in QGIS, we can begin simplification. 
 
-### Step 2.4: Exporting
-Under your `Layers` panel, right-click on your final layer, `Export` > `Save As...`.
+**Simplifying with v.generalize**
+
+- Reopen the GRASS toolbox (The icon with tools and grass in the third row of the QGIS toolbar)
+- In the "Modules" tab, search for "v.generalize"
+- Select your input vector map, which should be the new layer you created in Step 2.1
+- For "Feature Type" select "Boundary"
+- For "Generalization Algorithim", select "Douglas-Peucker Algorithim"
+- For "Maximal Tolerence Value", select a value between 0.1-0.01
+- Name your output map (suggest: (original name)-doug)
+- Once you are done, click "Run", and once it is finished click "View output". A new layer should appear under "Layers"
+
+**Simplifying with "Simplify" tool**
+
+**Vertex editing**
+
+## Step 2.4: Exporting
+Once you are finished simplifying the map, you can now export it as a GeoJSON file
+
+- Right click on the finished layer that you want to export
+- Go to Export > Save Features as
+- Under "Format", select "GeoJSON"
+- Select where you want to save the file under "File Name"
+- Under "CRS", select "WGS 84"
+- Once you are done, click "OK"
+
+The file should now be saved as a GeoJSON in the location you selected under "File Name"
