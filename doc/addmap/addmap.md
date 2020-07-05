@@ -14,7 +14,9 @@ To add a map, you will need the following files, information, and software:
 
 ## Preparing Your Data
 
-The first step in adding a map is to prepare your data. Follow the steps at https://github.com/bbkc22113/geojson-to-csv-cartogram-web to generate a GeoJSON file and a CSV file for your map.  Then, copy the GeoJSON file for the conventional map into `cartogram-docker/cartogram-web/data`. 
+* Please refer to the bottom of this README for displaying a different map on the left (equal-area map) from the map on the right (for cartogram calculations)
+
+The first step in adding a map is to prepare your data. Follow the steps at https://github.com/bbkc22113/geojson-to-csv-cartogram-web to generate a GeoJSON file (`_processedmap.json`) and a CSV file for your map.  Then, copy the GeoJSON file for the conventional map into `cartogram-docker/cartogram-web/data`. 
 
 Now, you should edit the CSV file. Insert an example dataset under the 'Region Data' column, and ensure that there is a filled 'Region Abbreviation' column (you may need to create it). Do not use population for your example dataset. You will add population data for your map later in this process. A good choice for the example dataset is GDP by region. 
 
@@ -203,3 +205,33 @@ Change directories to `cartogram-web/`. You should now commit your changes to yo
 You should also create a pull request on GitHub to let me know that you have finished adding the new map, so I can deploy it to the website. Navigate to your forked repository and click 'Create pull request'.
 
 ![Pull Request](pull-request.png)
+
+
+## Left/Right Map Display
+#### Displaying a different map on the left (equal-area map) from the map on the right (for cartogram calculations)
+
+1. Prepare 2x `_processedmap.json` files:
+* Map to display on the left (high-resolution equal-area map) (e.g. `highres_processedmap.json`)
+* Map on the right (for cartogram calculations) (e.g. `cartogram_calc_processedmap.json`)
+
+2. Run the first step of the Add Map Wizard as per normal for `highres_processedmap.json`.
+
+3. Fill in the data for the `-landarea.csv`, `-population.csv`, and `.svg` files.
+
+4. Replace `highres_processedmap.json` in the data folder with `cartogram_calc_processedmap.json`. Note that you need to literally 'replace' `highres_processedmap.json` - i.e. remove `highres_processedmap.json` f
+
+5. Run the second step of the Add Map Wizard as per normal for `highres_processedmap.json` (renamed `cartogram_calc_processedmap.json`).
+
+6. Move the original `highres_processedmap.json` (from steps 1-2) into `cartogram-web/internal/static/cartdata/highres_processedmap`.
+
+5. In `cartogram-web/internal/static/cartdata/highres_processedmap`, open `original.json`, and copy the key-value pair of `"tooltip": {...}` into `highres_processedmap.json`.
+
+6. Remove `original.json` from that folder and rename `highres_processedmap.json` to `original.json`, effectively replacing it.
+
+7. Change directories to `cartogram/web-internal` and update the `original.json` file
+```
+$ cd cartogram-web/internal
+$ ../../runcmd.sh web python mappackify.py highres_processedmap.json 
+```
+
+8. Visit the website on your local machine. You should now see the left map as the one generated from the original `highres_processedmap.json` and the right map from `cartogram_calc_processedmap.json`.
