@@ -34,11 +34,13 @@ Some region names may contain accent marks or other unicode characters. Please u
 
 When you're finished creating your CSV file, you should save it in `cartogram-docker/cartogram-web/data`. 
 
-### Adding "extent":"world" to processedmap.json (for a world map)
+### (For a world map) Adding "extent":"world" to _processedmap.json and adjusting bbox values.
 Open `_processedmap.json` in a text-editor.
 
 Add in the `"extent":"world"` key-value pair after `"type": "FeatureCollection"`.
 This will allow the cartogram executable to identify the GeoJSON as a world map.
+
+Change the value for the `"bbox"` key to `[ -180, -90, 180, 90 ]` to accurately display the North and South Poles.
 
 ## Initializing Your Map
 From here on, you will be making use of the Add Map Wizard. Before you can use this wizard to initialize your new map, you must start the Docker containers for the go-cart.io website. To do this, run
