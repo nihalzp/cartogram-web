@@ -2,6 +2,17 @@
 
 This guide will help you add a new map to the go-cart.io website. This guide assumes that you have already set up the website code for local testing and development by following the instructions here https://github.com/jansky/cartogram-docker.
 
+## Contents
+- [What You'll Need](#what-youll-need)
+- [Preparing Your Data](#preparing-your-data)
+- [Initializing Your Map](#initializing-your-map)
+- [Adding the Rest of Your Data](#adding-the-rest-of-your-data)
+    * [Adding Colors and Labels Using a Python Script (and Inkscape)](#adding-colors-and-labels-using-a-python-script-and-inkscape)
+    * [Adding Colors and Labels Using Inkscape](#adding-colors-and-labels-using-inkscape)
+- [Saving Your Changes](#saving-your-changes)
+
+\* [Left/Right Map Display](#leftright-map-display)
+
 ## What You'll Need
 
 To add a map, you will need the following files, information, and software:
@@ -18,7 +29,7 @@ To add a map, you will need the following files, information, and software:
 
 The first step in adding a map is to prepare your data. 
 
-#### Select 1. or 2. to edit your map and to generate a GeoJSON file (`_processedmap.json`) and a CSV file for your map:
+### Select 1. or 2. to edit your map and to generate a GeoJSON file (`_processedmap.json`) and a CSV file for your map:
 1. To use Mapshaper, follow the steps at https://github.com/bbkc22113/geojson-to-csv-cartogram-web.
 2. To use QGIS, follow the steps at [qgis_processing.md](qgis_processing.md). Then, follow steps 2.1, 2.4, and 3 at https://github.com/bbkc22113/geojson-to-csv-cartogram-web to generate the necessary GeoJSON files (`_processedmap.json`) and CSV file for your map.
 
@@ -108,7 +119,7 @@ At this point, the Add Map Wizard has produced several files in the `internal/` 
 
 You now have the option of adding colours and labels using a Python script (& Inkscape) or doing it completely manually using only Inkscape.
 
-## Adding Colors and Labels Using a Python Script (& Inkscape)
+## Adding Colors and Labels Using a Python Script (and Inkscape)
 This script adds colours and labels to `your-map.svg`
 
 1. After completing the first step of the Add Map Wizard, copy your `_processedmap.json`, `.svg`, and `_data.csv` files into `colour_label_svg/data`.
