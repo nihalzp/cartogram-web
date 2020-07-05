@@ -1,3 +1,12 @@
+# Guide to processing maps from GADM using QGIS
+
+- [Step 1: Download your map from GADM] (#step-1-download-your-map-from-gadm)
+- [Step 2: Process your map in QGIS] (#step-2-process-your-map-in-qgis)
+  * [Step 2.1: Importing] (#step-21-importing)
+  * [Step 2.2: Projection] (#step-22-projection)
+  * [Step 2.3: Simplification] (#step-23-simplification)
+  * [Step 2.4: Export] (#step-24-export)
+
 ## Step 1: Import map into QGIS
 Then, unzip the shapefile into a directory and import it into QGIS.
 
