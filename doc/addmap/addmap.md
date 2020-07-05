@@ -20,7 +20,7 @@ The first step in adding a map is to prepare your data.
 
 #### Select 1. or 2. to edit your map and to generate a GeoJSON file (`_processedmap.json`) and a CSV file for your map:
 1. To use Mapshaper, follow the steps at https://github.com/bbkc22113/geojson-to-csv-cartogram-web.
-2. To use QGIS, follow the steps at https://github.com/fillingthemoon/cartogram-web/blob/addmap_new/doc/addmap/qgis_processing.md. Then, follow steps 2.1, 2.4, and 3 at https://github.com/bbkc22113/geojson-to-csv-cartogram-web to generate the necessary GeoJSON files (`_processedmap.json`) and CSV file for your map.
+2. To use QGIS, follow the steps at [qgis_processing.md](qgis_processing.md). Then, follow steps 2.1, 2.4, and 3 at https://github.com/bbkc22113/geojson-to-csv-cartogram-web to generate the necessary GeoJSON files (`_processedmap.json`) and CSV file for your map.
 
 Then, copy the GeoJSON (`_processedmap.json`) file for the conventional map into `cartogram-docker/cartogram-web/data`. 
 
