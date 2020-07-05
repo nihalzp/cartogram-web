@@ -1,6 +1,6 @@
 # Adding a Map
 
-This guide will help you add a new map to the go-cart.io website. This guide assumes that you have already set up the website code for local testing and development.
+This guide will help you add a new map to the go-cart.io website. This guide assumes that you have already set up the website code for local testing and development as well as followed the instructions for setting up Docker for local development here https://github.com/jansky/cartogram-docker.
 
 ## What You'll Need
 
@@ -14,8 +14,7 @@ To add a map, you will need the following files, information, and software:
 
 ## Preparing Your Data
 
-The first step in adding a map is to prepare your data. Follow the steps at https://github.com/bbkc22113/geojson-to-csv-cartogram-web to generate a GeoJSON file and a CSV file for your map.  Then, copy the GeoJSON file for the conventional map into `CARTOGRAM_DATA_DIR` (the folder where the C code lives). 
-The first step in adding a map is to prepare your data. Follow the steps at https://github.com/bbkc22113/geojson-to-csv to generate a GeoJSON file and a CSV file for your map.  Then, copy the GeoJSON file for the conventional map into `CARTOGRAM_DATA_DIR` (the folder where the C code lives). 
+The first step in adding a map is to prepare your data. Follow the steps at https://github.com/bbkc22113/geojson-to-csv-cartogram-web to generate a GeoJSON file and a CSV file for your map.  Then, copy the GeoJSON file for the conventional map into `cartogram-docker/cartogram-web/data`. 
 
 Now, you should edit the CSV file. Insert an example dataset under the 'Region Data' column, and ensure that there is a filled 'Region Abbreviation' column (you may need to create it). Do not use population for your example dataset. You will add population data for your map later in this process. A good choice for the example dataset is GDP by region. 
 
@@ -25,25 +24,12 @@ Some region names may contain accent marks or other unicode characters. Please u
 
 **Important:** Before you finish, you should make sure that all of the region names are spelled correctly before you finish. If you notice that a region's name is misspelled, simply correct its spelling. Please note that after you initialize your map in the next step, you *cannot* correct spelling errors. Please double check the spelling of all the map region names before moving on to the next step.
 
-When you're finished creating your CSV file, you should save it in `CARTOGRAM_DATA_DIR`.
+When you're finished creating your CSV file, you should save it in `cartogram-docker/cartogram-web/data`. 
 
-## Initializing Your Map
+From here on, you will be making use of the Add Map Wizard. Before you can use this wizard to initialize your new map, you must start the Docker containers for the go-cart.io website. To do this, run
 
-Before creating a new map, you should create a Git branch to contain your work. Open a Terminal window and navigate to the `internal/` directory of the repository. Then, run
-
-    $ git checkout -b add-my-map-name
-
-replacing `my-map-name` with the name of your map, with no spaces. 
-
-**You should never add maps or make other changes on the default `master` branch!** You can confirm the branch you are currently on by running `git status`. 
-
-From here on, you will be making use of the Add Map Wizard. Before you can use this wizard to initialize your new map, you must enter the Python virtual environment used by the go-cart.io website code. To do this, run
-
-    $ source ./setupenv.sh
-
-Your command prompt should change to indicate the you are in the virtual environment:
-
-    (venv) $
+    $ cd cartogram-docker/
+    $ docker-compose up
 
 Now you can run the Add Map Wizard. You will need to pick a name for your map to be used by the website code (this is different from the user-friendly name seen by website users). This name **must not** include spaces, hyphens, underscores, or any punctuation. Below are some example names for your reference:
 
@@ -52,15 +38,15 @@ Now you can run the Add Map Wizard. You will need to pick a name for your map to
     Mainland China & Taiwan | china
     Germany                 | germany
 
-This code name must be unique. The Add Map Wizard will let you know if your choice of code name has already been taken.
+This map name must be unique. The Add Map Wizard will let you know if your choice of code name has already been taken.
 
-Once you have chosen a code name, you can run the Add Map Wizard:
+Once you have chosen a map name, you can open a new terminal window and run the Add Map Wizard.
 
-    (venv) $ python addmap.py init your-code-name
+    $ ./addmap.sh init your-map-name
 
 The wizard will then ask you a series of questions about your map, and generate files needed to complete the map addition process.
 
-    (venv) $ python addmap.py init france
+    $ ./addmap.sh init france
 
     Welcome to the Add Map Wizard!
 
@@ -99,18 +85,40 @@ The wizard will then ask you a series of questions about your map, and generate 
 
     All done!
 
-If there is a problem, the wizard will print an error message, clean up, and exit. If an error occurs while the wizard is editing `web.py`, and this file becomes corrupted, you will need to restore the backup manually. You can do this by running:
-
-    (venv) $ cp web.py.bak web.py
-
 ## Adding the Rest of Your Data
 
 At this point, the Add Map Wizard has produced several files in the `internal/` directory that you'll need to edit to complete the map addition process. First, you should edit `your-map-landarea.csv` and `your-map-population.csv` to add the population and land area information for each map region. You can edit these manually, using a text editor, or with a spreadsheet program like LibreOffice Calc or Microsoft Excel.
 
+## Adding Colors and Labels Using a Python Script (& Inkscape)
+This script adds colours and labels to `your-map.svg`
+
+1. After the completing the first step of the Add Map Wizard, place your `_processedmap.json`, `.svg`, and `_data.csv` files into `colouring_and_labelling/data`.
+
+2. Run the `colour_label_svg.py` script.
+```
+$ python colour_label_svg.py
+```
+
+3. Enter the name of each file when prompted. This script will apply topological colouring and label the centroid of each polygon in the `.svg`.
+```
+Enter the name of the .json file: _processedmap.json
+Enter the name of the .csv file: _data.csv
+Enter the name of the .svg file: .svg
+```
+
+Note: 
+
+4. Open the generated `_coloured_labelled.svg` file in Inkscape to make any additional edits to the colours and labels as you see fit.
+
+5. Replace the `.svg` in `cartogram-web/internal/data` with the newly generated `_coloured_labelled.svg` and rename it to the name of the file that was replaced.
+
+6. Continue with the second step of the Add Map Wizard.
+
+
+## Adding Colors and Labels Using Inkscape
 Now, by editing `your-map.svg` using Inkscape, you will set the default color for each map region and add labels for the conventional map.
 
 ### Adding Colors
-
 
 The go-cart.io website uses the same color scheme for all maps. The six colors you should use can be seen by going to the [color scheme page](http://colorbrewer2.org/#type=qualitative&scheme=Dark2&n=6) on ColorBrewer. To make the coloring process easier, you should download the ColorBrewer color palette file and import it into Inkscape (you only need to do this once).
 
@@ -169,30 +177,21 @@ Once you have finished adding all of your labels, you should save your SVG file 
 
 ### Finishing Up
 
-At this point, you're now ready to finish the map addition process. Open a Terminal window and navigate to the `internal/` directory of the repository. Then, run
+At this point, you're now ready to finish the map addition process. Open a Terminal window and navigate to the `cartogram-docker/` directory of the repository. Run the Add Map Wizard again:
 
-    $ source ./setupenv.sh
-
-Your command prompt should change to indicate the you are in the virtual environment:
-
-    (venv) $
-
-Now you can run the Add Map Wizard again:
-
-    (venv) $ python addmap.py data your-code-name
+    $ ./addmap.sh data your-map-name
 
 ## Saving Your Changes
 
-You should commit your changes to your Git branch, and push these changes to GitHub.
+Change directories to `cartogram-web/`. You should now commit your changes to your Git branch, and push these changes to GitHub.
 
-    $ git add handlers
-    $ git add static
+    $ cd cartogram-web/
+    $ git add internal/handlers
+    $ git add internal/static
+    $ git add data/[map_name]_processedmap.json
     $ git commit -a -m "added map New Map Name"
-    $ git push origin add-my-map-name
+    $ git push origin master
 
-Then, revert back to the master branch:
-
-    $ git checkout master
-You should also create a pull request on GitHub to let me know that you have finished adding the new map, so I can deploy it to the website. Navigate to https://github.com/jansky/cartogram-web/compare/, select your branch, and click 'Create pull request'.
+You should also create a pull request on GitHub to let me know that you have finished adding the new map, so I can deploy it to the website. Navigate to your forked repository and click 'Create pull request'.
 
 ![Pull Request](pull-request.png)
