@@ -19,7 +19,7 @@ To add a map, you will need the following files, information, and software:
 The first step in adding a map is to prepare your data. 
 
 #### Select 1. or 2. to edit your map and to generate a GeoJSON file (`_processedmap.json`) and a CSV file for your map:
-1. To use mapshaper, follow the steps at https://github.com/bbkc22113/geojson-to-csv-cartogram-web.
+1. To use Mapshaper, follow the steps at https://github.com/bbkc22113/geojson-to-csv-cartogram-web.
 2. To use QGIS, follow the steps at https://github.com/fillingthemoon/cartogram-web/blob/addmap_new/doc/addmap/qgis_processing.md. Then, follow steps 2.1, 2.4, and 3 at https://github.com/bbkc22113/geojson-to-csv-cartogram-web to generate the necessary GeoJSON files (`_processedmap.json`) and CSV file for your map.
 
 Then, copy the GeoJSON (`_processedmap.json`) file for the conventional map into `cartogram-docker/cartogram-web/data`. 
@@ -109,28 +109,48 @@ You now have the option of adding colours and labels using a Python script (& In
 ## Adding Colors and Labels Using a Python Script (& Inkscape)
 This script adds colours and labels to `your-map.svg`
 
-1. After completing the first step of the Add Map Wizard, copy your `_processedmap.json`, `.svg`, and `_data.csv` files into `colouring_and_labelling/data`.
+1. After completing the first step of the Add Map Wizard, copy your `_processedmap.json`, `.svg`, and `_data.csv` files into `colour_label_svg/data`.
 
-2. Run the `colour_label_svg.py` script.
+2. Change directories to `colour_label_svg` and set up your Python virtual environment for this directory.
+```
+$ cd colour_label_svg/
+$ python3 -m venv venv
+```
+
+3. Start up your Python virtual environment and install the dependencies for `colour_label_svg.py`.
+```
+$ source venv/bin/activate
+$ pip install pandas
+$ pip install geopandas
+$ pip install mapclassify
+$ pip install geojson
+$ pip install libpysal
+```
+\* Note: If a dependency-related error occurs, please install any other dependencies required.
+
+4. Run the `colour_label_svg.py` script.
 ```
 $ python colour_label_svg.py
 ```
 
-3. Enter the name of each file when prompted. This script will apply topological colouring and label the centroid of each polygon in the `.svg`.
+5. Enter the name of each file when prompted. This script will apply topological colouring and label the centroid of each polygon in the `.svg`.
 ```
 Enter the name of the .json file: _processedmap.json
 Enter the name of the .csv file: _data.csv
 Enter the name of the .svg file: .svg
 ```
-
 \* Note: The script currently does not label enclaves nor the territory surrounding it so you may need to include any missing labels.
 
-4. Open the generated `_coloured_labelled.svg` file in Inkscape to make any additional edits to the colours and labels as you see fit.
+6. Exit your Python virtual environment.
+```
+$ deactivate
+```
 
-5. Replace the `.svg` in `cartogram-web/internal/data` with the newly generated `_coloured_labelled.svg` and rename it to the name of the file that was replaced.
+7. Open the generated `_coloured_labelled.svg` file in Inkscape to make any additional edits to the colours and labels as you see fit.
 
-6. Continue with the second step of the Add Map Wizard under "Finishing Up".
+8. Replace the `.svg` in `cartogram-web/internal/data` with the newly generated `_coloured_labelled.svg` and rename it to the name of the file that was replaced.
 
+9. Continue with the second step of the Add Map Wizard under [Finishing Up](#finishing-up).
 
 ## Adding Colors and Labels Using Inkscape
 Now, by editing `your-map.svg` using Inkscape, you will set the default color for each map region and add labels for the conventional map.
