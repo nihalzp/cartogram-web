@@ -16,7 +16,13 @@ To add a map, you will need the following files, information, and software:
 
 \* Please refer to the bottom of this README for displaying a different map on the left (equal-area map) from the map on the right (for cartogram calculations)
 
-The first step in adding a map is to prepare your data. Follow the steps at https://github.com/bbkc22113/geojson-to-csv-cartogram-web to generate a GeoJSON file (`_processedmap.json`) and a CSV file for your map.  Then, copy the GeoJSON file for the conventional map into `cartogram-docker/cartogram-web/data`. 
+The first step in adding a map is to prepare your data. 
+
+#### Select 1. or 2. to edit your map and to generate a GeoJSON file (`_processedmap.json`) and a CSV file for your map:
+1. To use mapshaper, follow the steps at https://github.com/bbkc22113/geojson-to-csv-cartogram-web.
+2. To use QGIS, follow the steps at https://github.com/fillingthemoon/cartogram-web/blob/addmap_new/doc/addmap/qgis_processing.md. Then, follow steps 2.1, 2.4, and 3 at https://github.com/bbkc22113/geojson-to-csv-cartogram-web to generate the necessary GeoJSON files (`_processedmap.json`) and CSV file for your map.
+
+Then, copy the GeoJSON (`_processedmap.json`) file for the conventional map into `cartogram-docker/cartogram-web/data`. 
 
 Now, you should edit the CSV file. Insert an example dataset under the 'Region Data' column, and ensure that there is a filled 'Region Abbreviation' column (you may need to create it). Do not use population for your example dataset. You will add population data for your map later in this process. A good choice for the example dataset is GDP by region. 
 
