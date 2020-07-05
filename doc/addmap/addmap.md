@@ -1,6 +1,6 @@
 # Adding a Map
 
-This guide will help you add a new map to the go-cart.io website. This guide assumes that you have already set up the website code for local testing and development as well as followed the instructions for setting up Docker for local development here https://github.com/jansky/cartogram-docker.
+This guide will help you add a new map to the go-cart.io website. This guide assumes that you have already set up the website code for local testing and development by following the instructions here https://github.com/jansky/cartogram-docker.
 
 ## What You'll Need
 
@@ -28,12 +28,11 @@ Some region names may contain accent marks or other unicode characters. Please u
 
 When you're finished creating your CSV file, you should save it in `cartogram-docker/cartogram-web/data`. 
 
-### Adding "extent":"world" to processedmap.json (World Map)
-Open `processedmap.json` in a text-editor.
+### Adding "extent":"world" to processedmap.json (for a world map)
+Open `_processedmap.json` in a text-editor.
 
-Add in the following key-value pair after the bounding box data:
-"extent":"world"
-This will allow the cartogram executable to identify the GeoJSON as a world map 
+Add in the `"extent":"world"` key-value pair after `"type": "FeatureCollection"`.
+This will allow the cartogram executable to identify the GeoJSON as a world map.
 
 ## Initializing Your Map
 From here on, you will be making use of the Add Map Wizard. Before you can use this wizard to initialize your new map, you must start the Docker containers for the go-cart.io website. To do this, run
@@ -99,10 +98,12 @@ The wizard will then ask you a series of questions about your map, and generate 
 
 At this point, the Add Map Wizard has produced several files in the `internal/` directory that you'll need to edit to complete the map addition process. First, you should edit `your-map-landarea.csv` and `your-map-population.csv` to add the population and land area information for each map region. You can edit these manually, using a text editor, or with a spreadsheet program like LibreOffice Calc or Microsoft Excel.
 
+You now have the option of adding colours and labels using a Python script (& Inkscape) or doing it completely manually using only Inkscape.
+
 ## Adding Colors and Labels Using a Python Script (& Inkscape)
 This script adds colours and labels to `your-map.svg`
 
-1. After the completing the first step of the Add Map Wizard, place your `_processedmap.json`, `.svg`, and `_data.csv` files into `colouring_and_labelling/data`.
+1. After completing the first step of the Add Map Wizard, copy your `_processedmap.json`, `.svg`, and `_data.csv` files into `colouring_and_labelling/data`.
 
 2. Run the `colour_label_svg.py` script.
 ```
@@ -116,13 +117,13 @@ Enter the name of the .csv file: _data.csv
 Enter the name of the .svg file: .svg
 ```
 
-Note: 
+\* Note: The script currently does not label enclaves nor the territory surrounding it so you may need to include any missing labels.
 
 4. Open the generated `_coloured_labelled.svg` file in Inkscape to make any additional edits to the colours and labels as you see fit.
 
 5. Replace the `.svg` in `cartogram-web/internal/data` with the newly generated `_coloured_labelled.svg` and rename it to the name of the file that was replaced.
 
-6. Continue with the second step of the Add Map Wizard.
+6. Continue with the second step of the Add Map Wizard under "Finishing Up".
 
 
 ## Adding Colors and Labels Using Inkscape
@@ -224,14 +225,14 @@ You should also create a pull request on GitHub to let me know that you have fin
 
 6. Move the original `highres_processedmap.json` (from steps 1-2) into `cartogram-web/internal/static/cartdata/highres_processedmap`.
 
-5. In `cartogram-web/internal/static/cartdata/highres_processedmap`, open `original.json`, and copy the key-value pair of `"tooltip": {...}` into `highres_processedmap.json`.
+7. In `cartogram-web/internal/static/cartdata/highres_processedmap`, open `original.json`, and copy the key-value pair of `"tooltip": {...}` into `highres_processedmap.json`.
 
-6. Remove `original.json` from that folder and rename `highres_processedmap.json` to `original.json`, effectively replacing it.
+8. Remove `original.json` from that folder and rename `highres_processedmap.json` to `original.json`, effectively replacing it.
 
-7. Change directories to `cartogram/web-internal` and update the `original.json` file
+9. Change directories to `cartogram/web-internal` and update the `original.json` file
 ```
 $ cd cartogram-web/internal
 $ ../../runcmd.sh web python mappackify.py highres_processedmap.json 
 ```
 
-8. Visit the website on your local machine. You should now see the left map as the one generated from the original `highres_processedmap.json` and the right map from `cartogram_calc_processedmap.json`.
+10. Visit the website on your local machine. You should now see the left map as the one generated from the original `highres_processedmap.json` and the right map from `cartogram_calc_processedmap.json`.
