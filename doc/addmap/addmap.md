@@ -26,6 +26,14 @@ Some region names may contain accent marks or other unicode characters. Please u
 
 When you're finished creating your CSV file, you should save it in `cartogram-docker/cartogram-web/data`. 
 
+### Adding "extent":"world" to processedmap.json (World Map)
+Open `processedmap.json` in a text-editor.
+
+Add in the following key-value pair after the bounding box data:
+"extent":"world"
+This will allow the cartogram executable to identify the GeoJSON as a world map 
+
+## Initializing Your Map
 From here on, you will be making use of the Add Map Wizard. Before you can use this wizard to initialize your new map, you must start the Docker containers for the go-cart.io website. To do this, run
 
     $ cd cartogram-docker/
