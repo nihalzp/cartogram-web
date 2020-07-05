@@ -146,9 +146,9 @@ Enter the name of the .svg file: .svg
 $ deactivate
 ```
 
-7. Open the generated `_coloured_labelled.svg` file in Inkscape to make any additional edits to the colours and labels as you see fit.
+7. Open the generated `_coloured_labelled.svg` file in Inkscape to make any additional edits to the colours and labels as you see fit. If you need to add lines pointing labels to regions, please refer to [Adding Labels](#adding-labels). Once you have finished adding/editing all of your colours/labels, save your SVG file by going to File -> Save.
 
-8. Replace the `.svg` in `cartogram-web/internal/data` with the newly generated `_coloured_labelled.svg` and rename it to the name of the file that was replaced.
+8. Replace the `.svg` in `cartogram-web/internal/data` with the newly generated `_coloured_labelled.svg`. (Remember to rename it to the name of the file that was replaced! E.g. Remove `france.svg`from `cartogram-web/internal/data` and move `france_coloured_labelled.svg` to `cartogram-web/internal/data`. Then, rename `france_coloured_labelled.svg` to `france.svg`.
 
 9. Continue with the second step of the Add Map Wizard under [Finishing Up](#finishing-up).
 
