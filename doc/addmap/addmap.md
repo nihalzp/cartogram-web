@@ -3,13 +3,13 @@
 This guide will help you add a new map to the go-cart.io website. This guide assumes that you have already set up the website code for local testing and development by following the instructions here https://github.com/jansky/cartogram-docker.
 
 ## Contents
-- [What You'll Need](#what-youll-need)
-- [Preparing Your Data](#preparing-your-data)
-- [Initializing Your Map](#initializing-your-map)
-- [Adding the Rest of Your Data](#adding-the-rest-of-your-data)
-    * [Adding Colors and Labels Using a Python Script (and Inkscape)](#adding-colors-and-labels-using-a-python-script-and-inkscape)
-    * [Adding Colors and Labels Using Inkscape](#adding-colors-and-labels-using-inkscape)
-- [Saving Your Changes](#saving-your-changes)
+1. [What You'll Need](#what-youll-need)
+2. [Preparing Your Data](#preparing-your-data)
+3. [Initializing Your Map](#initializing-your-map)
+4. [Adding the Rest of Your Data](#adding-the-rest-of-your-data)
+    - [Adding Colors and Labels Using a Python Script (and Inkscape)](#adding-colors-and-labels-using-a-python-script-and-inkscape)
+    - [Adding Colors and Labels Using Inkscape](#adding-colors-and-labels-using-inkscape)
+5. [Saving Your Changes](#saving-your-changes)
 
 \* [Left/Right Map Display](#leftright-map-display)
 
