@@ -3,17 +3,17 @@
 This guide will help you add a new map to the go-cart.io website. This guide assumes that you have already set up the website code for local testing and development by following the instructions here https://github.com/jansky/cartogram-docker.
 
 ## Contents
-1. [What You'll Need](#what-youll-need)
-2. [Preparing Your Data](#preparing-your-data)
-3. [Initializing Your Map](#initializing-your-map)
-4. [Adding the Rest of Your Data](#adding-the-rest-of-your-data)
+- [1. What You'll Need](#1-what-youll-need)
+- [2. Preparing Your Data](#2-preparing-your-data)
+- [3. Initializing Your Map](#3-initializing-your-map)
+- [4. Adding the Rest of Your Data](#4-adding-the-rest-of-your-data)
     - [Adding Colors and Labels Using a Python Script (and Inkscape)](#adding-colors-and-labels-using-a-python-script-and-inkscape)
     - [Adding Colors and Labels Using Inkscape](#adding-colors-and-labels-using-inkscape)
-5. [Saving Your Changes](#saving-your-changes)
+- [5. Saving Your Changes](#5-saving-your-changes)
 
 \* [Left/Right Map Display](#leftright-map-display)
 
-## What You'll Need
+## 1. What You'll Need
 
 To add a map, you will need the following files, information, and software:
 
@@ -23,13 +23,13 @@ To add a map, you will need the following files, information, and software:
 * Population and land area (in km^2) for each map region
 * Inkscape, a free, open-source vector graphics editor for Windows, Mac, and Linux that can be downloaded at https://inkscape.org/. 
 
-## Preparing Your Data
+## 2. Preparing Your Data
 
 \* Please refer to the bottom of this README for displaying a different map on the left (equal-area map) from the map on the right (for cartogram calculations)
 
 The first step in adding a map is to prepare your data. 
 
-### Select 1. or 2. to edit your map and to generate a GeoJSON file (`_processedmap.json`) and a CSV file for your map:
+#### Select 1. or 2. to edit your map and to generate a GeoJSON file (`_processedmap.json`) and a CSV file for your map:
 1. To use Mapshaper, follow the steps at https://github.com/bbkc22113/geojson-to-csv-cartogram-web.
 2. To use QGIS, follow the steps at [qgis_processing.md](qgis_processing.md). Then, follow steps 2.1, 2.4, and 3 at https://github.com/bbkc22113/geojson-to-csv-cartogram-web to generate the necessary GeoJSON files (`_processedmap.json`) and CSV file for your map.
 
@@ -53,7 +53,7 @@ This will allow the cartogram executable to identify the GeoJSON as a world map.
 
 Change the value for the `"bbox"` key to `[ -180, -90, 180, 90 ]` to accurately display the North and South Poles.
 
-## Initializing Your Map
+## 3. Initializing Your Map
 From here on, you will be making use of the Add Map Wizard. Before you can use this wizard to initialize your new map, you must start the Docker containers for the go-cart.io website. To do this, run
 
     $ cd cartogram-docker/
@@ -113,7 +113,7 @@ The wizard will then ask you a series of questions about your map, and generate 
 
     All done!
 
-## Adding the Rest of Your Data
+## 4. Adding the Rest of Your Data
 
 At this point, the Add Map Wizard has produced several files in the `internal/` directory that you'll need to edit to complete the map addition process. First, you should edit `your-map-landarea.csv` and `your-map-population.csv` to add the population and land area information for each map region. You can edit these manually, using a text editor, or with a spreadsheet program like LibreOffice Calc or Microsoft Excel.
 
@@ -232,7 +232,7 @@ At this point, you're now ready to finish the map addition process. Open a Termi
 
     $ ./addmap.sh data your-map-name
 
-## Saving Your Changes
+## 5. Saving Your Changes
 
 Change directories to `cartogram-web/`. You should now commit your changes to your Git branch, and push these changes to GitHub.
 
