@@ -62,6 +62,12 @@ Now that we have the world map in QGIS, we can begin simplification.
 
 **Vertex editing**
 
+- Go to Layer > Toggle Editing
+- Go to Edit > Vertex Tool (All Layers). This will allow the movement of the polygon's vertices
+- On the map, zoom in to the vertices you wish to edit and move them to how you see fit
+
+Note: To make the polygons snap to lines or other vertices, you can use the Snapping Toolbar. Go to View > Toolbars > Snapping Toolbar and click it to use.
+
 ### Step 2.4: Exporting
 Once you are finished simplifying the map, you can now export it as a GeoJSON file
 
