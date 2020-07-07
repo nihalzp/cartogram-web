@@ -903,12 +903,13 @@ class CartMap {
      * @param {string} sysname The sysname of the map version
      */
 
-    drawLegend(sysname, legend_square_id, legend_text_id, legend_superscript_id, legend_superscript_unit_id){
+    drawLegend(sysname, legend_square_id, legend_text_id, legend_superscript_id, legend_superscript_unit_id, total_value_text_id){
         
         var legend_square = document.getElementById(legend_square_id);
         var legend_text = document.getElementById(legend_text_id);
         var legend_superscript = document.getElementById(legend_superscript_id);
         var legend_superscript_unit_id = document.getElementById(legend_superscript_unit_id);
+        var total_value = document.getElementById(total_value_text_id);
 
         // Get unit for the map that we wish to draw legend for.
         const unit = this.getLegendUnit(sysname);
@@ -918,11 +919,21 @@ class CartMap {
         const [version_area, version_values] = this.getTotalAreasAndValuesForVersion(sysname);
         const legend = version_values/(version_area*scale_x*scale_y);
 
-        // square default is 30 by 30 px
+        /* Square default is 30 by 30 px.
+         * If the legend ratio is smaller than 1, set to 1 in case the legend square becomes too big.
+         */
         var ratio = legend*900 >= 1 ? legend*900: 1;
+        let width = 0;
 
-        
-        // If the legend ratio is smaller than 1, set to 1 in case the legend square becomes too big.
+        // Array of scale words
+        const scale_words = ["", "0", "00", "000", "0 000", "00 000", " million", "0 million", "00 million"
+                                ," billion", "0 billion", "00 billion"];
+
+        // Declare variable for scale word factor, which will be assigned if a scale word is used
+        let scale_word_factor;
+        const large_num_names = {6: " million", 9: " billion"}
+
+
         if(ratio == 1){
             var exp_num = (legend*900).toExponential().split("e");
             var first_num = exp_num[0];
@@ -935,7 +946,7 @@ class CartMap {
             }
             if(exp_num[1] >= -4){
                 legend_text.innerHTML = "= " + first_num * Math.pow(10, parseInt(exp_num[1])) + unit;
-                const width = Math.sqrt(first_num * Math.pow(10, parseInt(exp_num[1]))*900/(legend*900).toExponential());
+                width = Math.sqrt(first_num * Math.pow(10, parseInt(exp_num[1]))*900/(legend*900).toExponential());  // why toExponential()
                 legend_square.setAttribute("width", width.toString() +"px");
                 legend_square.setAttribute("height", width.toString() +"px");
                 console.log(`original: ${exp_num}; new : ${width}`);
@@ -943,7 +954,7 @@ class CartMap {
 
                 
             } else{
-                const width = Math.sqrt(first_num * Math.pow(10, parseInt(exp_num[1]))*900/(legend*900).toExponential());
+                width = Math.sqrt(first_num * Math.pow(10, parseInt(exp_num[1]))*900/(legend*900).toExponential());  // why toExponential()
                 legend_square.setAttribute("width", width +"px");
                 legend_square.setAttribute("height", width +"px");
                 legend_superscript.style.display = "inline-block";
@@ -958,7 +969,7 @@ class CartMap {
         else{
             legend_superscript_unit_id.style.display = "none";
             legend_superscript.style.display = "none";
-            var round_ratio = Math.pow(10, (Math.round(ratio).toString().length-1));            
+            var round_ratio = Math.pow(10, (Math.round(ratio).toString().length-1));
             if(round_ratio.length === 2){
                 round_ratio = 100
             } else if(round_ratio === 1){
@@ -975,14 +986,11 @@ class CartMap {
                 final_ratio = 2;
             }
 
-            const width = Math.sqrt(final_ratio*round_ratio*900/ratio);
-
-            const scale_words = ["", "0", "00", "000", "0 000", "00 000", " million", "0 million", "00 million"
-                                ," billion", "0 billion", "00 billion"];
+            width = Math.sqrt(final_ratio*round_ratio*900/ratio); // K: Math.sqrt(final_ratio*round_ratio/legend)
 
             if(Math.log10(round_ratio) < scale_words.length) {
-
-                legend_text.innerHTML = "= " + final_ratio + scale_words[Math.log10(round_ratio)] + " " + unit;
+                scale_word_factor = Math.log10(round_ratio);
+                legend_text.innerHTML = "= " + final_ratio + scale_words[scale_word_factor] + " " + unit;
 
             } else {
 
@@ -1001,6 +1009,33 @@ class CartMap {
             legend_text.setAttribute("x", (width+10).toString() + "px");
 
         }
+
+        // Set "y" of total value element to be 25px below the bottom of the square.
+        const total_value_Y = parseInt(width) + 30;
+        total_value.setAttribute("y", total_value_Y.toString() + "px");
+
+        // Set innerHTML of total value element.
+        let scale_prefix;
+
+        // Case where the precise scale factor has a name.
+        if (scale_word_factor in large_num_names) {
+            scale_prefix = Math.round(version_values / Math.pow(10, scale_word_factor)).toLocaleString().split(',').join(' ') +
+                large_num_names[scale_word_factor];
+        }
+        // Case where scale factor is in billions.
+        else if (scale_word_factor > 9) {  //
+            scale_prefix = Math.round(version_values / Math.pow(10, 9)).toLocaleString().split(',').join(' ') +
+                " billion";
+        }
+        // Case where scale factor is in millions.
+        else if (scale_word_factor > 6) {
+            scale_prefix = Math.round(version_values / Math.pow(10, 6)).toString() + " million";
+        }
+        else {
+            scale_prefix = Math.round(version_values).toLocaleString().split(',').join(' ');
+        }
+
+        total_value.innerHTML = "Total : " + scale_prefix + " " + unit;
     }
 
 
@@ -1473,7 +1508,8 @@ class CartMap {
         }, this);        
 
 
-        this.drawLegend(new_sysname, "legend-square-" + element_id, "legend-text-" + element_id, "legend-superscript-" + element_id, "legend-superscript-unit-" + element_id);
+        this.drawLegend(new_sysname, "legend-square-" + element_id, "legend-text-" + element_id,
+            "legend-superscript-" + element_id, "legend-superscript-unit-" + element_id,'total-value-' + element_id);
 
     }
 }
@@ -2250,26 +2286,28 @@ class Cartogram {
 
                 e.preventDefault();
 
-                // document.getElementById('download-modal-svg-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('map-area').innerHTML);
 
                 /*
                 Append legend elements and total count to the map SVG.
                  */
                 let mapArea = document.getElementById('map-area').cloneNode(true);
                 let mapAreaSVG = mapArea.getElementsByTagName('svg')[0];
-                const mapHeight = parseFloat(mapAreaSVG.getAttribute('height'));
 
-                // Increase height of SVG to accommodate legend and total
+                // Add SVG xml namespace to SVG element, so that the file can be opened with any web browser.
+                mapAreaSVG.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+
+                // Increase height of SVG to accommodate legend and total.
+                const mapHeight = parseFloat(mapAreaSVG.getAttribute('height'));
                 mapAreaSVG.setAttribute('height', mapHeight + 100);
 
                 let legendSVG = document.getElementById('map-area-legend').cloneNode(true);
 
-                // Iterate legend SVG's text elements and add font attribute
+                // Iterate legend SVG's text elements and add font attribute.
                 for (let i = 0; i < legendSVG.getElementsByTagName('text').length; i++) {
                     legendSVG.getElementsByTagName('text')[i].setAttribute('font-family', 'sans-serif')
                 }
 
-                // Iterate legend SVG's elements and append them to map SVG
+                // Iterate legend SVG's elements and append them to map SVG.
                 for (let i = 0; i < legendSVG.children.length; i++) {
                     let newY = parseFloat(legendSVG.children[i].getAttribute('y')) + mapHeight;
                     legendSVG.children[i].setAttribute('y', newY);
@@ -2278,7 +2316,8 @@ class Cartogram {
                     mapAreaSVG.appendChild(legendSVG.children[i].cloneNode(true));
                 };
 
-                document.getElementById('download-modal-svg-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + mapArea.innerHTML)
+                // document.getElementById('download-modal-svg-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('map-area').innerHTML);
+                document.getElementById('download-modal-svg-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + mapArea.innerHTML);
                 document.getElementById('download-modal-svg-link').download = "equal-area-map.svg";
 
                 document.getElementById('download-modal-geojson-link').href = "data:application/json;base64," + window.btoa(geojson);
@@ -2296,13 +2335,16 @@ class Cartogram {
 
                 e.preventDefault();
 
-                //document.getElementById('download-modal-svg-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('cartogram-area').innerHTML);
-
                 /*
                 Append legend elements and total count to the cartogram SVG.
                  */
                 let cartogramArea = document.getElementById('cartogram-area').cloneNode(true);
                 let cartogramAreaSVG = cartogramArea.getElementsByTagName('svg')[0];
+
+                // Add SVG xml namespace to SVG element, so that the file can be opened with any web browser.
+                cartogramAreaSVG.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+
+                // Increase height of SVG to accommodate legend and total.
                 const cartogramHeight = parseFloat(cartogramAreaSVG.getAttribute('height'));
                 cartogramAreaSVG.setAttribute('height', cartogramHeight + 100);
 
@@ -2322,6 +2364,7 @@ class Cartogram {
                     cartogramAreaSVG.appendChild(legendSVG.children[i].cloneNode(true));
                 };
 
+                //document.getElementById('download-modal-svg-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('cartogram-area').innerHTML);
                 document.getElementById('download-modal-svg-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + cartogramArea.innerHTML);
                 document.getElementById('download-modal-svg-link').download = "cartogram.svg";
 
@@ -2692,10 +2735,12 @@ class Cartogram {
                                 this.updateGridDocument(response.grid_document);
                             }
 
-                            this.model.map.drawLegend(this.model.current_sysname, "legend-square-cartogram-area", "legend-text-cartogram-area", "legend-superscript-cartogram-area", "legend-superscript-unit-cartogram-area");
+                            this.model.map.drawLegend(this.model.current_sysname, "legend-square-cartogram-area", "legend-text-cartogram-area",
+                                "legend-superscript-cartogram-area", "legend-superscript-unit-cartogram-area", 'total-value-cartogram-area');
 
                             // The following line draws the conventional legend when the page first loads.
-                            this.model.map.drawLegend("1-conventional", "legend-square-map-area", "legend-text-map-area", "legend-superscript-map-area", "legend-superscript-unit-map-area");
+                            this.model.map.drawLegend("1-conventional", "legend-square-map-area", "legend-text-map-area",
+                                "legend-superscript-map-area", "legend-superscript-unit-map-area", 'total-value-map-area');
 
 
                             this.exitLoadingState();
@@ -2927,10 +2972,12 @@ class Cartogram {
             this.displayVersionSwitchButtons();
             this.updateGridDocument(mappack.griddocument);
 
-            this.model.map.drawLegend(this.model.current_sysname, "legend-square-cartogram-area", "legend-text-cartogram-area", "legend-superscript-cartogram-area", "legend-superscript-unit-cartogram-area");
+            this.model.map.drawLegend(this.model.current_sysname, "legend-square-cartogram-area", "legend-text-cartogram-area",
+                "legend-superscript-cartogram-area", "legend-superscript-unit-cartogram-area", 'total-value-cartogram-area');
             
             // The following line draws the conventional legend when the page first loads.
-            this.model.map.drawLegend("1-conventional", "legend-square-map-area", "legend-text-map-area", "legend-superscript-map-area", "legend-superscript-unit-map-area");
+            this.model.map.drawLegend("1-conventional", "legend-square-map-area", "legend-text-map-area",
+                "legend-superscript-map-area", "legend-superscript-unit-map-area", 'total-value-map-area');
 
             document.getElementById('template-link').href = this.config.cartogram_data_dir+ "/" + sysname + "/template.csv";
             document.getElementById('cartogram').style.display = 'block';
@@ -2975,11 +3022,11 @@ class GallPetersProjection extends WorldMapProjection {
 
     transformLongitude(longitude) {
         let longitudeInRadians = longitude * Math.PI / 180;
-        return longitudeInRadians * 80 / Math.SQRT2;
+        return longitudeInRadians * 100 / Math.SQRT2;
     }
 
     transformLatitude(latitude) {
         let latitudeInRadians = latitude * Math.PI / 180;
-        return 80 * Math.SQRT2 * Math.sin(latitudeInRadians);
+        return 100 * Math.SQRT2 * Math.sin(latitudeInRadians);
     }
 }
