@@ -272,7 +272,7 @@ You should also create a pull request on GitHub to let me know that you have fin
 9. Change directories to `cartogram/web-internal` and update the `original.json` file
 ```
 $ cd cartogram-web/internal
-$ ../../runcmd.sh web python mappackify.py highres_processedmap.json 
+$ ../../runcmd.sh web python mappackify.py highres 
 ```
 
 10. Visit the website on your local machine. You should now see the left map as the one generated from the original `highres_processedmap.json` and the right map from `cartogram_calc_processedmap.json`.
