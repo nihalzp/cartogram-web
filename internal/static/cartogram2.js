@@ -998,8 +998,7 @@ class CartMap {
                    .attr('dominant-baseline', 'hanging')
 
         // Set total value text.
-        const totalScalePowerOfTen = Math.floor(Math.log10(versionTotalValue))
-        console.log("versionTotalValue is " + versionTotalValue + " " + "totalScalePowerOfTen is " + totalScalePowerOfTen);
+        const totalScalePowerOfTen = Math.floor(Math.log10(versionTotalValue));
         if (totalScalePowerOfTen > -4 && totalScalePowerOfTen < 12) {
             if (totalScalePowerOfTen in largeNumberNames)
                 totalValue.text("Total: " + Math.round(versionTotalValue/Math.pow(10, totalScalePowerOfTen)) + " " + largeNumberNames[totalScalePowerOfTen] + " " + unit);
