@@ -259,9 +259,12 @@ You should also create a pull request on GitHub to let me know that you have fin
 
 3. Fill in the data for the `-landarea.csv`, `-population.csv`, and `.svg` files.
 
-4. Replace `highres_processedmap.json` in the data folder with `cartogram_calc_processedmap.json`. Note that you need to literally 'replace' `highres_processedmap.json` - i.e. remove `highres_processedmap.json` f
+4. Replace `highres_processedmap.json` in the `data` folder with `cartogram_calc_processedmap.json`.<br/>
+    i) Rename `highres_processedmap.json` to `highres_old_processedmap.json`.<br/>
+    ii) Copy `cartogram_calc_processedmap.json` into `data` folder.<br/>
+    iii) Rename `cartogram_calc_processedmap.json` to `highres_processedmap.json`.<br/>
 
-5. Run the second step of the Add Map Wizard as per normal for `highres_processedmap.json` (renamed `cartogram_calc_processedmap.json`).
+5. Run the second step of the Add Map Wizard as per normal for `highres_processedmap.json` (renamed from `cartogram_calc_processedmap.json`).
 
 6. Move the original `highres_processedmap.json` (from steps 1-2) into `cartogram-web/internal/static/cartdata/highres_processedmap`.
 
