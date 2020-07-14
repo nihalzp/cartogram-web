@@ -106,7 +106,7 @@ class HTTP {
      * @param {number} timeout The timeout, in seconds, of the GET request
      * @returns {Promise<Object|string>} A promise to the HTTP response
      */
-    static post(url, form_data, headers={}, timeout=15000) {
+    static post(url, form_data, headers={}, timeout=30000) {
 
         return new Promise(function(resolve, reject){
 
@@ -2731,6 +2731,7 @@ class Cartogram {
 
                         }.bind(this), function(err){
                             this.doFatalError(err);
+                            console.log(err);
 
                             this.drawBarChartFromTooltip('barchart', response.tooltip);
                             document.getElementById('barchart-container').style.display = "block";
