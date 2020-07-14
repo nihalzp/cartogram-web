@@ -1404,24 +1404,12 @@ class CartMap {
                     .enter()
                     .append("line");
 
-                var labelLines = lines.attr('x1', function(d) {
-                    console.log('The original x1 is ' + d.x1);
-                    const scaledX1 = xPipeline(d.x1) * scaleX;
-                    console.log('The scaled x1 is ' + scaledX1);
-                    return xPipeline(d.x1) * scaleX;
-                })
+                var labelLines = lines.attr('x1', d => xPipeline(d.x1) * scaleX)
                     .attr('x2', d => xPipeline(d.x2) * scaleX)
                     .attr('y1', d => yPipeLine(d.y1) * scaleY)
                     .attr('y2', d => yPipeLine(d.y2) * scaleY)
                     .attr('stroke-width', 1)
                     .attr('stroke', '#000');
-
-                // var labelLines = lines.attr('x1', d => xPipeline(d.x1) * scaleX)
-                //     .attr('x2', d => xPipeline(d.x2) * scaleX)
-                //     .attr('y1', d => yPipeLine(d.y1) * scaleY)
-                //     .attr('y2', d => yPipeLine(d.y2) * scaleY)
-                //     .attr('stroke-width', 1)
-                //     .attr('stroke', '#000');
 
             } else {
                 // Label transformation for non-World Maps.

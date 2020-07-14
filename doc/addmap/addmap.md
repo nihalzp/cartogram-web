@@ -196,4 +196,3 @@ Then, revert back to the master branch:
 You should also create a pull request on GitHub to let me know that you have finished adding the new map, so I can deploy it to the website. Navigate to https://github.com/jansky/cartogram-web/compare/, select your branch, and click 'Create pull request'.
 
 ![Pull Request](pull-request.png)
-
