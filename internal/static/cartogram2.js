@@ -1384,18 +1384,18 @@ class CartMap {
                                        y2Gall,
                                        y2Ink);
 
-                var scale_x = this.width / ((version.extrema.max_x - version.extrema.min_x) * gallScale);
-                var scale_y = this.height / ((version.extrema.max_y - version.extrema.min_y) * gallScale);
+                const scaleX = this.width / ((version.extrema.max_x - version.extrema.min_x) * gallScale);
+                const scaleY = this.height / ((version.extrema.max_y - version.extrema.min_y) * gallScale);
 
                 var text = canvas.selectAll("text")
                     .data(labels.labels)
                     .enter()
                     .append("text");
 
-                var textLabels = text.attr('x', d => xPipeline(d.x) * scale_x)
-                    .attr('y', d => yPipeLine(d.y) * scale_y)
+                var textLabels = text.attr('x', d => xPipeline(d.x) * scaleX)
+                    .attr('y', d => yPipeLine(d.y) * scaleY)
                     .attr('font-family', 'sans-serif')
-                    .attr('font-size', '7.5px')
+                    .attr('font-size', '9.5px')
                     .attr('fill', '#000')
                     .text(d => d.text)
 
@@ -1404,12 +1404,24 @@ class CartMap {
                     .enter()
                     .append("line");
 
-                var labelLines = lines.attr('x1', d => xPipeline(d.x1) * scale_x)
-                    .attr('x2', d => xPipeline(d.x2) * scale_x)
-                    .attr('y1', d => yPipeLine(d.y1) * scale_y)
-                    .attr('y2', d => yPipeLine(d.y2) * scale_y)
+                var labelLines = lines.attr('x1', function(d) {
+                    console.log('The original x1 is ' + d.x1);
+                    const scaledX1 = xPipeline(d.x1) * scaleX;
+                    console.log('The scaled x1 is ' + scaledX1);
+                    return xPipeline(d.x1) * scaleX;
+                })
+                    .attr('x2', d => xPipeline(d.x2) * scaleX)
+                    .attr('y1', d => yPipeLine(d.y1) * scaleY)
+                    .attr('y2', d => yPipeLine(d.y2) * scaleY)
                     .attr('stroke-width', 1)
                     .attr('stroke', '#000');
+
+                // var labelLines = lines.attr('x1', d => xPipeline(d.x1) * scaleX)
+                //     .attr('x2', d => xPipeline(d.x2) * scaleX)
+                //     .attr('y1', d => yPipeLine(d.y1) * scaleY)
+                //     .attr('y2', d => yPipeLine(d.y2) * scaleY)
+                //     .attr('stroke-width', 1)
+                //     .attr('stroke', '#000');
 
             } else {
                 // Label transformation for non-World Maps.
@@ -2867,21 +2879,22 @@ class Cartogram {
             /* If it is a world map, we add a class name to the html elements,
                and we use this class name in implementing the CSS which draws a border
              */
-            if (world) {
-                let conventional_map = document.getElementById("map-area");
-                let cartogram_map = document.getElementById("cartogram-area");
 
-                if (!conventional_map.classList.contains('world-border')) {
-                    conventional_map.className += "world-border";
-                    cartogram_map.className += "world-border";
-                }
-
-            } else {
-                let conventional_map = document.getElementById("map-area");
-                let cartogram_map = document.getElementById("cartogram-area");
-                conventional_map.classList.remove("world-border");
-                cartogram_map.classList.remove("world-border");
-            }
+            // if (world) {
+            //     let conventional_map = document.getElementById("map-area");
+            //     let cartogram_map = document.getElementById("cartogram-area");
+            //
+            //     if (!conventional_map.classList.contains('world-border')) {
+            //         conventional_map.className += "world-border";
+            //         cartogram_map.className += "world-border";
+            //     }
+            //
+            // } else {
+            //     let conventional_map = document.getElementById("map-area");
+            //     let cartogram_map = document.getElementById("cartogram-area");
+            //     conventional_map.classList.remove("world-border");
+            //     cartogram_map.classList.remove("world-border");
+            // }
 
             /* We need to find out the map format. If the extrema is located in the bbox property, then we have
                GeoJSON. Otherwise, we have the old JSON format.

@@ -58,9 +58,8 @@ from handlers import cambodia
 from handlers import andorra
 from handlers import ethiopia
 from handlers import myanmar
-from handlers import world_test
 from handlers import chile
-from handlers import world_label
+from handlers import world
 # ---addmap.py header marker---
 # !!!END DO NOT MODFIY
 
@@ -162,9 +161,8 @@ cartogram_handlers = {
 'andorra': andorra.CartogramHandler(),
 'ethiopia': ethiopia.CartogramHandler(),
 'myanmar': myanmar.CartogramHandler(),
-'world_test': world_test.CartogramHandler(),
 'chile': chile.CartogramHandler(),
-'world_label': world_label.CartogramHandler(),
+'world': world.CartogramHandler(),
 # ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
