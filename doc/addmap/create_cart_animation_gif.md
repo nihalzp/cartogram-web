@@ -11,11 +11,15 @@ This guide assumes that you are already fairly familiar with setting up the webs
 
 ## 1. Downloading the cartogram animation frames as SVGs
 
-First, you will need to start up the website on your machine locally. In a new terminal tab, open `cartogram2.js` in your preferred text editor or IDE. 
+First, you will need to start up the website on your machine locally. 
 
 ```
 $ cd cartogram-docker/
 $ docker-compose up
+```
+
+In a new terminal tab, open `cartogram2.js` in your preferred text editor or IDE.
+```
 $ vim cartogram-web/internal/static/cartogram2.js
 ```
 
