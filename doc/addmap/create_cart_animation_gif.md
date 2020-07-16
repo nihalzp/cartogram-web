@@ -84,7 +84,7 @@ Visit your locally-hosted website and select a country. Select an option from th
 
 ## 2. Converting the SVGs into PNGs
 
-Open the SVGs in Inkscape and ensure that each of their canvas extents fit to the SVG object (no smaller). Export the SVGs to PNGs using Inkscape or any other software.
+Open the SVGs in Inkscape and ensure that each of their canvas extents fit to the SVG object (no smaller). Export the SVGs to PNGs using Inkscape or another software.
 
 
 ## 3. Compiling the PNGs into a GIF
