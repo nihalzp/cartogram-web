@@ -275,7 +275,7 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
                 
                 def y_transform(y):
 
-                    return ((max_y-min_y) - (y - min_y))*scale
+                    return (max_y - y)*scale
                 
                 svg_file.write("""<svg version="1.1"
      baseProfile="full"
