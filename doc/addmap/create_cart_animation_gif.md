@@ -19,7 +19,7 @@ $ docker-compose up
 $ vim cartogram-web/internal/static/cartogram2.js
 ```
 
-### Adding the `downloadSVG()` function
+### 1.1 Adding the `downloadSVG()` function
 
 Find the method `displayVersionSwitchButtons()` of the class `Cartogram`, which might be on line ~2500. You will now create a function in this method which downloads the frames of the cartogram animation as SVGs. 
 
@@ -77,7 +77,7 @@ select.onchange = (function(cartogram_inst){
 
 Download `FileSaver.js` from https://github.com/eligrey/FileSaver.js/tree/master/dist and move it to `cartogram-docker/cartogram-web/internal/static/`.
 
-### Downloading the SVGs from your local website
+### 1.2 Downloading the SVGs from your local website
 
 Visit your locally-hosted website and select a country. Select an option from the dropdown menu (e.g. Land Area/Population/GDP) and the SVG frames for that animation should get downloaded onto your computer.
 
