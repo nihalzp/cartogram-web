@@ -18,7 +18,7 @@ $ cd cartogram-docker/
 $ docker-compose up
 ```
 
-Open `cartogram2.js` in your preferred text editor or IDE.
+Open `cartogram-docker/cartogram-web/internal/static/cartogram2.js` in your preferred text editor or IDE.
 
 ### 1.1 Adding the `downloadSVG()` function
 
