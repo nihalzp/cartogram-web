@@ -11,7 +11,8 @@ This guide will help you add a new map to the go-cart.io website. This guide ass
     - [Adding Colors and Labels Using Inkscape](#adding-colors-and-labels-using-inkscape)
 - [5. Saving Your Changes](#5-saving-your-changes)
 
-\* [Left/Right Map Display](#leftright-map-display)
+\* [Left/Right Map Display](#leftright-map-display)<br/>
+\* [Exporting the cartogram animation to a gif](create_cart_animation_gif.md)
 
 ## 1. What You'll Need
 
