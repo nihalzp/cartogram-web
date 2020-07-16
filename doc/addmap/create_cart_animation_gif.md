@@ -22,7 +22,7 @@ Open `cartogram-docker/cartogram-web/internal/static/cartogram2.js` in your pref
 
 ### 1.1 Adding the `downloadSVG()` function
 
-Find the method `displayVersionSwitchButtons()` of the class `Cartogram`, which might be on line ~2500. You will now create a function in this method which downloads the frames of the cartogram animation as SVGs. 
+Find the method `displayVersionSwitchButtons()` of the class `Cartogram`, which might be on line ~2500. You will now create a function in this method that downloads the frames of the cartogram animation as SVGs. 
 
 On line ~2548, right before the end of the method, insert the following `downloadSVG()` function.
 
