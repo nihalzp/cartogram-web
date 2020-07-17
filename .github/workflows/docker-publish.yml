@@ -16,6 +16,6 @@ jobs:
           name: janskyd/cartogram-web
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          buildargs: CARTOGAM_VERSION
+          buildargs: CARTOGRAM_VERSION
           
     
