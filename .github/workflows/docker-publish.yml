@@ -1,0 +1,19 @@
+name: Publish Docker Image
+on: [push]
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Publish to Registry
+        uses: elgohr/Publish-Docker-Github-Action@v2
+        env:
+          CARTOGRAM_VERSION: ${{ github.sha }}
+        with:
+          name: janskyd/cartogram-web
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          buildargs: CARTOGAM_VERSION
+          
+    
