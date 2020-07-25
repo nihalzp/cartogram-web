@@ -922,10 +922,11 @@ class CartMap {
         const legendText = legendSVG.append('text')
                                         .attr('id', 'legend-text')
                                         .attr('fill', '#5A5A5A')
-                                        .attr('dominant-baseline', 'middle');  // vertical alignment
+                                        .attr('dy', '0.3em');  // vertical alignment
 
         const totalValue = legendSVG.append('text')
                                         .attr('id', 'total-text')
+                                        .attr('x', '0')
                                         .attr('fill', '#5A5A5A');
 
         // Get unit for the map that we wish to draw legend for.
@@ -981,31 +982,30 @@ class CartMap {
         // If scalePowerOf10 is too extreme, we use scientific notation
         else {
             legendText.append('tspan')
-                .text("= " + scaleNiceNumber + " × 10")
+                .html("= " + scaleNiceNumber + " &#xD7; 10")
             legendText.append('tspan')
                 .text(scalePowerOf10)
-                .style("font-size", "0.6rem")
-                .attr("dy", "-0.5rem")
-                .attr("dx", "-0.1rem")
+                .style("font-size", "10px")
+                .attr("dy", "-10px")
             legendText.append('tspan')
                 .text(unit)
-                .attr("dy", "0.5rem")
+                .attr("dy", "10px")
+                .attr("dx", "8px")
         }
 
-        // Set "y" of total value text to be 8px below the bottom of the square.
-        const total_value_Y = 5 + parseInt(width) + 8;
-        totalValue.attr("y", total_value_Y.toString() + "px")
-                   .attr('dominant-baseline', 'hanging')
+        // Set "y" of total value text to be 20px below the top of the square.
+        const total_value_Y = 5 + parseInt(width) + 20;
+        totalValue.attr("y", total_value_Y.toString() + "px");
 
         // Set total value text.
         const totalScalePowerOfTen = Math.floor(Math.log10(versionTotalValue));
         if (totalScalePowerOfTen > -4 && totalScalePowerOfTen < 12) {
             if (totalScalePowerOfTen in largeNumberNames)
-                totalValue.text("Total: " + Math.round(versionTotalValue/Math.pow(10, totalScalePowerOfTen)) + " " + largeNumberNames[totalScalePowerOfTen] + " " + unit);
+                totalValue.text("Total: " + (versionTotalValue/Math.pow(10, totalScalePowerOfTen)).toPrecision(3)  + " " + largeNumberNames[totalScalePowerOfTen] + " " + unit);
             else if (totalScalePowerOfTen > 9)
-                totalValue.text("Total: " + Math.round(versionTotalValue/Math.pow(10, 9)) + " billion " + unit);
+                totalValue.text("Total: " + (versionTotalValue/Math.pow(10, 9)).toPrecision(3)  + " billion " + unit);
             else if (totalScalePowerOfTen > 6)
-                totalValue.text("Total: " + Math.round(versionTotalValue/Math.pow(10, 6)) + " million " + unit);
+                totalValue.text("Total: " + (versionTotalValue/Math.pow(10, 6)).toPrecision(3) + " million " + unit);
             else
                 // Else we display the total as it is
                 totalValue.text("Total: " + versionTotalValue.toLocaleString().split(',').join(' ') + " " + unit);
@@ -1013,15 +1013,15 @@ class CartMap {
         // If totalScalePowerOfTen is too extreme, we use scientific notation
         else {
             totalValue.append('tspan')
-                        .text("Total: " + Math.round(versionTotalValue/Math.pow(10, totalScalePowerOfTen)) + " × 10")
+                        .html("Total: " + (versionTotalValue/Math.pow(10, totalScalePowerOfTen)).toPrecision(3) + " &#xD7; 10")
             totalValue.append('tspan')
                         .text(totalScalePowerOfTen)
-                        .style("font-size", "0.6rem")
-                        .attr("dy", "-0.2rem")
-                        .attr("dx", "-0.1rem")
+                        .style("font-size", "10px")
+                        .attr("dy", "-10px")
             totalValue.append('tspan')
                         .text(unit)
-                        .attr("dy", "0.2rem")
+                        .attr("dy", "10px")
+                        .attr("dx", "8px")
         }
 
         // Verify if legend is accurate
@@ -2304,7 +2304,7 @@ class Cartogram {
                 };
 
                 // document.getElementById('download-modal-svg-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('map-area').innerHTML);
-                document.getElementById('download-modal-svg-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + mapArea.innerHTML);
+                document.getElementById('download-modal-svg-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + mapArea.innerHTML.replace(/×/g, '&#xD7;'));
                 document.getElementById('download-modal-svg-link').download = "equal-area-map.svg";
 
                 document.getElementById('download-modal-geojson-link').href = "data:application/json;base64," + window.btoa(geojson);
@@ -2352,7 +2352,7 @@ class Cartogram {
                 };
 
                 //document.getElementById('download-modal-svg-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('cartogram-area').innerHTML);
-                document.getElementById('download-modal-svg-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + cartogramArea.innerHTML);
+                document.getElementById('download-modal-svg-link').href = "data:image/svg+xml;base64," + window.btoa(svg_header + cartogramArea.innerHTML.replace(/×/g, '&#xD7;'));
                 document.getElementById('download-modal-svg-link').download = "cartogram.svg";
 
                 document.getElementById('download-modal-geojson-link').href = "data:application/json;base64," + window.btoa(geojson);
@@ -2696,7 +2696,6 @@ class Cartogram {
                             if ("extent" in cartogram) {
                                 world = (cartogram.extent === 'world');
                             }
-                            console.log('The generated cartogram is a world map: ' + world);
 
                                 this.model.map.addVersion("3-cartogram", new MapVersionData(cartogram.features, extrema, response.tooltip, null, null, MapDataFormat.GEOJSON, world));
 
@@ -2863,7 +2862,6 @@ class Cartogram {
             if ('extent' in mappack.original) {
                 world = (mappack.original.extent === "world");
             }
-            console.log("This is a world map: " + world);
 
             /* If it is a world map, we add a class name to the html elements,
                and we use this class name in implementing the CSS which draws a border
