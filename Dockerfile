@@ -16,4 +16,4 @@ ENV CARTOGRAM_VERSION $CARTOGRAM_VERSION
 
 EXPOSE 5000
 WORKDIR /root/internal
-CMD ["sh", "-c", "python -c \"import web; web.db.create_all()\" && python web.py"]
+CMD ["sh", "-c", "python -c \"import web; web.db.create_all()\" && ./gunicorn.sh"]
