@@ -73,6 +73,7 @@ from handlers import paraguay
 from handlers import nepal
 from handlers import world
 from handlers import angola
+from handlers import romania
 # ---addmap.py header marker---
 # !!!END DO NOT MODFIY
 
@@ -188,6 +189,7 @@ cartogram_handlers = {
 'nepal': nepal.CartogramHandler(),
 'world': world.CartogramHandler(),
 'angola': angola.CartogramHandler(),
+'romania': romania.CartogramHandler(),
 # ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
