@@ -2508,7 +2508,6 @@ class Cartogram {
 
             /*var button = document.createElement('button');
             button.innerText = this.model.map.versions[sysname].name;
-
             if(sysname == this.model.current_sysname)
             {
                 button.className = "btn btn-secondary btn-sm active";
@@ -2517,11 +2516,9 @@ class Cartogram {
             {
                 button.className = "btn btn-secondary btn-sm";
                 button.onclick = (function(sn){
-
                     return function(e){
                         this.switchVersion(sn);
                     }.bind(this);
-
                 }.bind(this)(sysname));
             }*/
 
