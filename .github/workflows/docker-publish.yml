@@ -1,9 +1,9 @@
-name: Publish Docker Image
+name: Publish Docker Image and Deploy
 
 on: [push]
 
 jobs:
-  Deploy:
+  Publish:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
@@ -17,5 +17,18 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           buildargs: CARTOGRAM_VERSION
+  Deploy:
+    needs: Publish
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        uses: appleboy/ssh-action@v0.1.2
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: ./deploy.sh
           
+    
     
