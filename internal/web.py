@@ -81,6 +81,7 @@ from handlers import belarus
 from handlers import bahamas
 from handlers import guyana
 from handlers import washington
+from handlers import lebanon
 # ---addmap.py header marker---
 # !!!END DO NOT MODFIY
 
@@ -204,6 +205,7 @@ cartogram_handlers = {
 'bahamas': bahamas.CartogramHandler(),
 'guyana': guyana.CartogramHandler(),
 'washington': washington.CartogramHandler(),
+'lebanon': lebanon.CartogramHandler(),
 # ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
