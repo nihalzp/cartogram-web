@@ -2858,8 +2858,10 @@ class Cartogram {
      * @param {string} hrname The human-readable name of the new map to load
      * @param {MapVersionData} cartogram An optional, extra cartogram to display
      * @param {Object.<string,string>} colors A color palette to use instead of the default one
+     * @param {string} sharing_key The unique sharing key associated with this
+     *                             cartogram, if any
      */
-    switchMap(sysname, hrname, cartogram=null,colors=null) {
+    switchMap(sysname, hrname, cartogram=null,colors=null,sharing_key=null) {
         if(this.model.in_loading_state)
             return;
         
@@ -2965,8 +2967,16 @@ class Cartogram {
 
             this.exitLoadingState();
 
-            this.generateSocialMediaLinks(window.location.href);
-	    this.generateEmbedHTML("map", sysname);
+            
+
+	    if(sharing_key !== null) {
+		this.generateSocialMediaLinks("https://go-cart.io/cart/" + sharing_key);
+		this.generateEmbedHTML("cart", sharing_key);
+	    } else {
+		this.generateSocialMediaLinks("https://go-cart.io/cartogram/" + sysname);
+		this.generateEmbedHTML("map", sysname);
+	    }
+	    
             this.generateSVGDownloadLinks();
             this.displayVersionSwitchButtons();
             this.updateGridDocument(mappack.griddocument);

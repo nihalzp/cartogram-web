@@ -43,11 +43,11 @@
            if ("extent" in cartogram_data) {
                world = (cartogram_data.extent === 'world');
            }
-               window.cartogram.switchMap("{{default_cartogram_handler}}", "", new MapVersionData(cartogram_data.features, extrema, cartogramui_data.tooltip, null, null, MapDataFormat.GEOJSON, world), cartogramui_data.color_data);
+               window.cartogram.switchMap("{{default_cartogram_handler}}", "", new MapVersionData(cartogram_data.features, extrema, cartogramui_data.tooltip, null, null, MapDataFormat.GEOJSON, world), cartogramui_data.color_data, cartogramui_data.unique_sharing_key);
 
 
            } else {
-                window.cartogram.switchMap("{{default_cartogram_handler}}", "", new MapVersionData(cartogram_data.features, cartogram_data.extrema, cartogramui_data.tooltip, null, null, MapDataFormat.GOCARTJSON), cartogramui_data.color_data);
+                window.cartogram.switchMap("{{default_cartogram_handler}}", "", new MapVersionData(cartogram_data.features, cartogram_data.extrema, cartogramui_data.tooltip, null, null, MapDataFormat.GOCARTJSON), cartogramui_data.color_data, cartogramui_data.unique_sharing_key);
            }
 
 
