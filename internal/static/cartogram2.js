@@ -698,7 +698,7 @@ class CartMap {
      * @param {string} name The name of the map or cartogram
      * @param {MapConfig} config The configuration of the map or cartogram
      */
-    constructor(name, config) {
+    constructor(name, config, scale=1.3) {
 
         this.name = name;
 
@@ -709,7 +709,7 @@ class CartMap {
         this.config = {
             dont_draw: config.dont_draw.map(id => id.toString()),
             elevate: config.elevate.map(id => id.toString()),
-            scale: 1.3
+            scale: scale
         };
 
         /**
@@ -906,6 +906,8 @@ class CartMap {
     drawLegend(sysname, legendSVGID){
 
         const legendSVG = d3.select('#' + legendSVGID);
+
+	legendSVG.attr('width', this.width);
 
         // Remove existing child nodes
         legendSVG.selectAll('*').remove();
@@ -1517,7 +1519,7 @@ class Cartogram {
      * @param {string} version The version string used to prevent improper caching of map assets
      */
 
-    constructor(c_u, cui_u, c_d, g_u, gp_u, version) {
+    constructor(c_u, cui_u, c_d, g_u, gp_u, version, scale=1.3) {
 
         this.config = {
             cartogram_url: c_u,
@@ -1525,7 +1527,8 @@ class Cartogram {
             cartogram_data_dir: c_d,
             gridedit_url: g_u,
             getprogress_url: gp_u,
-            version: version
+            version: version,
+	    scale: scale,
         };
 
         /**
@@ -1630,7 +1633,6 @@ class Cartogram {
         }
         else
         {
-            console.log('hi');
             this.model.gridedit_window.gridedit.load_document(this.model.grid_document);
             this.model.gridedit_window.focus();
         }
@@ -2386,6 +2388,21 @@ class Cartogram {
 
         document.getElementById('email-share').href = "mailto:?body=" + window.encodeURIComponent(url);
 
+	document.getElementById('share-link-href').value = url;
+
+    }
+
+    /**
+     * generateEmbedHTML generates the code for embedding the given cartogram
+     * @param {string} mode The embedding mode ('map' for embedding the map
+     *                      with no user data, and 'cart' for embedding a map
+     *                      with user data
+     * @param {string} key The embed key
+     */
+    generateEmbedHTML(mode, key) {
+
+	document.getElementById('share-embed-code').innerHTML = '<iframe src="https://go-cart.io/embed/' + mode + '/' + key + '" width="800" height="550" style="border: 1px solid black;"></iframe>';
+	document.getElementById('share-embed').style.display = 'block';
     }
 
     /**
@@ -2711,6 +2728,7 @@ class Cartogram {
                             this.model.current_sysname = "3-cartogram";
 
                             this.generateSocialMediaLinks("https://go-cart.io/cart/" + response.unique_sharing_key);
+			    this.generateEmbedHTML("cart", response.unique_sharing_key);
                             this.generateSVGDownloadLinks();
                             this.displayVersionSwitchButtons();
 
@@ -2850,7 +2868,7 @@ class Cartogram {
         
         this.getMapPack(sysname).then(function(mappack){
 
-            var map = new CartMap(hrname, mappack.config);
+            var map = new CartMap(hrname, mappack.config, this.config.scale);
 
             /* We check if the map is a world map by searching for the 'extent' key in mappack.original.
                We then pass a boolean to the MapVersionData constructor.
@@ -2948,6 +2966,7 @@ class Cartogram {
             this.exitLoadingState();
 
             this.generateSocialMediaLinks(window.location.href);
+	    this.generateEmbedHTML("map", sysname);
             this.generateSVGDownloadLinks();
             this.displayVersionSwitchButtons();
             this.updateGridDocument(mappack.griddocument);
@@ -2955,8 +2974,6 @@ class Cartogram {
             // The following line draws the conventional legend when the page first loads.
             this.model.map.drawLegend("1-conventional", "map-area-legend");
             this.model.map.drawLegend(this.model.current_sysname, "cartogram-area-legend");
-            
-
 
             document.getElementById('template-link').href = this.config.cartogram_data_dir+ "/" + sysname + "/template.csv";
             document.getElementById('cartogram').style.display = 'block';

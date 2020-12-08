@@ -281,8 +281,8 @@
             </button>
           </div>
           <div class="modal-body">
-            <p class="lead mb-5 text-center">Share Now!</p>
-            <div class="d-flex mb-5 justify-content-center">
+            <h3 class="mb-1 text-center">Share Now!</h3>
+            <div class="d-flex mb-3 justify-content-center">
 
               <div class="share-link">
                   <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fgo-cart.io"
@@ -307,9 +307,24 @@
               </div>
 
             </div>
+
+	    <div class="mb-3">
+	      <h3 class="text-center">Link</h3>
+	      <input type="text" id="share-link-href" class="form-control w-100" disabled style="font-family: monospace;" value="https://go-cart.io"/>
+	    </div>
+
+	    <div id="share-embed" class="mb-5" style="display: none">
+	      <h3 class="text-center">Embed</h3>
+	      <p class="text-center">To embed your cartogram into any webpage, insert the HTML code below:</p>
+	      <textarea id="share-embed-code" class="form-control w-100" disabled rows="3" style="font-family: monospace; resize: none"></textarea>
+	    </div>
+
+	    <div>
             <p class="lead text-center">Liked our work? Make sure to credit us using the citation below:</p>
             <p class="text-primary">Gastner MT, Seguy V, More P. Fast flow-based algorithm for creating
-                density-equalizing map projections. Proc Natl Acad Sci USA 115(10):E2156–E2164 (2018).</p>
+              density-equalizing map projections. Proc Natl Acad Sci USA 115(10):E2156–E2164 (2018).</p>
+	    </div>
+	    
           </div>
           <!--<div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
