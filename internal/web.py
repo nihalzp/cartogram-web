@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import cartwrap, gen2dict, geojson_extrema, awslambda, tracking, custom_captcha
 import settings
 import recaptcha_verify
