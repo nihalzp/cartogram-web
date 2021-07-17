@@ -133,7 +133,8 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """{3}""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+{3}""".format(*values)
     
     def expect_geojson_output(self):
         return True
@@ -143,7 +144,7 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return self.order_by_example(csv.reader(csvfile), "{4}", 0, 1, 2, 3, [{5}], [0.0 for i in range(0,{2})], {{{6}}})
 '''
     
-    area_data_template = "\n".join(list(map(lambda region: "{} {{}} {}".format(region["id"], region["name"]), regions)))
+    area_data_template = "\n".join(list(map(lambda region: "{},{{}},{},".format(region["id"], region["name"]), regions)))
     region_names = ",".join(list(map(lambda region: '"{}"'.format(region["name"]), regions)))
     region_name_id_dict = ",".join(list(map(lambda region: '"{}":"{}"'.format(region["name"], region["id"]), regions)))
 
@@ -282,7 +283,7 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
      width="{}" height="{}"
      xmlns="http://www.w3.org/2000/svg"
      xmlns:gocart="https://go-cart.io">
-""".format(round(width,2), round(height, 2)))
+""".format(width,height))
 
                 next_polygon_id = 1
 
@@ -390,7 +391,7 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
 
             try:
                 template_csv_file.write('"{}","","Land Area","Colour"\n'.format(region_identifier))
-                template_csv_file.write("\n".join(list(map(lambda region: '"{}","","","#aaaaaa"'.format(region["name"]), regions))))
+                template_csv_file.write("\n".join(list(map(lambda region: '"{}","","100","#aaaaaa"'.format(region["name"]), regions))))
             except:
                 cleanup()
                 return
@@ -405,7 +406,7 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
 
             try:
                 template_csv_file.write('"{}","","Population","Colour"\n'.format(region_identifier))
-                template_csv_file.write("\n".join(list(map(lambda region: '"{}","","","#aaaaaa"'.format(region["name"]), regions))))
+                template_csv_file.write("\n".join(list(map(lambda region: '"{}","","100","#aaaaaa"'.format(region["name"]), regions))))
             except:
                 cleanup()
                 return
