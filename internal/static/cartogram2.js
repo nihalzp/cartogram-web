@@ -1078,16 +1078,14 @@ class CartMap {
             max_height = new_version_height;
         }
 
-        if(max_width > 400.0) {
-            var max_width_old = max_width;
-            max_width = 400.0;
-            max_height = (max_width / max_width_old) * max_height;
-        }
-
-        if(max_height > 500.0) {
-            var max_height_old = max_height;
-            max_height = 500.0;
-            max_width = (max_height / max_height_old) * max_width;
+        if (max_width >= max_height) {
+            var ratio_height_by_width = max_height/max_width;
+            max_width = 400;
+            max_height = 400 * ratio_height_by_width;
+        } else if (max_height > max_width) {
+            var ratio_width_by_height = max_width/max_height;
+            max_height = 500;
+            max_width = 500 * ratio_width_by_height;
         }
 
         this.width = max_width * this.config.scale;
