@@ -444,12 +444,14 @@ class MapVersion {
      * @param {string} name The human-readable name of the map version
      * @param {Extrema} extrema Extrema for this map version
      * @param {Labels} labels The labels of the map version. Optional.
+     * @param {array<array<double>} divider Inset divider line endpoints
      */
-    constructor(name, extrema, labels=null, world = false) {
+    constructor(name, extrema, labels=null, world = false, divider) {
         this.name = name;
         this.extrema = extrema;
         this.labels = labels;
         this.world = world;
+        this.divider = divider;
     }
 }
 
@@ -481,8 +483,9 @@ class MapVersionData {
      * @param {Labels} labels Labels for the map version
      * @param {number} format The format of the given map data.
      * @param {boolean} world Whether it is a world map.
+     * @param {array<array<double>} divider Inset divider line endpoints
      */
-    constructor(features, extrema, tooltip, abbreviations=null, labels=null, format=MapDataFormat.GOCARTJSON, world = false) {
+    constructor(features, extrema, tooltip, abbreviations=null, labels=null, format=MapDataFormat.GOCARTJSON, world = false, divider) {
 
         /**
          * @type {Object.<string,{polygons: Array<{id: string, coordinates: Array<Array<number,number>>}>, name: string, value: string}}
@@ -662,6 +665,12 @@ class MapVersionData {
             };
         } else
             this.extrema = extrema;
+
+
+        /**
+         *  @type {array<array<double>}
+         */
+        this.divider = divider;
 
         /**
          * @type {string}
@@ -1175,11 +1184,30 @@ class CartMap {
 
         },this);
 
+        // Transform divider coordinates so that they can be directly drawn to the cartogram SVG
+        var divider_svg_transformed = data.divider;
+
+        if (data.divider != null) {
+            for (var i = 0 ; i < divider_svg_transformed.length ; i++){
+                for (var j = 0 ; j < 4 ; j++)
+                {
+                    if (j % 2 == 0) {
+                        divider_svg_transformed[i][j] *= scale_factors[sysname].x;
+                        divider_svg_transformed[i][j] -= data.extrema.min_x * scale_factors[sysname].x;
+                    } else {
+                        divider_svg_transformed[i][j] *= scale_factors[sysname].y;
+                        divider_svg_transformed[i][j] -= data.extrema.min_y * scale_factors[sysname].y;
+                    }
+                }
+            }
+        }
+
         this.versions[sysname] = new MapVersion(
             data.name,
             data.extrema,
             data.labels,
-            data.world
+            data.world,
+            divider_svg_transformed
         );
     }
 
@@ -1248,11 +1276,9 @@ class CartMap {
         while(map_container.firstChild) {
             map_container.removeChild(map_container.firstChild);
         }
-
         var canvas = d3.select('#' + element_id).append("svg")
             .attr("width", this.width)
             .attr("height", this.height);
-        
         var polygons_to_draw = [];
 
         // First we collect the information for each polygon to make using D3 easier.
@@ -1335,6 +1361,21 @@ class CartMap {
 
                     Tooltip.hide();
             };}(this, where_drawn)));
+        
+        // Draw divider lines inside SVG
+        if (version.divider != null) {
+            var divider_lines = canvas.selectAll("line")
+            .data(version.divider)
+            .enter()
+            .append("line");
+
+            divider_lines.attr('x1', function(d) {return d[0];})
+                .attr('x2', function(d) {return d[2];})
+                .attr('y1', function(d) {return d[1];})
+                .attr('y2', function(d) {return d[3];})
+                .attr('stroke-width', 1)
+                .attr('stroke', '#000');
+        }
         
         if(version.labels !== null) {
 
@@ -1496,6 +1537,39 @@ class CartMap {
 
         }, this);        
 
+        var new_sys_divider_coor = this.versions[new_sysname].divider;
+        var old_sys_divider_coor = this.versions[current_sysname].divider;
+        var combined_divider_coor= [];
+        
+        for(var i = 0 ; i < old_sys_divider_coor.length ; i++)
+        {
+            combined_divider_coor.push(new_sys_divider_coor[i].concat(old_sys_divider_coor[i]));
+        }
+        
+        // Clear old_sysname divider lines
+        d3.select("#"+element_id).select("svg").selectAll("line").remove();
+
+        if (combined_divider_coor != null) 
+        {
+            var div_lines = d3.select("#"+element_id).select("svg").selectAll("line")
+            .data(combined_divider_coor)
+            .enter()
+            .append("line");
+            
+            div_lines.attr('x1', function(d) {return d[4];})
+                .attr('x2', function(d) {return d[6];})
+                .attr('y1', function(d) {return d[5];})
+                .attr('y2', function(d) {return d[7];})
+                .transition()
+                .ease(d3.easeCubic)
+                .duration(1000)
+                .attr('x1', function(d) {return d[0];})
+                .attr('x2', function(d) {return d[2];})
+                .attr('y1', function(d) {return d[1];})
+                .attr('y2', function(d) {return d[3];})
+                .attr('stroke-width', 1)
+                .attr('stroke', '#000');
+        }
 
         this.drawLegend(new_sysname, element_id + "-legend");
 
@@ -2427,41 +2501,18 @@ class Cartogram {
                 return function(){
 
                     HTTP.get(cartogram_inst.config.getprogress_url + "?key=" + encodeURIComponent(key) + "&time=" + Date.now()).then(function(progress){
-
-                        if(progress.progress === null)
+                        
+                        if (progress.progress === null)
                         {
                             return;
                         }
 
-                        if(cartogram_inst.model.loading_state === null) {
+                        var percentage = Math.floor(progress.progress * 100);
 
-                            cartogram_inst.model.loading_state = Math.log10(progress.progress);
-                            cartogram_inst.updateProgressBar(0, 100, 5);
+                        cartogram_inst.updateProgressBar(5, 100, percentage);
 
-                        } else {
-
-                            if(progress.progress < 0.01) {
-                                progress.progress = 0.01
-                            }
-
-                            if(progress.progress > cartogram_inst.model.loading_state) {
-                                progress.progress = cartogram_inst.model.loading_state;
-                            }
-
-                            /*console.log("progress: " + progress.progress);
-                            console.log("distance: " + Math.abs(cartogram_inst.model.loading_state - Math.log10(progress.progress)));
-                            console.log("area: " + Math.abs(cartogram_inst.model.loading_state - (-2)));*/
+                        cartogram_inst.setExtendedErrorInfo(progress.stderr);
                         
-
-                            var percentage = Math.floor(Math.abs(cartogram_inst.model.loading_state - Math.log10(progress.progress)) / Math.abs(cartogram_inst.model.loading_state - (-2))*100);
-
-                            /*console.log("percentage: " + percentage);
-                            console.log("");*/
-
-                            cartogram_inst.updateProgressBar(5, 100, percentage);
-
-                            cartogram_inst.setExtendedErrorInfo(progress.stderr);
-                        }
 
                     });
 
@@ -2709,11 +2760,11 @@ class Cartogram {
                                 world = (cartogram.extent === 'world');
                             }
 
-                                this.model.map.addVersion("3-cartogram", new MapVersionData(cartogram.features, extrema, response.tooltip, null, null, MapDataFormat.GEOJSON, world));
+                                this.model.map.addVersion("3-cartogram", new MapVersionData(cartogram.features, extrema, response.tooltip, null, null, MapDataFormat.GEOJSON, world, cartogram.divider_points));
 
 
                             } else {
-                                this.model.map.addVersion("3-cartogram", new MapVersionData(cartogram.features, cartogram.extrema, response.tooltip,null, null,  MapDataFormat.GOCARTJSON));
+                                this.model.map.addVersion("3-cartogram", new MapVersionData(cartogram.features, cartogram.extrema, response.tooltip,null, null,  MapDataFormat.GOCARTJSON, cartogram.divider_points));
                             }
 
 
@@ -2911,10 +2962,10 @@ class Cartogram {
                     max_y: mappack.original.bbox[3]
                 };
 
-                map.addVersion("1-conventional", new MapVersionData(mappack.original.features, extrema, mappack.original.tooltip, mappack.abbreviations, mappack.labels, MapDataFormat.GEOJSON, world));
+                map.addVersion("1-conventional", new MapVersionData(mappack.original.features, extrema, mappack.original.tooltip, mappack.abbreviations, mappack.labels, MapDataFormat.GEOJSON, world, mappack.original.divider_points));
 
             } else {
-                map.addVersion("1-conventional", new MapVersionData(mappack.original.features, mappack.original.extrema, mappack.original.tooltip, mappack.abbreviations, mappack.labels, MapDataFormat.GOCARTJSON, world));
+                map.addVersion("1-conventional", new MapVersionData(mappack.original.features, mappack.original.extrema, mappack.original.tooltip, mappack.abbreviations, mappack.labels, MapDataFormat.GOCARTJSON, world, mappack.original.divider_points));
             }
 
             if(mappack.population.hasOwnProperty("bbox")) {
@@ -2926,10 +2977,10 @@ class Cartogram {
                     max_y: mappack.population.bbox[3]
                 };
 
-                map.addVersion("2-population", new MapVersionData(mappack.population.features, extrema, mappack.population.tooltip, null, null, MapDataFormat.GEOJSON, world));
+                map.addVersion("2-population", new MapVersionData(mappack.population.features, extrema, mappack.population.tooltip, null, null, MapDataFormat.GEOJSON, world, mappack.population.divider_points));
 
             } else {
-                map.addVersion("2-population", new MapVersionData(mappack.population.features, mappack.population.extrema, mappack.population.tooltip, null, null, MapDataFormat.GOCARTJSON, world));
+                map.addVersion("2-population", new MapVersionData(mappack.population.features, mappack.population.extrema, mappack.population.tooltip, null, null, MapDataFormat.GOCARTJSON, world, mappack.population.divider_points));
             }            
 
             if(cartogram !== null) {
