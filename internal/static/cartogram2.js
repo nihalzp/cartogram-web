@@ -444,14 +444,16 @@ class MapVersion {
      * @param {string} name The human-readable name of the map version
      * @param {Extrema} extrema Extrema for this map version
      * @param {Labels} labels The labels of the map version. Optional.
-     * @param {array<array<double>} divider Inset divider line endpoints
+     * @param {array<array<double>} divider_raw Inset divider line geojson endpoints
+     * @param {array<array<double>} divider_svg Inset divider line svg endpoints
      */
-    constructor(name, extrema, labels=null, world = false, divider) {
+    constructor(name, extrema, labels=null, world = false, divider_raw, divider_svg) {
         this.name = name;
         this.extrema = extrema;
         this.labels = labels;
         this.world = world;
-        this.divider = divider;
+        this.divider_raw = divider_raw;
+        this.divider_svg = divider_svg;
     }
 }
 
@@ -485,7 +487,7 @@ class MapVersionData {
      * @param {boolean} world Whether it is a world map.
      * @param {array<array<double>} divider Inset divider line endpoints
      */
-    constructor(features, extrema, tooltip, abbreviations=null, labels=null, format=MapDataFormat.GOCARTJSON, world = false, divider) {
+    constructor(features, extrema, tooltip, abbreviations=null, labels=null, format=MapDataFormat.GOCARTJSON, world = false, divider_raw) {
 
         /**
          * @type {Object.<string,{polygons: Array<{id: string, coordinates: Array<Array<number,number>>}>, name: string, value: string}}
@@ -670,7 +672,7 @@ class MapVersionData {
         /**
          *  @type {array<array<double>}
          */
-        this.divider = divider;
+        this.divider_raw = divider_raw;
 
         /**
          * @type {string}
@@ -750,7 +752,6 @@ class CartMap {
          * @type {number}
          */
         this.height = 0.0;
-        
     }
 
     getVersionGeoJSON(sysname) {
@@ -1050,7 +1051,8 @@ class CartMap {
             delete this.versions[sysname];
         }
 
-        // Here we perform the area equalization.
+        // Here we perform the area equalization (area equalization code is commented out). Current version tries to
+        // keep aspect ratio constant.
         // We take the largest map version, and scale all others to have the same dimensions.
 
         /**
@@ -1100,16 +1102,27 @@ class CartMap {
         this.width = max_width * this.config.scale;
         this.height = max_height * this.config.scale;
 
+
         Object.keys(this.versions).forEach(function(version_sysname){
 
             var width = this.versions[version_sysname].extrema.max_x - this.versions[version_sysname].extrema.min_x;
             var height = this.versions[version_sysname].extrema.max_y - this.versions[version_sysname].extrema.min_y;
 
-            scale_factors[version_sysname] = {x: max_width / width * this.config.scale, y: max_height / height * this.config.scale};
+            // Keeping aspect ratio same for all maps with keeping in mind that all three maps are
+            // within 520 by 650 pixel boundary
+            if (max_width >= max_height){
+                scale_factors[version_sysname] = {x: max_width / width * this.config.scale, y: max_width / width * this.config.scale};
+            } else {
+                scale_factors[version_sysname] = {x: max_height / height * this.config.scale, y: max_height / height * this.config.scale};
+            }
 
         }, this);
 
-        scale_factors[sysname] = {x: max_width / new_version_width * this.config.scale, y: max_height / new_version_height * this.config.scale};
+        if (max_width >= max_height) {
+            scale_factors[sysname] = {x: max_width / new_version_width * this.config.scale, y: max_width / new_version_width * this.config.scale};
+        } else {
+            scale_factors[sysname] = {x: max_height / new_version_height * this.config.scale, y: max_height / new_version_height * this.config.scale};
+        }
 
         Object.keys(data.regions).forEach(function(region_id){
 
@@ -1155,58 +1168,81 @@ class CartMap {
 
         }, this);
 
-        // Now we need to recompute the D3 line functions of all other map versions to ensure area equalization.
-        Object.keys(this.versions).forEach(function(version_sysname){
-
-            Object.keys(this.regions).forEach(function(region_id){
-
-                var polygons = this.regions[region_id].versions[version_sysname].polygons.map(polygon =>
-                    new Polygon(
-                        polygon.id,
-                        /*d3.svg.line()
-                            .x(d => scale_factors[version_sysname].x * (-1*(this.versions[version_sysname].extrema.min_x) + d[0]))
-                            .y(d => scale_factors[version_sysname].y * ((this.versions[version_sysname].extrema.max_y) - d[1]))
-                            .interpolate("linear")(polygon.coordinates),*/
-                        SVG.lineFunction(
-                            d => scale_factors[version_sysname].x * (-1*(this.versions[version_sysname].extrema.min_x) + d[0]),
-                            d => scale_factors[version_sysname].y * ((this.versions[version_sysname].extrema.max_y) - d[1]),
-                            polygon.coordinates,
-                            polygon.holes
-                        ),
-                        polygon.coordinates,
-                        polygon.holes
-                    )
-                )
-
-                this.regions[region_id].versions[version_sysname].polygons = polygons;
-
-            }, this);
-
-        },this);
-
         // Transform divider coordinates so that they can be directly drawn to the cartogram SVG
-        var divider_svg_transformed = data.divider;
+        var divider_svg_transformed = [];
 
-        if (data.divider != null) {
+        if (data.divider_raw != null) {
+            for (var i = 0; i < data.divider_raw.length; i++)
+            divider_svg_transformed[i] = data.divider_raw[i].slice();
+
             for (var i = 0 ; i < divider_svg_transformed.length ; i++){
                 for (var j = 0 ; j < 4 ; j++)
                 {
                     if (j % 2 == 0) {
-                        divider_svg_transformed[i][j] *= scale_factors[sysname].x;
-                        divider_svg_transformed[i][j] -= data.extrema.min_x * scale_factors[sysname].x;
+                        divider_svg_transformed[i][j] *= (scale_factors[sysname].x);
+                        divider_svg_transformed[i][j] -= (data.extrema.min_x * scale_factors[sysname].x);
                     } else {
-                        divider_svg_transformed[i][j] *= scale_factors[sysname].y;
-                        divider_svg_transformed[i][j] -= data.extrema.min_y * scale_factors[sysname].y;
+                        divider_svg_transformed[i][j] *= (scale_factors[sysname].y);
+                        divider_svg_transformed[i][j] += (data.extrema.max_y * scale_factors[sysname].y);
                     }
                 }
             }
         }
+
+        // Commenting out since we are no longer trying to equalize the areas, instead we are keeping map aspect ratio constant
+
+        // Now we need to recompute the D3 line functions and divider lines of all other map versions to ensure area equalization.
+        // Object.keys(this.versions).forEach(function(version_sysname){
+
+        //     if (this.versions[version_sysname].divider_raw != null) {
+        //         for (var i = 0 ; i < this.versions[version_sysname].divider_raw.length ; i++){
+        //             for (var j = 0 ; j < 4 ; j++)
+        //             {
+        //                 if (j % 2 == 0) {
+        //                     this.versions[version_sysname].divider_svg[i][j] = (this.versions[version_sysname].divider_raw[i][j] * scale_factors[version_sysname].x);
+        //                     this.versions[version_sysname].divider_svg[i][j] -= (this.versions[version_sysname].extrema.min_x * scale_factors[version_sysname].x);
+        //                 } else {
+        //                     this.versions[version_sysname].divider_svg[i][j] = (this.versions[version_sysname].divider_raw[i][j] * scale_factors[version_sysname].y);
+        //                     this.versions[version_sysname].divider_svg[i][j] += (this.versions[version_sysname].extrema.max_y * scale_factors[version_sysname].y);
+        //                 }
+        //             }
+        //         }
+        //     }
+            
+
+        //     Object.keys(this.regions).forEach(function(region_id){
+
+        //         var polygons = this.regions[region_id].versions[version_sysname].polygons.map(polygon =>
+        //             new Polygon(
+        //                 polygon.id,
+        //                 /*d3.svg.line()
+        //                     .x(d => scale_factors[version_sysname].x * (-1*(this.versions[version_sysname].extrema.min_x) + d[0]))
+        //                     .y(d => scale_factors[version_sysname].y * ((this.versions[version_sysname].extrema.max_y) - d[1]))
+        //                     .interpolate("linear")(polygon.coordinates),*/
+        //                 SVG.lineFunction(
+        //                     d => scale_factors[version_sysname].x * (-1*(this.versions[version_sysname].extrema.min_x) + d[0]),
+        //                     d => scale_factors[version_sysname].y * ((this.versions[version_sysname].extrema.max_y) - d[1]),
+        //                     polygon.coordinates,
+        //                     polygon.holes
+        //                 ),
+        //                 polygon.coordinates,
+        //                 polygon.holes
+        //             )
+        //         )
+
+        //         this.regions[region_id].versions[version_sysname].polygons = polygons;
+
+        //     }, this);
+
+        // },this);
+
 
         this.versions[sysname] = new MapVersion(
             data.name,
             data.extrema,
             data.labels,
             data.world,
+            data.divider_raw,
             divider_svg_transformed
         );
     }
@@ -1363,9 +1399,9 @@ class CartMap {
             };}(this, where_drawn)));
         
         // Draw divider lines inside SVG
-        if (version.divider != null) {
+        if (version.divider_svg != null) {
             var divider_lines = canvas.selectAll("line")
-            .data(version.divider)
+            .data(version.divider_svg)
             .enter()
             .append("line");
 
@@ -1537,8 +1573,8 @@ class CartMap {
 
         }, this);        
 
-        var new_sys_divider_coor = this.versions[new_sysname].divider;
-        var old_sys_divider_coor = this.versions[current_sysname].divider;
+        var new_sys_divider_coor = this.versions[new_sysname].divider_svg;
+        var old_sys_divider_coor = this.versions[current_sysname].divider_svg;
         var combined_divider_coor= [];
         
         for(var i = 0 ; i < old_sys_divider_coor.length ; i++)
@@ -1560,9 +1596,12 @@ class CartMap {
                 .attr('x2', function(d) {return d[6];})
                 .attr('y1', function(d) {return d[5];})
                 .attr('y2', function(d) {return d[7];})
+                .style('opacity', 0)
                 .transition()
+                .attr('stroke-dashoffset', 0)
                 .ease(d3.easeCubic)
                 .duration(1000)
+                .style('opacity', 1)
                 .attr('x1', function(d) {return d[0];})
                 .attr('x2', function(d) {return d[2];})
                 .attr('y1', function(d) {return d[1];})
