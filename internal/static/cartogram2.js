@@ -1179,11 +1179,11 @@ class CartMap {
                 for (var j = 0 ; j < 4 ; j++)
                 {
                     if (j % 2 == 0) {
-                        divider_svg_transformed[i][j] *= (scale_factors[sysname].x);
-                        divider_svg_transformed[i][j] -= (data.extrema.min_x * scale_factors[sysname].x);
+                        divider_svg_transformed[i][j] *= scale_factors[sysname].x;
+                        divider_svg_transformed[i][j] -= data.extrema.min_x * scale_factors[sysname].x;
                     } else {
-                        divider_svg_transformed[i][j] *= (scale_factors[sysname].y);
-                        divider_svg_transformed[i][j] += (data.extrema.max_y * scale_factors[sysname].y);
+                        divider_svg_transformed[i][j] *= scale_factors[sysname].y;
+                        divider_svg_transformed[i][j] += data.extrema.max_y * scale_factors[sysname].y;
                     }
                 }
             }
