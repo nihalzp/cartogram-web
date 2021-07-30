@@ -7,7 +7,6 @@ import recaptcha_verify
 from handlers import argentina
 from handlers import australia
 from handlers import canada
-from handlers import singapore
 from handlers import japan2
 from handlers import france
 from handlers import uae
@@ -43,7 +42,6 @@ from handlers import denmark
 from handlers import belgium
 from handlers import russia
 from handlers import nigeria
-from handlers import indonesia
 from handlers import luxembourg
 from handlers import bangladesh
 from handlers import sanMarino
@@ -90,6 +88,8 @@ from handlers import china2
 from handlers import india
 from handlers import srilanka
 from handlers import germany
+from handlers import indonesia
+from handlers import singaporeRe
 # ---addmap.py header marker---
 # !!!END DO NOT MODFIY
 
@@ -135,7 +135,6 @@ cartogram_handlers = {
 'argentina': argentina.CartogramHandler(),
 'australia': australia.CartogramHandler(),
 'canada': canada.CartogramHandler(),
-'singapore': singapore.CartogramHandler(),
 'japan2': japan2.CartogramHandler(),
 'france': france.CartogramHandler(),
 'uae': uae.CartogramHandler(),
@@ -171,7 +170,6 @@ cartogram_handlers = {
 'belgium': belgium.CartogramHandler(),
 'nigeria': nigeria.CartogramHandler(),
 'russia':russia.CartogramHandler(),
-'indonesia':indonesia.CartogramHandler(),
 'luxembourg': luxembourg.CartogramHandler(),
 'bangladesh': bangladesh.CartogramHandler(),
 'sanMarino': sanMarino.CartogramHandler(),
@@ -217,6 +215,8 @@ cartogram_handlers = {
 'india': india.CartogramHandler(),
 'srilanka': srilanka.CartogramHandler(),
 'germany': germany.CartogramHandler(),
+'indonesia': indonesia.CartogramHandler(),
+'singaporeRe': singaporeRe.CartogramHandler(),
 # ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
