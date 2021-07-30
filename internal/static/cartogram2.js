@@ -444,16 +444,18 @@ class MapVersion {
      * @param {string} name The human-readable name of the map version
      * @param {Extrema} extrema Extrema for this map version
      * @param {Labels} labels The labels of the map version. Optional.
-     * @param {array<array<double>} divider_raw Inset divider line geojson endpoints
-     * @param {array<array<double>} divider_svg Inset divider line svg endpoints
+     * @param {array<array<number>} divider_raw Inset divider line geojson endpoints
+     * @param {array<array<number>} divider_svg Inset divider line svg endpoints
+     * @param {object<number,number>} width_height Store svg width-height
      */
-    constructor(name, extrema, labels=null, world = false, divider_raw, divider_svg) {
+    constructor(name, extrema, labels=null, world = false, divider_raw, divider_svg, width_height) {
         this.name = name;
         this.extrema = extrema;
         this.labels = labels;
         this.world = world;
         this.divider_raw = divider_raw;
         this.divider_svg = divider_svg;
+        this.width_height = width_height;
     }
 }
 
@@ -1059,6 +1061,7 @@ class CartMap {
          * @type {Object.<string, {x: number, y: number}>}
          */
         var scale_factors = {};
+        var width_height = {};
 
         var max_height = 0.0;
         var max_width = 0.0;
@@ -1090,11 +1093,11 @@ class CartMap {
         }
 
         if (max_width >= max_height) {
-            var ratio_height_by_width = max_height/max_width;
+            var ratio_height_by_width = new_version_height/new_version_width;
             max_width = 400;
             max_height = 400 * ratio_height_by_width;
         } else if (max_height > max_width) {
-            var ratio_width_by_height = max_width/max_height;
+            var ratio_width_by_height = new_version_width/new_version_height;
             max_height = 500;
             max_width = 500 * ratio_width_by_height;
         }
@@ -1102,21 +1105,23 @@ class CartMap {
         this.width = max_width * this.config.scale;
         this.height = max_height * this.config.scale;
 
+        width_height = {x: this.width, y: this.height};
 
-        Object.keys(this.versions).forEach(function(version_sysname){
+        // Commenting out since we no longer are doing area equalization
+        // Object.keys(this.versions).forEach(function(version_sysname){
 
-            var width = this.versions[version_sysname].extrema.max_x - this.versions[version_sysname].extrema.min_x;
-            var height = this.versions[version_sysname].extrema.max_y - this.versions[version_sysname].extrema.min_y;
+        //     var width = this.versions[version_sysname].extrema.max_x - this.versions[version_sysname].extrema.min_x;
+        //     var height = this.versions[version_sysname].extrema.max_y - this.versions[version_sysname].extrema.min_y;
 
-            // Keeping aspect ratio same for all maps with keeping in mind that all three maps are
-            // within 520 by 650 pixel boundary
-            if (max_width >= max_height){
-                scale_factors[version_sysname] = {x: max_width / width * this.config.scale, y: max_width / width * this.config.scale};
-            } else {
-                scale_factors[version_sysname] = {x: max_height / height * this.config.scale, y: max_height / height * this.config.scale};
-            }
+        //     // Keeping aspect ratio same for all maps with keeping in mind that all three maps are
+        //     // within 520 by 650 pixel boundary
+        //     if (max_width >= max_height){
+        //         scale_factors[version_sysname] = {x: max_width / width * this.config.scale, y: max_width / width * this.config.scale};
+        //     } else {
+        //         scale_factors[version_sysname] = {x: max_height / height * this.config.scale, y: max_height / height * this.config.scale};
+        //     }
 
-        }, this);
+        // }, this);
 
         if (max_width >= max_height) {
             scale_factors[sysname] = {x: max_width / new_version_width * this.config.scale, y: max_width / new_version_width * this.config.scale};
@@ -1243,7 +1248,8 @@ class CartMap {
             data.labels,
             data.world,
             data.divider_raw,
-            divider_svg_transformed
+            divider_svg_transformed,
+            width_height
         );
     }
 
@@ -1304,6 +1310,13 @@ class CartMap {
      * @param {Array<string>} where_drawn The elements of the IDs where versions of this map are and will be drawn (including the current element_id). Used for parallel highlighting
      */
     drawVersion(sysname, element_id, where_drawn) {
+        var max_width = 0;
+        var max_height = 0;
+
+        Object.keys(this.versions).forEach(function(version_sysname){
+                max_width = Math.max(max_width,this.versions[version_sysname].width_height.x);
+                max_height = Math.max(max_height,this.versions[version_sysname].width_height.y);
+        }, this);
 
         var map_container = document.getElementById(element_id);
         var version = this.versions[sysname];
@@ -1313,8 +1326,8 @@ class CartMap {
             map_container.removeChild(map_container.firstChild);
         }
         var canvas = d3.select('#' + element_id).append("svg")
-            .attr("width", this.width)
-            .attr("height", this.height);
+            .attr("width", Math.max(this.width, max_width))
+            .attr("height", Math.max(this.height, max_height));
         var polygons_to_draw = [];
 
         // First we collect the information for each polygon to make using D3 easier.
@@ -1333,8 +1346,6 @@ class CartMap {
                         value: this.regions[region_id].getVersion(sysname).value
                     });
                 }
-
-                
 
             }, this);
 
