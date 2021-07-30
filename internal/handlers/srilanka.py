@@ -8,7 +8,7 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return "Sri Lanka"
 
     def get_gen_file(self):
-        return "{}/gadm36_LKA_1.gen".format(settings.CARTOGRAM_DATA_DIR)
+        return "{}/srilanka_processedmap.json".format(settings.CARTOGRAM_DATA_DIR)
     
     def validate_values(self, values):
 
@@ -48,7 +48,7 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
 24 {} Trincomalee
 25 {} Vavuniya""".format(*values)
     
-    def remove_holes(self):
+    def expect_geojson_output(self):
         return True
 
     def csv_to_area_string_and_colors(self, csvfile):

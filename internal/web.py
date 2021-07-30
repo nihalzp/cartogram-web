@@ -2,10 +2,8 @@
 import cartwrap, gen2dict, geojson_extrema, awslambda, tracking, custom_captcha
 import settings
 import recaptcha_verify
-from handlers import usa, india, china, germany, brazil
 
 # !!!DO NOT MODFIY THE FOLLOWING SECTION
-from handlers import srilanka
 from handlers import argentina
 from handlers import australia
 from handlers import canada
@@ -85,6 +83,13 @@ from handlers import lebanon
 from handlers import spain5
 from handlers import arab_league
 from handlers import estonia
+from handlers import usa
+from handlers import brazil
+from handlers import china
+from handlers import china2
+from handlers import india
+from handlers import srilanka
+from handlers import germany
 # ---addmap.py header marker---
 # !!!END DO NOT MODFIY
 
@@ -127,12 +132,6 @@ if settings.USE_DATABASE:
 redis_conn = redis.Redis(host=settings.CARTOGRAM_REDIS_HOST, port=settings.CARTOGRAM_REDIS_PORT, db=0)
 
 cartogram_handlers = {
-    'usa': usa.CartogramHandler(),
-    'india': india.CartogramHandler(),
-    'china': china.CartogramHandler(),
-    'germany': germany.CartogramHandler(),
-    'brazil': brazil.CartogramHandler(),
-'srilanka': srilanka.CartogramHandler(),
 'argentina': argentina.CartogramHandler(),
 'australia': australia.CartogramHandler(),
 'canada': canada.CartogramHandler(),
@@ -211,6 +210,13 @@ cartogram_handlers = {
 'spain5': spain5.CartogramHandler(),
 'arab_league': arab_league.CartogramHandler(),
 'estonia': estonia.CartogramHandler(),
+'usa': usa.CartogramHandler(),
+'brazil': brazil.CartogramHandler(),
+'china': china.CartogramHandler(),
+'china2': china2.CartogramHandler(),
+'india': india.CartogramHandler(),
+'srilanka': srilanka.CartogramHandler(),
+'germany': germany.CartogramHandler(),
 # ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
