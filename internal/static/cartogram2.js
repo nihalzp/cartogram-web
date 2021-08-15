@@ -30,6 +30,8 @@
  * @property {Array<{x1: number, y1: number, x2: number, y2: number}>} lines Line labels
  */
 
+
+
 function clearFileInput(ctrl) {
     try {
       ctrl.value = null;
@@ -46,7 +48,7 @@ class HTTP {
 
     /**
      * Performs an HTTP GET request and returns a promise with the JSON value of the response
-     * @param {string} url The URL of the GET request 
+     * @param {string} url The URL of the GET request
      * @param {number} timeout The timeout, in seconds, of the GET request
      * @param {function} onprogress A function to be called when the request progress information is updated
      * @returns {Promise} A promise to the HTTP response
@@ -150,7 +152,7 @@ class HTTP {
             xhttp.send(form_data);
 
         });
-        
+
     }
 
     /**
@@ -173,17 +175,17 @@ class HTTP {
                 headers: headers,
                 body: body,
             });
-    
+
             Object.keys(nodes).forEach(function(node){
-    
+
                 oboe_request = oboe_request.node(node, nodes[node]);
-    
+
             });
-    
+
             oboe_request = oboe_request.done(result => resolve(result));
             oboe_request = oboe_request.fail(() => reject(Error('Unable to fetch data from the server.')));
 
-        });        
+        });
 
     }
 
@@ -201,7 +203,7 @@ class HTTP {
 
             post_string += (first_entry ? "" : "&" ) + key + "=" + encodeURIComponent(vars[key]);
             first_entry = false;
-            
+
         });
 
         return post_string;
@@ -455,7 +457,7 @@ class MapVersion {
 
 /**
  * An enum of the supported map data formats.
- * @constant 
+ * @constant
  * @type {Object<string,number>}
  * @default
  */
@@ -529,7 +531,7 @@ class MapVersionData {
 
                 switch(feature.geometry.type) {
                     case "Polygon":
-                    
+
                     var polygon_coords;
                     var polygon_holes = [];
 
@@ -583,7 +585,7 @@ class MapVersionData {
 
                     break;
                 case "MultiPolygon":
-                    
+
                     var polygons = [];
 
                     feature.geometry.coordinates.forEach(function(polygon){
@@ -636,7 +638,7 @@ class MapVersionData {
                         value: tooltip.data["id_" + feature.properties.cartogram_id]["value"],
                         abbreviation: abbreviations !== null ? abbreviations[tooltip.data["id_" + feature.properties.cartogram_id]["name"]] : ""
                     }
-                    
+
                     break;
                 default:
                     throw ("Feature type '" + feature.geometry.type + "' not supported");
@@ -647,7 +649,7 @@ class MapVersionData {
             break;
         default:
             throw "Unsupported map format";
-        }        
+        }
 
         /**
          * @type {Extrema}
@@ -741,7 +743,7 @@ class CartMap {
          * @type {number}
          */
         this.height = 0.0;
-        
+
     }
 
     getVersionGeoJSON(sysname) {
@@ -843,11 +845,11 @@ class CartMap {
      * @returns {number} The total value of the specified map version
      */
     getTotalValuesForVersion(sysname) {
-        
-        var sum = 0;        
+
+        var sum = 0;
         Object.keys(this.regions).forEach(function(region_id){
             const regionValue = this.regions[region_id].getVersion(sysname).value;
-           
+
             if(regionValue != 'NA') {
                 sum += regionValue;
             }
@@ -862,11 +864,11 @@ class CartMap {
      * @returns {number} The total value of the specified map version
      */
     getTotalAreaForVersion(sysname) {
-        var area = 0;        
+        var area = 0;
         Object.keys(this.regions).forEach(function(region_id){
             this.regions[region_id].getVersion(sysname).polygons.forEach(function(polygon){
                 const coordinates = polygon.coordinates;
-                
+
                 const areaValue = d3.polygonArea(coordinates);
 
                 area += areaValue;
@@ -1203,7 +1205,7 @@ class CartMap {
                 } else {
                     polygons[i].setAttribute('fill', color);
                 }
-                
+
             }
 
         });
@@ -1254,7 +1256,7 @@ class CartMap {
         var canvas = d3.select('#' + element_id).append("svg")
             .attr("width", this.width)
             .attr("height", this.height);
-        
+
         var polygons_to_draw = [];
 
         // First we collect the information for each polygon to make using D3 easier.
@@ -1274,7 +1276,7 @@ class CartMap {
                     });
                 }
 
-                
+
 
             }, this);
 
@@ -1305,7 +1307,7 @@ class CartMap {
               .data(polygons_to_draw)
               .enter()
               .append("path");
-            
+
         var areas = group.attr("d", d => d.path
         ).attr("id", d => "path-" + element_id + "-" + d.polygon_id)
           /* Giving NA regions a different class prevents them from being highlighted, preserving
@@ -1337,7 +1339,7 @@ class CartMap {
 
                     Tooltip.hide();
             };}(this, where_drawn)));
-        
+
         if(version.labels !== null) {
 
             /* First draw the text */
@@ -1474,7 +1476,7 @@ class CartMap {
                     // .attrTween('d', function() {
                     //     return d3.interpolatePath(polygon.path, targetPath);
                     // })
-                
+
                 /* Change the color and ensure correct highlighting behavior after animation
                    is complete
                 */
@@ -1491,12 +1493,12 @@ class CartMap {
                         document.getElementById('path-' + element_id + '-' + polygon.id).classList.remove('path-' + element_id + '-' + region_id + '-na');
                     }
                 }.bind(this), 800);
-                
+
 
             }, this);
-            
 
-        }, this);        
+
+        }, this);
 
 
         this.drawLegend(new_sysname, element_id + "-legend");
@@ -1512,7 +1514,7 @@ class Cartogram {
     /**
      * constructor creates an instance of the Cartogram class
      * @param {string} c_u The URL of the cartogram generator
-     * @param {string} cui_u The cartogramui URL 
+     * @param {string} cui_u The cartogramui URL
      * @param {string} c_d  The URL of the cartogram data directory
      * @param {string} g_u The URL of the gridedit page
      * @param {string} gp_u The URL to retrieve progress information
@@ -1567,11 +1569,11 @@ class Cartogram {
         }.bind(this);
 
     }
-    
+
     /**
      * setExtendedErrorInfo sets the extended error information. You must call this function before doFatalError to
      * display this information.
-     * @param {string} info The extended error information, in plaintext 
+     * @param {string} info The extended error information, in plaintext
      */
     setExtendedErrorInfo(info) {
 
@@ -1586,7 +1588,7 @@ class Cartogram {
     appendToExtendedErrorInfo(info) {
 
         this.extended_error_info += info;
-        
+
     }
 
     /**
@@ -1605,7 +1607,7 @@ class Cartogram {
 
         if(this.model.grid_document === null || this.model.in_loading_state)
             return;
-        
+
         if(this.model.gridedit_window === null || this.model.gridedit_window.closed)
         {
             this.model.gridedit_window = window.open(this.config.gridedit_url, "gridedit_" + new Date().getTime(), 'width=550,height=650,resizable,scrollbars');
@@ -1648,7 +1650,7 @@ class Cartogram {
 
         if(this.model.in_loading_state)
             return;
-        
+
         /*
         The user may make changes to the grid document while the cartogram loads. As a result, we don't want to update
         the grid document with the one returned by CartogramUI.
@@ -1750,7 +1752,7 @@ class Cartogram {
             var search_string = csv + "csv" + "handler" + handler;
             if(search_string.search(mime_boundary) === -1)
                 break;
-            
+
             mime_boundary = HTTP.generateMIMEBoundary();
         }
 
@@ -1784,7 +1786,7 @@ class Cartogram {
         var margin = {top: 5, right: 5, bottom: 5, left: 50},
         width = 800 - margin.left - margin.right,
         height = 400 - margin.top - margin.bottom;
-        
+
         // ranges
         var x = d3.scaleBand()
                   .rangeRound([0, width])
@@ -1797,13 +1799,13 @@ class Cartogram {
 
         var yAxis = d3.axisLeft(y)
                       .ticks(10);
-        
+
         // SVG element
         var svg = d3.select("#" + container).append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
-        .attr("transform", 
+        .attr("transform",
             "translate(" + margin.left + "," + margin.top + ")");
 
         // Data formatting
@@ -1826,7 +1828,7 @@ class Cartogram {
                 return 0;
 
         });
-        
+
         // scale the range of the data
         x.domain(data.map(function(d) { return d.name; }));
         y.domain([0, d3.max(data, function(d) { return d.value; }) + 5]);
@@ -2113,7 +2115,7 @@ class Cartogram {
 
     /**
      * doNonFatalError informs the user of a non-critical error.
-     * @param {Error} err 
+     * @param {Error} err
      */
     doNonFatalError(err) {
 
@@ -2127,12 +2129,12 @@ class Cartogram {
     clearNonFatalError() {
 
         document.getElementById('non-fatal-error').innerHTML = "";
-        
+
     }
-    
+
     /**
      * doFatalError locks the user interface and informs the user that there has been an unrecoverable error.
-     * @param {Error} err 
+     * @param {Error} err
      */
     doFatalError(err) {
 
@@ -2153,7 +2155,7 @@ class Cartogram {
 
     /**
      * enterLoadingState locks the user interface and informs the user that a blocking operation is taking place.
-     * The progress bar is hidden by default. To show it, you must call {@link Cartogram.showProgressBar} after 
+     * The progress bar is hidden by default. To show it, you must call {@link Cartogram.showProgressBar} after
      * entering the loading state.
      */
     enterLoadingState() {
@@ -2237,7 +2239,7 @@ class Cartogram {
             value = Math.min(max, value);
 
         document.getElementById('loading-progress').style.width = value + "%";
-        
+
     }
 
     /**
@@ -2258,7 +2260,7 @@ class Cartogram {
         }
 
         this.model.in_loading_state = false;
-        
+
     }
 
     /**
@@ -2371,7 +2373,7 @@ class Cartogram {
 
         /*document.getElementById('cartogram-download').href = "data:image/svg+xml;base64," + window.btoa(svg_header + document.getElementById('cartogram-area').innerHTML);
         document.getElementById('cartogram-download').download = "cartogram.svg";*/
-        
+
     }
 
     /**
@@ -2453,7 +2455,7 @@ class Cartogram {
                             /*console.log("progress: " + progress.progress);
                             console.log("distance: " + Math.abs(cartogram_inst.model.loading_state - Math.log10(progress.progress)));
                             console.log("area: " + Math.abs(cartogram_inst.model.loading_state - (-2)));*/
-                        
+
 
                             var percentage = Math.floor(Math.abs(cartogram_inst.model.loading_state - Math.log10(progress.progress)) / Math.abs(cartogram_inst.model.loading_state - (-2))*100);
 
@@ -2493,7 +2495,7 @@ class Cartogram {
                 window.clearInterval(progressUpdater);
 
                 resolve(response.cartogram_data);
-                
+
             }.bind(this), function(){
                 window.clearInterval(progressUpdater);
                 reject(Error("There was an error retrieving the cartogram from the server."));
@@ -2578,20 +2580,20 @@ class Cartogram {
     }
 
     /**
-     * requestAndDrawCartogram generates and displays a cartogram with a user-provided dataset. Always returns false to 
+     * requestAndDrawCartogram generates and displays a cartogram with a user-provided dataset. Always returns false to
      * prevent form submission.
-     * 
+     *
      * This is a two step process. First, we make a request to CartogramUI. This generates color and tooltip information
      * from the uploaded dataset, as well as the areas string that needs to be given to the cartogram generator to
      * actually generate the cartogram with the given dataset.
-     * 
+     *
      * Once it receives the areas string, the cartogram generator produces a streaming HTTP response with information on
      * the progress of cartogram generation, and the cartogram points in JSON format. The information from CartogramUI
      * and the cartogram generator is then combined to draw the cartogram with the correct colors and tooltip
      * information.
      * @param {Object} gd The grid document to retrieve the dataset from. If null, the dataset is taken from the
      * uploaded CSV file
-     * @param {string} sysname The sysname of the map. If null, it is taken from the map selection form control. 
+     * @param {string} sysname The sysname of the map. If null, it is taken from the map selection form control.
      * @param {boolean} update_grid_document Wether to update the grid document with the grid document returned from
      * CartogramUI
      * @returns {boolean}
@@ -2600,7 +2602,7 @@ class Cartogram {
 
         if(this.model.in_loading_state)
             return false;
-        
+
         this.clearNonFatalError();
 
         /* Do some validation */
@@ -2835,7 +2837,7 @@ class Cartogram {
     /**
      * getMapMap returns an HTTP get request for all of the static data (abbreviations, original and population map
      * geometries, etc.) for a map. The progress bar is automatically updated with the download progress.
-     * 
+     *
      * A map pack is a JSON object containing all of this information, which used to be located in separate JSON files.
      * Combining all of this information into one file increases download speed, especially for users on mobile devices,
      * and makes it easier to display a progress bar of map information download progress, which is useful for users
@@ -2864,10 +2866,10 @@ class Cartogram {
     switchMap(sysname, hrname, cartogram=null,colors=null,sharing_key=null) {
         if(this.model.in_loading_state)
             return;
-        
+
         this.enterLoadingState();
         this.showProgressBar();
-        
+
         this.getMapPack(sysname).then(function(mappack){
 
             var map = new CartMap(hrname, mappack.config, this.config.scale);
@@ -2932,7 +2934,7 @@ class Cartogram {
 
             } else {
                 map.addVersion("2-population", new MapVersionData(mappack.population.features, mappack.population.extrema, mappack.population.tooltip, null, null, MapDataFormat.GOCARTJSON, world));
-            }            
+            }
 
             if(cartogram !== null) {
                 map.addVersion("3-cartogram", cartogram);
@@ -2961,13 +2963,13 @@ class Cartogram {
             } else {
                 map.drawVersion("2-population", "cartogram-area", ["map-area", "cartogram-area"]);
                 this.model.current_sysname = "2-population";
-            }           
+            }
 
-            this.model.map = map;           
+            this.model.map = map;
 
             this.exitLoadingState();
 
-            
+
 
 	    if(sharing_key !== null) {
 		this.generateSocialMediaLinks("https://go-cart.io/cart/" + sharing_key);
@@ -2976,7 +2978,7 @@ class Cartogram {
 		this.generateSocialMediaLinks("https://go-cart.io/cartogram/" + sysname);
 		this.generateEmbedHTML("map", sysname);
 	    }
-	    
+
             this.generateSVGDownloadLinks();
             this.displayVersionSwitchButtons();
             this.updateGridDocument(mappack.griddocument);
@@ -2988,7 +2990,7 @@ class Cartogram {
             document.getElementById('template-link').href = this.config.cartogram_data_dir+ "/" + sysname + "/template.csv";
             document.getElementById('cartogram').style.display = 'block';
 
-        }.bind(this));       
+        }.bind(this));
 
     }
 
