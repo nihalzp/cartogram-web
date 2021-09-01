@@ -907,7 +907,7 @@ class CartMap {
 
         const legendSVG = d3.select('#' + legendSVGID);
 
-	legendSVG.attr('width', this.width);
+	    legendSVG.attr('width', this.width - 90); // Leave 70px for Creative Commons icon
 
         // Remove existing child nodes
         legendSVG.selectAll('*').remove();
