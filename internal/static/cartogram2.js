@@ -1404,7 +1404,6 @@ class CartMap {
             if(legendSVGID != "map-area-legend") {
                 Object.keys(this.versions).forEach(function (version_sysname) {
                         this.versions[version_sysname].legendData["currentGridPath"] = "gridC";
-                    console.log(version_sysname, " : ", this.versions[version_sysname].legendData["currentGridPath"])
                 }, this);
             } else {
                 this.versions[sysname].legendData["mapCurrentGridPath"] = "gridC"
