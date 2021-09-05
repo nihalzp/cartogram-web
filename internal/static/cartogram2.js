@@ -452,6 +452,23 @@ class MapVersion {
         this.extrema = extrema;
         this.labels = labels;
         this.world = world;
+        // legendData stores legend and gridline information of the map version.
+        this.legendData = {
+            // grid : width, scaleNiceNumber, gridPath
+            "gridData": {
+                "gridA": [null, null, null],
+                "gridB": [null, null, null],
+                "gridC": [null, null, null]
+            },
+            "scalePowerOf10": null,
+            "unit": null,
+            "versionTotalValue": null,
+            "currentGridPath": "gridA",
+            "legendSelected": "static",
+            "mapCurrentGridPath" : "gridA",
+            // Since we have two instances of "1-conventional" version on display, "mapCurrentGridPath" keeps
+            // track of user selected grid path for the "1-conventional" map of the Equal Area Map (left).
+        }
     }
 }
 
@@ -901,92 +918,203 @@ class CartMap {
     }
 
     /**
-     * The following draws the legend for each map
+     * Calculates legend information of the map version
      * @param {string} sysname The sysname of the map version
      */
-
-    drawLegend(sysname, legendSVGID){
-
-        const legendSVG = d3.select('#' + legendSVGID);
-
-	legendSVG.attr('width', this.width);
-
-        // Remove existing child nodes
-        legendSVG.selectAll('*').remove();
-
-        // Create child nodes of SVG element.
-        const legendSquare = legendSVG.append('rect')
-                                        .attr('id', 'legend-square')
-                                        .attr('x', '0')
-                                        .attr('y', '5')
-                                        .attr('fill', '#5A5A5A')
-                                        .attr('width', '30')
-                                        .attr('height', '30')
-
-        const legendText = legendSVG.append('text')
-                                        .attr('id', 'legend-text')
-                                        .attr('fill', '#5A5A5A')
-                                        .attr('dy', '0.3em');  // vertical alignment
-
-        const totalValue = legendSVG.append('text')
-                                        .attr('id', 'total-text')
-                                        .attr('x', '0')
-                                        .attr('fill', '#5A5A5A');
-
-        // Get unit for the map that we wish to draw legend for.
+    getLegendData(sysname) {
+        // Get unit for the map version.
         const unit = this.getLegendUnit(sysname);
 
-        // Obtain the scaling factors, area and total value for this map.
+        // Obtain the scaling factors, area and total value for this map version.
         const [scaleX, scaleY]= this.getVersionPolygonScale(sysname);
         const [versionArea, versionTotalValue] = this.getTotalAreasAndValuesForVersion(sysname);
         const valuePerPixel = versionTotalValue / (versionArea*scaleX*scaleY);
 
-        // We want the square to be in the whereabouts of 30px by 30 px.
-        let width = 30;
-        let valuePerSquare = valuePerPixel * width * width;
+        // Each square to be in the whereabouts of 1% of versionTotalValue.
+        let valuePerSquare = versionTotalValue / 100;
+        let widthA = Math.sqrt(valuePerSquare/valuePerPixel);
+
+        // If width is too small, we increment the percentage.
+        while (widthA < 20) {
+            valuePerSquare *= 2;
+            widthA = Math.sqrt(valuePerSquare/valuePerPixel);
+        }
+
+        let widthB = widthA;
+        let widthC = widthA;
 
         // Declare and assign variables for valuePerSquare's power of 10 and "nice number".
         let scalePowerOf10 = Math.floor(Math.log10(valuePerSquare));
-        let scaleNiceNumber = 99;
+        let scaleNiceNumberA = 99;
+        let scaleNiceNumberB;
+        let scaleNiceNumberC;
 
         // We find the "nice number" that is closest to valuePerSquare's
         const valueFirstNumber = valuePerSquare / Math.pow(10, scalePowerOf10);
-        let valueDiff = Math.abs(valueFirstNumber - scaleNiceNumber);
+        let valueDiff = Math.abs(valueFirstNumber - scaleNiceNumberA);
 
         const niceNumbers = [1, 2, 5, 10];
         niceNumbers.forEach(function(n) {
            if (Math.abs(valueFirstNumber - n) < valueDiff) {
                valueDiff = Math.abs(valueFirstNumber - n);
-               scaleNiceNumber = n;
+               scaleNiceNumberA = n;
            }
         });
 
-        // Adjust width of square according to chosen nice number.
-        width *= Math.sqrt(scaleNiceNumber * Math.pow(10, scalePowerOf10) / valuePerSquare);
-        legendSquare.attr("width", width.toString() +"px")
-                    .attr("height", width.toString() +"px");
+        if (scaleNiceNumberA == 1) {
+            scaleNiceNumberB = 2;
+            scaleNiceNumberC = 5;
+        } else if (scaleNiceNumberA == 2) {
+            scaleNiceNumberB = 5;
+            scaleNiceNumberC = 10;
+        } else if (scaleNiceNumberA == 5) {
+            scaleNiceNumberB = 10;
+            scaleNiceNumberC = 20;
+        } else {
+            scaleNiceNumberA = 1;
+            scaleNiceNumberB = 2;
+            scaleNiceNumberC = 5;
+            scalePowerOf10 += 1;
+        }
+
+        widthA *= Math.sqrt(scaleNiceNumberA * Math.pow(10, scalePowerOf10) / valuePerSquare);
+        widthB *= Math.sqrt(scaleNiceNumberB * Math.pow(10, scalePowerOf10) / valuePerSquare);
+        widthC *= Math.sqrt(scaleNiceNumberC * Math.pow(10, scalePowerOf10) / valuePerSquare);
+
+        let gridPathA = this.getGridPath(widthA, this.width, this.height);
+        let gridPathB = this.getGridPath(widthB, this.width, this.height);
+        let gridPathC = this.getGridPath(widthC, this.width, this.height);
+
+        // Store legend Information
+        this.versions[sysname].legendData["gridData"]["gridA"][0] = widthA;
+        this.versions[sysname].legendData["gridData"]["gridB"][0] = widthB;
+        this.versions[sysname].legendData["gridData"]["gridC"][0] = widthC;
+
+        this.versions[sysname].legendData["gridData"]["gridA"][1] = scaleNiceNumberA;
+        this.versions[sysname].legendData["gridData"]["gridB"][1] = scaleNiceNumberB;
+        this.versions[sysname].legendData["gridData"]["gridC"][1] = scaleNiceNumberC;
+
+        this.versions[sysname].legendData["gridData"]["gridA"][2] = gridPathA;
+        this.versions[sysname].legendData["gridData"]["gridB"][2] = gridPathB;
+        this.versions[sysname].legendData["gridData"]["gridC"][2] = gridPathC;
+
+        this.versions[sysname].legendData["scalePowerOf10"] = scalePowerOf10;
+        this.versions[sysname].legendData["unit"] = unit;
+        this.versions[sysname].legendData["versionTotalValue"] = versionTotalValue;
+    }
+
+    /**
+     * The following draws the static legend for each map
+     * @param {string} sysname The sysname of the map version
+     * @param {string} legendSVGID The html id used for legend SVG display
+     * @param {string} old_sysname The previous sysname after map version switch. Optional.
+     */
+    drawLegend(sysname, legendSVGID, old_sysname = null) {
+
+        this.getLegendData(sysname);
+
+        const legendSVG = d3.select('#' + legendSVGID);
+
+        // Remove existing child nodes
+        legendSVG.selectAll('*').remove();
+
+        // We get the current selected user grid path to draw our static legend
+        let currentGridPath = this.versions[sysname].legendData["currentGridPath"];
+
+        // We keep separate track for "1-conventional" of Equal Area Map because "1-conventional" map is also in
+        // display in Cartogram section (right)
+        if(legendSVGID == "map-area-legend") {
+            currentGridPath = this.versions[sysname].legendData["mapCurrentGridPath"];
+        }
+
+        // Get the transitionWidth which is previously selected grid path. This value helps in transitioning
+        // from static legend to resizable legend.
+        var transitionWidth;
+
+        // When switching between static and selectable legend.
+        if (old_sysname == null) {
+            transitionWidth = this.versions[sysname].legendData["gridData"]["gridC"][0];
+        }
+        // When switching between versions
+        else {
+            if (this.versions[old_sysname].legendData["legendSelected"] == "static") {
+                transitionWidth = this.versions[old_sysname].legendData["gridData"][currentGridPath][0];
+            }
+            else if (this.versions[old_sysname].legendData["legendSelected"] == "selectable") {
+                transitionWidth = this.versions[old_sysname].legendData["gridData"]["gridC"][0];
+            }
+        }
+
+        // Retrive legend information
+        const unit = this.versions[sysname].legendData["unit"];
+        const versionTotalValue = this.versions[sysname].legendData["versionTotalValue"];
+        var width = this.versions[sysname].legendData["gridData"][currentGridPath][0];
+        var scaleNiceNumber = this.versions[sysname].legendData["gridData"][currentGridPath][1];
+        let scalePowerOf10 = this.versions[sysname].legendData["scalePowerOf10"];
+
+        const legendSquare = legendSVG.append('rect')
+                                        .attr('id', legendSVGID + "A")
+                                        .attr('x', '20') // Padding of 20px on the left
+                                        .attr('y', '5')
+                                        .attr('fill', '#FFFFFF')
+                                        .attr('stroke', '#AAAAAA')
+                                        .attr("stroke-width", "2px")
+                                        .attr('width', transitionWidth)
+                                        .attr('height', transitionWidth)
+                                        .transition()
+                                        .ease(d3.easeCubic)
+                                        .duration(1000)
+                                        .attr('width', width)
+                                        .attr('height', width);
+
+        const legendText = legendSVG.append('text')
+                                    .attr('id', 'legend-text')
+                                    .attr('fill', '#5A5A5A')
+                                    .attr('dy', '0.3em') // vertical alignment
+                                    .attr('opacity', 0);
 
         // Set "x" and "y" of legend text relative to square's width
-        legendText.attr('x', (width+10).toString() + 'px')
-                  .attr('y', (5 + width*0.5).toString() + 'px');
+        legendText.attr('x', (20 + width + 15).toString() + 'px')
+            .attr('y', (5 + width * 0.5).toString() + 'px');
 
         // Set legend text
+        legendText.append("tspan").text(" = ")
+
+        legendText.append("tspan")
+            .attr("id", legendSVGID + "-number")
+            .text('9999')
+
+        legendText.append("tspan")
+            .attr("id", legendSVGID + "-unit")
+            .text(" placeholder")
+
         const largeNumberNames = {6: " million", 9: " billion"}
 
         if (scalePowerOf10 > -4 && scalePowerOf10 < 12) {
-            if (scalePowerOf10 in largeNumberNames)
-                legendText.text("= " + scaleNiceNumber + " " + largeNumberNames[scalePowerOf10] + " " + unit);
-            else if (scalePowerOf10 > 9)
-                legendText.text("= " + (scaleNiceNumber * Math.pow(10, scalePowerOf10-9) + " billion " + unit));
-            else if (scalePowerOf10 > 6)
-                legendText.text("= " + (scaleNiceNumber * Math.pow(10, scalePowerOf10-6) + " million " + unit));
-            else
-                legendText.text("= " + (scaleNiceNumber * Math.pow(10, scalePowerOf10)).toLocaleString().split(',').join(' ') + " " + unit);
+            if (scalePowerOf10 in largeNumberNames) {
+                d3.select("#" + legendSVGID + "-number").text(scaleNiceNumber);
+                d3.select("#" + legendSVGID + "-unit").text(" " + largeNumberNames[scalePowerOf10] + " " + unit);
+            }
+            else if (scalePowerOf10 > 9) {
+                d3.select("#" + legendSVGID + "-number").text(scaleNiceNumber * Math.pow(10, scalePowerOf10-9));
+                d3.select("#" + legendSVGID + "-unit").text(" billion " + unit);
+            }
+            else if (scalePowerOf10 > 6) {
+                d3.select("#" + legendSVGID + "-number").text(scaleNiceNumber * Math.pow(10, scalePowerOf10-6));
+                d3.select("#" + legendSVGID + "-unit").text(" million " + unit);
+            }
+            else {
+                d3.select("#" + legendSVGID + "-number").text((scaleNiceNumber * Math.pow(10, scalePowerOf10)).toLocaleString().split(',').join(' '));
+                d3.select("#" + legendSVGID + "-unit").text(" " + unit);
+            }
+
+            // Adjust multiplier
+            d3.select("#" + legendSVGID + "-multiplier").text((Math.pow(10, scalePowerOf10)).toLocaleString().split(',').join(' '));
         }
         // If scalePowerOf10 is too extreme, we use scientific notation
         else {
-            legendText.append('tspan')
-                .html("= " + scaleNiceNumber + " &#xD7; 10")
+            d3.select("#" + legendSVGID + "-number").text(scaleNiceNumber);
+            d3.select("#" + legendSVGID + "-unit").html(" &#xD7; 10");
             legendText.append('tspan')
                 .text(scalePowerOf10)
                 .style("font-size", "10px")
@@ -998,7 +1126,416 @@ class CartMap {
         }
 
         // Set "y" of total value text to be 20px below the top of the square.
+        const totalValue = legendSVG.append('text')
+                                        .attr('id', 'total-text')
+                                        .attr('x', '20')// Padding of 20px on the left
+                                        .attr('fill', '#5A5A5A')
+                                        .attr('opacity', 0);
+
         const total_value_Y = 5 + parseInt(width) + 20;
+        totalValue.attr("y", total_value_Y.toString() + "px");
+
+
+        // Set total value text.
+        const totalScalePowerOfTen = Math.floor(Math.log10(versionTotalValue));
+        if (totalScalePowerOfTen > -4 && totalScalePowerOfTen < 12) {
+            if (totalScalePowerOfTen in largeNumberNames)
+                totalValue.text("Total: " + (versionTotalValue/Math.pow(10, totalScalePowerOfTen)).toPrecision(3)  + " " + largeNumberNames[totalScalePowerOfTen] + " " + unit);
+            else if (totalScalePowerOfTen > 9)
+                totalValue.text("Total: " + (versionTotalValue/Math.pow(10, 9)).toPrecision(3)  + " billion " + unit);
+            else if (totalScalePowerOfTen > 6)
+                totalValue.text("Total: " + (versionTotalValue/Math.pow(10, 6)).toPrecision(3) + " million " + unit);
+            else
+                // Else we display the total as it is
+                totalValue.text("Total: " + versionTotalValue.toLocaleString().split(',').join(' ') + " " + unit);
+        }
+        // If totalScalePowerOfTen is too extreme, we use scientific notation
+        else {
+            totalValue.append('tspan')
+                        .html("Total : " + (versionTotalValue/Math.pow(10, totalScalePowerOfTen)).toPrecision(3) + " &#xD7; 10")
+            totalValue.append('tspan')
+                        .text(totalScalePowerOfTen)
+                        .style("font-size", "10px")
+                        .attr("dy", "-10px")
+            totalValue.append('tspan')
+                        .text(unit)
+                        .attr("dy", "10px")
+                        .attr("dx", "8px")
+        }
+
+        // Set different legend text transition duration so that legend text doesn't overlap with legend square transition
+        let legendTextsTransitionDuration = 1000;
+        if(currentGridPath == "gridC") {
+            legendTextsTransitionDuration= 1000;
+        }
+        else if(currentGridPath == "gridB") {
+            legendTextsTransitionDuration= 650;
+        }
+        else if(currentGridPath == "gridA") {
+            legendTextsTransitionDuration= 600;
+        }
+
+         if(old_sysname != null) {
+            if(this.versions[old_sysname].legendData["legendSelected"] == "static") {
+            legendTextsTransitionDuration = 800;
+            }
+        }
+
+        legendText
+            .transition()
+            .ease(d3.easeCubic)
+            .delay(1000 - legendTextsTransitionDuration)
+            .duration(legendTextsTransitionDuration)
+            .attr('opacity', 1);
+
+        totalValue
+            .transition()
+            .ease(d3.easeCubic)
+            .delay(1000 - legendTextsTransitionDuration)
+            .duration(legendTextsTransitionDuration)
+            .attr('opacity', 1);
+
+        // Accommodate enough space so that even the resizable legend also fits in; it keeps the customise, download, share
+        // buttons on place
+        let legendSVGHeight = width;
+        Object.keys(this.versions).forEach(function (version_sysname) {
+            legendSVGHeight = Math.max(legendSVGHeight, this.versions[version_sysname].legendData["gridData"]["gridC"][0]);
+                }, this);
+
+        // Adjust height of legendSVG
+        legendSVG.attr("height", legendSVGHeight + 30);
+
+        // Verify if legend is accurate
+        this.verifyLegend(sysname, width, scaleNiceNumber * Math.pow(10, scalePowerOf10));
+
+        // Update Selected Legend status to static
+        this.versions[sysname].legendData["legendSelected"] = "static";
+    }
+
+
+    /**
+     * The following draws the resizable legend for each map
+     * @param {string} sysname The sysname of the map version
+     * @param {string} legendSVGID The html id used for legend SVG display
+     * @param {string} old_sysname The previous sysname after map version switch. Optional.
+     */
+    drawResizableLegend(sysname, legendSVGID, old_sysname = null) {
+
+        this.getLegendData(sysname);
+
+        const legendSVG = d3.select('#' + legendSVGID);
+
+        // Remove existing child nodes
+        legendSVG.selectAll('*').remove();
+
+        // Retrive legend information
+        const unit = this.versions[sysname].legendData["unit"];
+        const versionTotalValue = this.versions[sysname].legendData["versionTotalValue"];
+        var scalePowerOf10 = this.versions[sysname].legendData["scalePowerOf10"];
+        var widthA = this.versions[sysname].legendData["gridData"]["gridA"][0];
+        var widthB = this.versions[sysname].legendData["gridData"]["gridB"][0];
+        var widthC = this.versions[sysname].legendData["gridData"]["gridC"][0];
+        var scaleNiceNumberA = this.versions[sysname].legendData["gridData"]["gridA"][1];
+        var scaleNiceNumberB = this.versions[sysname].legendData["gridData"]["gridB"][1];
+        var scaleNiceNumberC = this.versions[sysname].legendData["gridData"]["gridC"][1];
+        const gridA = this.versions[sysname].legendData["gridData"]["gridA"][2];
+        const gridB = this.versions[sysname].legendData["gridData"]["gridB"][2];
+        const gridC = this.versions[sysname].legendData["gridData"]["gridC"][2];
+
+
+        // We get currently selected grid path (i.e. whether "gridA", "gridB", or "gridC")
+        var currentGridPath = this.versions[sysname].legendData["currentGridPath"];
+
+        // We keep separate track for "1-conventional" of Equal Area Map because "1-conventional" map is also in
+        // display in Cartogram section (right)
+        if(legendSVGID == "map-area-legend") {
+            currentGridPath = this.versions[sysname].legendData["mapCurrentGridPath"];
+        }
+
+        // Get legend width data of previous version/ previous static legend
+        var transitionWidthA;
+        var transitionWidthB;
+        var transitionWidthC;
+
+        // When switching between static and selectable legend.
+        if (old_sysname == null) {
+            transitionWidthA = transitionWidthB = transitionWidthC = this.versions[sysname].legendData["gridData"][currentGridPath][0];
+            if(legendSVGID == "map-area-legend") {
+                transitionWidthA = transitionWidthB = transitionWidthC = this.versions[sysname].legendData["gridData"][currentGridPath][0];
+            }
+        }
+        // When switching between static and selectable legend.
+        else {
+            if (this.versions[old_sysname].legendData["legendSelected"] == "static") {
+                transitionWidthA = transitionWidthB = transitionWidthC = this.versions[old_sysname].legendData["gridData"][currentGridPath][0];
+            }
+            else {
+                transitionWidthA = this.versions[old_sysname].legendData["gridData"]["gridA"][0];
+                transitionWidthB = this.versions[old_sysname].legendData["gridData"]["gridB"][0];
+                transitionWidthC = this.versions[old_sysname].legendData["gridData"]["gridC"][0];
+            }
+        }
+
+        // Create child nodes of SVG element.
+        const legendSquareC = legendSVG.append('rect')
+                                        .attr('id', legendSVGID + "C")
+                                        .attr('x', '20') // Padding of 20px on the left
+                                        .attr('y', '5')
+                                        .attr('fill', '#eeeeee')
+                                        .attr('stroke', '#AAAAAA')
+                                        .attr("stroke-width", "2px")
+
+        const legendSquareB = legendSVG.append('rect')
+                                        .attr('id', legendSVGID + "B")
+                                        .attr('x', '20') // Padding of 20px on the left
+                                        .attr('y', '5')
+                                        .attr('fill', '#EEEEEE')
+                                        .attr('stroke', '#AAAAAA')
+                                        .attr("stroke-width", "2px")
+
+        const legendSquareA = legendSVG.append('rect')
+                                        .attr('id', legendSVGID + "A")
+                                        .attr('x', '20') // Padding of 20px on the left
+                                        .attr('y', '5')
+                                        .attr('fill', '#FFFFFF')
+                                        .attr('stroke', '#AAAAAA')
+                                        .attr("stroke-width", "2px")
+
+        const legendText = legendSVG.append('text')
+                                        .attr('id', 'legend-text')
+                                        .attr('fill', '#5A5A5A')
+                                        .attr('dy', '0.3em');  // vertical alignment
+
+        // Adjust width of square according to chosen nice number and add transition to Legends
+        legendSquareA.attr('width', transitionWidthA)
+                                        .attr('height', transitionWidthA)
+                                        .transition()
+                                        .ease(d3.easeCubic)
+                                        .duration(1000)
+                                        .attr('width', widthA)
+                                        .attr('height', widthA)
+
+        legendSquareB.attr('width', transitionWidthB)
+                                        .attr('height', transitionWidthB)
+                                        .transition()
+                                        .ease(d3.easeCubic)
+                                        .duration(1000)
+                                        .attr('width', widthB)
+                                        .attr('height', widthB)
+
+        legendSquareC.attr('width', transitionWidthC)
+                                        .attr('height', transitionWidthC)
+                                        .transition()
+                                        .ease(d3.easeCubic)
+                                        .duration(1000)
+                                        .attr('width', widthC)
+                                        .attr('height', widthC)
+
+        // Set "x" and "y" of legend text relative to square's width
+        legendText.attr('x', (20+widthC+15).toString() + 'px')
+            .attr('y', (5 + widthC * 0.5).toString() + 'px')
+            .attr('opacity',0);
+
+        // Set legend text
+        legendText.append("tspan").html(" &#xD7; ")
+
+        legendText.append("tspan").attr("id", legendSVGID + "-multiplier").text("10000")
+
+        legendText.append("tspan").text(" = ")
+
+        legendText.append("tspan")
+            .attr("id", legendSVGID + "-number")
+            .attr("font-weight", "bold")
+            .text('9999')
+
+        legendText.append("tspan")
+            .attr("id", legendSVGID + "-unit")
+            .attr("font-weight", "bold")
+            .text(" placeholder")
+
+        const largeNumberNames = {6: " million", 9: " billion"}
+
+        if (scalePowerOf10 > -4 && scalePowerOf10 < 12) {
+            if (scalePowerOf10 in largeNumberNames) {
+                // legendText.text("= " + scaleNiceNumberA + " " + largeNumberNames[scalePowerOf10] + " " + unit);
+                d3.select("#" + legendSVGID + "-number").text(scaleNiceNumberA);
+                d3.select("#" + legendSVGID + "-unit").text(" " + largeNumberNames[scalePowerOf10] + " " + unit);
+            }
+            else if (scalePowerOf10 > 9) {
+                // legendText.text("= " + (scaleNiceNumberA * Math.pow(10, scalePowerOf10-9) + " billion " + unit));
+                d3.select("#" + legendSVGID + "-number").text(scaleNiceNumberA * Math.pow(10, scalePowerOf10-9));
+                d3.select("#" + legendSVGID + "-unit").text(" billion " + unit);
+            }
+            else if (scalePowerOf10 > 6) {
+                // legendText.text("= " + (scaleNiceNumberA * Math.pow(10, scalePowerOf10-6) + " million " + unit));
+                d3.select("#" + legendSVGID + "-number").text(scaleNiceNumberA * Math.pow(10, scalePowerOf10-6));
+                d3.select("#" + legendSVGID + "-unit").text(" million " + unit);
+            }
+            else {
+                d3.select("#" + legendSVGID + "-number").text((scaleNiceNumberA * Math.pow(10, scalePowerOf10)).toLocaleString().split(',').join(' '));
+                d3.select("#" + legendSVGID + "-unit").text(" " + unit);
+            }
+
+            // Adjust multiplier
+            d3.select("#" + legendSVGID + "-multiplier").text((Math.pow(10, scalePowerOf10)).toLocaleString().split(',').join(' '));
+        }
+        // If scalePowerOf10 is too extreme, we use scientific notation
+        else {
+            d3.select("#" + legendSVGID + "-number").text(scaleNiceNumberA);
+            d3.select("#" + legendSVGID + "-unit").html(" &#xD7; 10");
+            legendText.append('tspan')
+                .text(scalePowerOf10)
+                .style("font-size", "10px")
+                .attr("dy", "-10px");
+            legendText.append('tspan')
+                .text(unit)
+                .attr("dy", "10px")
+                .attr("dx", "8px");
+        }
+
+        // Event for when a different legend size is selected.
+        const legendNumber = d3.select("#" + legendSVGID + "-number").text();
+
+        const changeToC = () => {
+
+            // Update currentGridPath in other versions
+            if(legendSVGID != "map-area-legend") {
+                Object.keys(this.versions).forEach(function (version_sysname) {
+                        this.versions[version_sysname].legendData["currentGridPath"] = "gridC";
+                    console.log(version_sysname, " : ", this.versions[version_sysname].legendData["currentGridPath"])
+                }, this);
+            } else {
+                this.versions[sysname].legendData["mapCurrentGridPath"] = "gridC"
+            }
+
+            d3.select("#" + legendSVGID + "C").attr('fill', '#FFFFFF');
+            d3.select("#" + legendSVGID + "B").attr('fill', '#FFFFFF');
+            d3.select("#" + legendSVGID + "A").attr('fill', '#FFFFFF');
+
+            d3.select("#" + legendSVGID.substring(0, legendSVGID.length-6) + "grid")
+                .transition()
+                .duration(1000)
+                .attr('d', gridC);
+
+            d3.select("#" + legendSVGID + "-number")
+              .text(parseInt(legendNumber.substring(0,1))/scaleNiceNumberA*scaleNiceNumberC + legendNumber.substring(1, legendNumber.length));
+        }
+
+        const changeToB = () => {
+            // Update currentGridPath in other versions
+            if(legendSVGID != "map-area-legend") {
+                Object.keys(this.versions).forEach(function (version_sysname) {
+                        this.versions[version_sysname].legendData["currentGridPath"] = "gridB";
+                }, this);
+            } else {
+                this.versions[sysname].legendData["mapCurrentGridPath"] = "gridB"
+            }
+
+            d3.select("#" + legendSVGID + "C").attr('fill', '#EEEEEE');
+            d3.select("#" + legendSVGID + "B").attr('fill', '#FFFFFF');
+            d3.select("#" + legendSVGID + "A").attr('fill', '#FFFFFF');
+
+            d3.select("#" + legendSVGID.substring(0, legendSVGID.length-6) + "grid")
+              .transition()
+              .duration(1000)
+              .attr('d', gridB);
+
+            d3.select("#" + legendSVGID + "-number")
+              .text(parseInt(legendNumber.substring(0,1))/scaleNiceNumberA*scaleNiceNumberB + legendNumber.substring(1, legendNumber.length));
+        }
+
+        const changeToA = () => {
+            // Update currentGridPath in other versions
+            if(legendSVGID != "map-area-legend") {
+                Object.keys(this.versions).forEach(function (version_sysname) {
+                        this.versions[version_sysname].legendData["currentGridPath"] = "gridA";
+                }, this);
+            } else {
+                this.versions[sysname].legendData["mapCurrentGridPath"] = "gridA"
+            }
+
+            d3.select("#" + legendSVGID + "C").attr('fill', '#EEEEEE');
+            d3.select("#" + legendSVGID + "B").attr('fill', '#EEEEEE');
+            d3.select("#" + legendSVGID + "A").attr('fill', '#FFFFFF');
+
+            d3.select("#" + legendSVGID.substring(0, legendSVGID.length-6) + "grid")
+                .transition()
+                .duration(1000)
+                .attr('d', gridA);
+
+            d3.select("#" + legendSVGID + "-number").text(legendNumber);
+        }
+
+        //Update colors of the legend
+        if (currentGridPath == "gridA") {
+            d3.select("#" + legendSVGID + "C").attr('fill', '#EEEEEE');
+            d3.select("#" + legendSVGID + "B").attr('fill', '#EEEEEE');
+            d3.select("#" + legendSVGID + "A").attr('fill', '#FFFFFF');
+            d3.select("#" + legendSVGID + "-number").text(legendNumber);
+        } else if (currentGridPath == "gridB") {
+            d3.select("#" + legendSVGID + "C").attr('fill', '#EEEEEE');
+            d3.select("#" + legendSVGID + "B").attr('fill', '#FFFFFF');
+            d3.select("#" + legendSVGID + "A").attr('fill', '#FFFFFF');
+            d3.select("#" + legendSVGID + "-number")
+              .text(parseInt(legendNumber.substring(0,1))/scaleNiceNumberA*scaleNiceNumberB + legendNumber.substring(1, legendNumber.length));
+        } else if (currentGridPath == "gridC") {
+            d3.select("#" + legendSVGID + "C").attr('fill', '#FFFFFF');
+            d3.select("#" + legendSVGID + "B").attr('fill', '#FFFFFF');
+            d3.select("#" + legendSVGID + "A").attr('fill', '#FFFFFF');
+            d3.select("#" + legendSVGID + "-number")
+              .text(parseInt(legendNumber.substring(0,1))/scaleNiceNumberA*scaleNiceNumberC + legendNumber.substring(1, legendNumber.length));
+        }
+
+        legendSquareC.attr("cursor", "pointer").on("click", changeToC);
+        legendSquareB.attr("cursor", "pointer").on("click", changeToB);
+        legendSquareA.attr("curser", "pointer").on("click", changeToA);
+
+        // Add legend square labels
+        const c_label = legendSVG.append("text")
+            .attr("x", 20+widthC-13)
+            .attr("y", widthC)
+            .attr("font-size", 8)
+            .attr("cursor", "pointer")
+            .text(scaleNiceNumberC)
+            .attr("opacity",0)
+            .on("click", changeToC);
+
+        const b_label = legendSVG.append("text")
+            .attr("x", 20+widthB-10)
+            .attr("y", widthB)
+            .attr("font-size", 8)
+            .attr("cursor", "pointer")
+            .text(scaleNiceNumberB)
+            .attr("opacity",0)
+            .on("click", changeToB);
+
+        const a_label = legendSVG.append("text")
+            .attr("x", 20+widthA-10)
+            .attr("y", widthA)
+            .attr("font-size", 8)
+            .attr("cursor", "pointer")
+            .text(scaleNiceNumberA)
+            .attr("opacity",0)
+            .on("click", changeToA);
+
+        // Accommodate enough space so that even the resizable legend also fits in; it keeps the customise, download, share
+        // buttons on place
+        let legendSVGHeight = widthC;
+        Object.keys(this.versions).forEach(function (version_sysname) {
+            legendSVGHeight = Math.max(legendSVGHeight, this.versions[version_sysname].legendData["gridData"]["gridC"][0]);
+                }, this);
+
+        // Adjust height of legendSVG
+        legendSVG.attr("height", legendSVGHeight + 30);
+
+        // Set "y" of total value text to be 20px below the top of the square.
+        const totalValue = legendSVG.append('text')
+                                        .attr('id', 'total-text')
+                                        .attr('x', '20')// Padding of 20px on the left
+                                        .attr('fill', '#5A5A5A')
+                                        .attr('opacity', 0);
+
+        const total_value_Y = 5 + parseInt(widthC) + 20;
         totalValue.attr("y", total_value_Y.toString() + "px");
 
         // Set total value text.
@@ -1017,7 +1554,7 @@ class CartMap {
         // If totalScalePowerOfTen is too extreme, we use scientific notation
         else {
             totalValue.append('tspan')
-                        .html("Total: " + (versionTotalValue/Math.pow(10, totalScalePowerOfTen)).toPrecision(3) + " &#xD7; 10")
+                        .html("Total : " + (versionTotalValue/Math.pow(10, totalScalePowerOfTen)).toPrecision(3) + " &#xD7; 10")
             totalValue.append('tspan')
                         .text(totalScalePowerOfTen)
                         .style("font-size", "10px")
@@ -1028,8 +1565,166 @@ class CartMap {
                         .attr("dx", "8px")
         }
 
+        // Add transition to Text elements
+        c_label.transition()
+            .ease(d3.easeCubic)
+            .delay(200)
+            .duration(800)
+            .attr("opacity", 1)
+
+        b_label
+            .transition()
+            .ease(d3.easeCubic)
+            .delay(200)
+            .duration(800)
+            .attr("opacity", 1)
+
+        a_label
+            .transition()
+            .ease(d3.easeCubic)
+            .delay(200)
+            .duration(800)
+            .attr("opacity", 1)
+
+        totalValue.transition()
+            .ease(d3.easeCubic)
+            .delay(300)
+            .duration(700)
+            .attr("opacity", 1)
+
+        legendText.transition()
+            .ease(d3.easeCubic)
+            .delay(300)
+            .duration(700)
+            .attr("opacity", 1)
+
+
         // Verify if legend is accurate
-        this.verifyLegend(sysname, width, scaleNiceNumber * Math.pow(10, scalePowerOf10));
+        this.verifyLegend(sysname, widthA, scaleNiceNumberA * Math.pow(10, scalePowerOf10));
+
+        // Update Selected Legend status to selectable
+        this.versions[sysname].legendData["legendSelected"] = "selectable";
+    }
+
+    /**
+     * The following function switches between static and resizable legends
+     * @param {string} sysname The sysname of the map version
+     */
+    switchLegends(sysname) {
+
+        d3.select("#legend-toggle-cartogram").on("change", () => {
+            if (d3.select("#legend-toggle-cartogram").property("checked")) {
+                this.drawResizableLegend(sysname, "cartogram-area-legend");
+            }
+            else {
+                this.drawLegend(sysname, "cartogram-area-legend");
+            }
+        })
+
+        d3.select("#legend-toggle-map").on("change", () => {
+            if (d3.select("#legend-toggle-map").property("checked")) {
+                this.drawResizableLegend('1-conventional', "map-area-legend");
+            }
+            else {
+                this.drawLegend('1-conventional', "map-area-legend");
+            }
+        })
+    }
+
+    /**
+     * getGridPath generates an SVG path for grid lines
+     * @param {number} gridWidth
+     * @param {number} width
+     * @param {number} height
+     */
+    getGridPath(gridWidth, width, height) {
+        let gridPath = ""
+
+        // Vertical lines
+        for (let i = 0; i < 50; i++) {
+            gridPath += "M" + (20 + gridWidth*i) + " 0 L" + (20 + gridWidth*i) + " " + height + " ";
+        }
+
+        // Horizontal Lines
+        for (let j = 1; j <= 50; j++) {
+            gridPath += "M0 " + (height - gridWidth*j) + " L" + width + " " + (height - gridWidth*j) + " ";
+        }
+
+        return gridPath;
+    }
+
+
+    /**
+     * drawGridLines appends grid lines to the map
+     * @param {string} sysname A unique system identifier for the version
+     * @param {string} mapSVGID The map's SVG element's ID
+     * @param {string} old_sysname The previous sysname after map version switch. Optional.
+     */
+    drawGridLines(sysname, mapSVGID, old_sysname = null) {
+
+        const gridPath = this.versions[sysname].legendData["gridData"][this.versions[sysname].legendData["currentGridPath"]][2];
+        const mapSVG = d3.select("#" + mapSVGID + "-svg");
+
+        var gridSVGID = mapSVGID + "-grid";
+        mapSVG.selectAll("#" + gridSVGID).remove()  // Remove existing grid
+
+        var stroke_opacity = 0;
+
+        if (d3.select("#gridline-toggle-cartogram").property("checked")) {
+            stroke_opacity = 0.4;
+        }
+
+        // The previous grid path from which we want to transition from
+        var transitionGridPath = null;
+
+        if(old_sysname != null) {
+            transitionGridPath = this.versions[old_sysname].legendData["gridData"][this.versions[old_sysname].legendData["currentGridPath"]][2];
+        }
+
+        mapSVG.append("path")
+            .attr("id", gridSVGID)
+            .attr("stroke-opacity", stroke_opacity)
+            .attr("d", transitionGridPath)
+            .transition()
+            .ease(d3.easeCubic)
+            .duration(1000)
+            .attr("d", gridPath)
+            .attr("fill", "none")
+            .attr("stroke", "#5A5A5A")
+            .attr("stroke-width", "2px")
+
+
+        d3.select("#gridline-toggle-map").on("change",
+            function() {
+                if (d3.select("#gridline-toggle-map").property("checked")) {
+                    d3.select("#map-area-grid").transition()
+                        .ease(d3.easeCubic)
+                        .duration(500)
+                        .attr("stroke-opacity", 0.4)
+                }
+                else {
+                    d3.select("#map-area-grid").transition()
+                        .ease(d3.easeCubic)
+                        .duration(500)
+                        .attr("stroke-opacity", 0)
+                }
+            })
+
+        d3.select("#gridline-toggle-cartogram").on("change",
+            function() {
+                if(d3.select("#gridline-toggle-cartogram").property("checked")){
+                    d3.select("#cartogram-area-grid").transition()
+                        .ease(d3.easeCubic)
+                        .duration(500)
+                        .attr("stroke-opacity", 0.4)
+                }
+                else {
+                    d3.select("#cartogram-area-grid").transition()
+                        .ease(d3.easeCubic)
+                        .duration(500)
+                        .attr("stroke-opacity", 0)
+                }
+            })
     }
 
     /**
@@ -1244,7 +1939,6 @@ class CartMap {
      * @param {Array<string>} where_drawn The elements of the IDs where versions of this map are and will be drawn (including the current element_id). Used for parallel highlighting
      */
     drawVersion(sysname, element_id, where_drawn) {
-
         var map_container = document.getElementById(element_id);
         var version = this.versions[sysname];
 
@@ -1254,6 +1948,7 @@ class CartMap {
         }
 
         var canvas = d3.select('#' + element_id).append("svg")
+            .attr("id", element_id + "-svg")
             .attr("width", this.width)
             .attr("height", this.height);
 
@@ -1501,7 +2196,17 @@ class CartMap {
         }, this);
 
 
-        this.drawLegend(new_sysname, element_id + "-legend");
+        if (d3.select("#legend-toggle-cartogram").property("checked")) {
+            this.drawResizableLegend(new_sysname, element_id + "-legend", current_sysname);
+        }
+        else {
+            this.drawLegend(new_sysname, element_id + "-legend", current_sysname);
+        }
+
+        this.drawGridLines(new_sysname, element_id, current_sysname);
+        this.switchLegends(new_sysname);
+
+
 
     }
 }
@@ -2566,6 +3271,44 @@ class Cartogram {
     }
 
     /**
+     * displayCustomisePopup displays the customise popup on click on the customise button
+     */
+    displayCustomisePopup() {
+
+        d3.select("#map-customise").on("click", function () {
+            var element = document.getElementById("map-customise-popup");
+            var style = window.getComputedStyle(element);
+            var display = style.getPropertyValue('display');
+            if (display == "block") {
+                document.getElementById("map-customise-popup").style.display = "none";
+                document.getElementById("map-customise").style.backgroundColor = "#d76126";
+                document.getElementById("map-customise").style.borderColor = "#d76126";
+            }
+            else if (display === "none") {
+                document.getElementById("map-customise-popup").style.display = "block";
+                document.getElementById("map-customise").style.backgroundColor = "#b75220";
+                document.getElementById("map-customise").style.borderColor = "#ab4e1f";
+            }
+        })
+
+        d3.select("#cartogram-customise").on("click", function () {
+            var element = document.getElementById("cartogram-customise-popup");
+            var style = window.getComputedStyle(element);
+            var display = style.getPropertyValue('display');
+            if (display == "block") {
+                document.getElementById("cartogram-customise-popup").style.display = "none";
+                document.getElementById("cartogram-customise").style.backgroundColor = "#d76126";
+                document.getElementById("cartogram-customise").style.borderColor = "#d76126";
+            }
+            else if (display === "none") {
+                document.getElementById("cartogram-customise-popup").style.display = "block";
+                document.getElementById("cartogram-customise").style.backgroundColor = "#b75220";
+                document.getElementById("cartogram-customise").style.borderColor = "#ab4e1f";
+            }
+        })
+    }
+
+    /**
      * switchVersion switches the map version displayed in the element with the given ID
      * @param {string} sysname The sysname of the new version to be displayed
      */
@@ -2577,6 +3320,7 @@ class Cartogram {
 
         this.displayVersionSwitchButtons();
         this.generateSVGDownloadLinks();
+        this.displayCustomisePopup();
     }
 
     /**
@@ -2733,6 +3477,7 @@ class Cartogram {
 			    this.generateEmbedHTML("cart", response.unique_sharing_key);
                             this.generateSVGDownloadLinks();
                             this.displayVersionSwitchButtons();
+                            this.displayCustomisePopup();
 
                             if(update_grid_document) {
                                 this.updateGridDocument(response.grid_document);
@@ -2741,6 +3486,9 @@ class Cartogram {
                             // The following line draws the conventional legend when the page first loads.
                             this.model.map.drawLegend("1-conventional", "map-area-legend");
                             this.model.map.drawLegend(this.model.current_sysname, "cartogram-area-legend");
+                            this.model.map.drawGridLines("1-conventional", "map-area");
+                            this.model.map.drawGridLines(this.model.current_sysname, "cartogram-area");
+                            this.model.map.switchLegends(this.model.current_sysname);
 
                             this.exitLoadingState();
                             document.getElementById('cartogram').style.display = "block";
@@ -2981,11 +3729,21 @@ class Cartogram {
 
             this.generateSVGDownloadLinks();
             this.displayVersionSwitchButtons();
+            this.displayCustomisePopup();
             this.updateGridDocument(mappack.griddocument);
+
+            // Clear user choices of customise popup when map changes
+            document.getElementById("legend-toggle-cartogram").checked = false;
+            document.getElementById("gridline-toggle-cartogram").checked = false;
+            document.getElementById("legend-toggle-map").checked = false;
+            document.getElementById("gridline-toggle-map").checked = false;
 
             // The following line draws the conventional legend when the page first loads.
             this.model.map.drawLegend("1-conventional", "map-area-legend");
             this.model.map.drawLegend(this.model.current_sysname, "cartogram-area-legend");
+            this.model.map.drawGridLines("1-conventional", "map-area");
+            this.model.map.drawGridLines(this.model.current_sysname, "cartogram-area");
+            this.model.map.switchLegends(this.model.current_sysname);
 
             document.getElementById('template-link').href = this.config.cartogram_data_dir+ "/" + sysname + "/template.csv";
             document.getElementById('cartogram').style.display = 'block';
