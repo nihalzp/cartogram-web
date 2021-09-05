@@ -1204,6 +1204,8 @@ class CartMap {
 
         // Adjust height of legendSVG
         legendSVG.attr("height", legendSVGHeight + 30);
+        // Leave 70px for Creative Commons icon
+        legendSVG.attr('width', this.width - 90);
 
         // Verify if legend is accurate
         this.verifyLegend(sysname, width, scaleNiceNumber * Math.pow(10, scalePowerOf10));
@@ -1527,6 +1529,8 @@ class CartMap {
 
         // Adjust height of legendSVG
         legendSVG.attr("height", legendSVGHeight + 30);
+        // Leave 70px for Creative Commons icon
+        legendSVG.attr('width', this.width - 90);
 
         // Set "y" of total value text to be 20px below the top of the square.
         const totalValue = legendSVG.append('text')
