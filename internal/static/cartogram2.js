@@ -819,11 +819,11 @@ class CartMap {
             this.regions[region_id].getVersion(sysname).polygons.forEach(function(polygon){
                 const coordinates = polygon.coordinates;
 
-                areaValue += d3.polygonArea(coordinates);
+                areaValue += Math.abs(d3.polygonArea(coordinates));
 
                 polygon.holes.forEach(function(hole){
 
-                    areaValue -= d3.polygonArea(hole);
+                    areaValue -= Math.abs(d3.polygonArea(hole));
 
                 }, this);
 
