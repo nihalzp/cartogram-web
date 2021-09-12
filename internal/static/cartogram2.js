@@ -454,11 +454,10 @@ class MapVersion {
         this.world = world;
         // legendData stores legend and gridline information of the map version.
         this.legendData = {
-            // grid : width, scaleNiceNumber, gridPath
             "gridData": {
-                "gridA": [null, null, null],
-                "gridB": [null, null, null],
-                "gridC": [null, null, null]
+                "gridA": {width: null, scaleNiceNumber: null, gridPath: null},
+                "gridB": {width: null, scaleNiceNumber: null, gridPath: null},
+                "gridC": {width: null, scaleNiceNumber: null, gridPath: null}
             },
             "scalePowerOf10": null,
             "unit": null,
@@ -981,22 +980,22 @@ class CartMap {
         widthB *= Math.sqrt(scaleNiceNumberB * Math.pow(10, scalePowerOf10) / valuePerSquare);
         widthC *= Math.sqrt(scaleNiceNumberC * Math.pow(10, scalePowerOf10) / valuePerSquare);
 
-        let gridPathA = this.getGridPath(widthA, this.width, this.height);
-        let gridPathB = this.getGridPath(widthB, this.width, this.height);
-        let gridPathC = this.getGridPath(widthC, this.width, this.height);
+        const gridPathA = this.getGridPath(widthA, this.width, this.height);
+        const gridPathB = this.getGridPath(widthB, this.width, this.height);
+        const gridPathC = this.getGridPath(widthC, this.width, this.height);
 
         // Store legend Information
-        this.versions[sysname].legendData["gridData"]["gridA"][0] = widthA;
-        this.versions[sysname].legendData["gridData"]["gridB"][0] = widthB;
-        this.versions[sysname].legendData["gridData"]["gridC"][0] = widthC;
+        this.versions[sysname].legendData["gridData"]["gridA"]["width"] = widthA;
+        this.versions[sysname].legendData["gridData"]["gridB"]["width"] = widthB;
+        this.versions[sysname].legendData["gridData"]["gridC"]["width"] = widthC;
 
-        this.versions[sysname].legendData["gridData"]["gridA"][1] = scaleNiceNumberA;
-        this.versions[sysname].legendData["gridData"]["gridB"][1] = scaleNiceNumberB;
-        this.versions[sysname].legendData["gridData"]["gridC"][1] = scaleNiceNumberC;
+        this.versions[sysname].legendData["gridData"]["gridA"]["scaleNiceNumber"] = scaleNiceNumberA;
+        this.versions[sysname].legendData["gridData"]["gridB"]["scaleNiceNumber"] = scaleNiceNumberB;
+        this.versions[sysname].legendData["gridData"]["gridC"]["scaleNiceNumber"] = scaleNiceNumberC;
 
-        this.versions[sysname].legendData["gridData"]["gridA"][2] = gridPathA;
-        this.versions[sysname].legendData["gridData"]["gridB"][2] = gridPathB;
-        this.versions[sysname].legendData["gridData"]["gridC"][2] = gridPathC;
+        this.versions[sysname].legendData["gridData"]["gridA"]["gridPath"] = gridPathA;
+        this.versions[sysname].legendData["gridData"]["gridB"]["gridPath"] = gridPathB;
+        this.versions[sysname].legendData["gridData"]["gridC"]["gridPath"] = gridPathC;
 
         this.versions[sysname].legendData["scalePowerOf10"] = scalePowerOf10;
         this.versions[sysname].legendData["unit"] = unit;
@@ -1008,8 +1007,9 @@ class CartMap {
      * @param {string} sysname The sysname of the map version
      * @param {string} legendSVGID The html id used for legend SVG display
      * @param {string} old_sysname The previous sysname after map version switch. Optional.
+     * @param {boolean} change_map True if the map is displayed for the first time or the map is changed. Optional.
      */
-    drawLegend(sysname, legendSVGID, old_sysname = null) {
+    drawLegend(sysname, legendSVGID, old_sysname = null, change_map = false) {
 
         this.getLegendData(sysname);
 
@@ -1029,28 +1029,31 @@ class CartMap {
 
         // Get the transitionWidth which is previously selected grid path. This value helps in transitioning
         // from static legend to resizable legend.
-        var transitionWidth;
+        let transitionWidth;
 
         // When switching between static and selectable legend.
-        if (old_sysname == null) {
-            transitionWidth = this.versions[sysname].legendData["gridData"]["gridC"][0];
+        if(change_map == true) {
+            transitionWidth = this.versions[sysname].legendData["gridData"]["gridA"]["width"];
+        }
+        else if (old_sysname == null) {
+            transitionWidth = this.versions[sysname].legendData["gridData"]["gridC"]["width"];
         }
         // When switching between versions
         else {
             if (this.versions[old_sysname].legendData["legendSelected"] == "static") {
-                transitionWidth = this.versions[old_sysname].legendData["gridData"][currentGridPath][0];
+                transitionWidth = this.versions[old_sysname].legendData["gridData"][currentGridPath]["width"];
             }
             else if (this.versions[old_sysname].legendData["legendSelected"] == "selectable") {
-                transitionWidth = this.versions[old_sysname].legendData["gridData"]["gridC"][0];
+                transitionWidth = this.versions[old_sysname].legendData["gridData"]["gridC"]["width"];
             }
         }
 
         // Retrive legend information
         const unit = this.versions[sysname].legendData["unit"];
         const versionTotalValue = this.versions[sysname].legendData["versionTotalValue"];
-        var width = this.versions[sysname].legendData["gridData"][currentGridPath][0];
-        var scaleNiceNumber = this.versions[sysname].legendData["gridData"][currentGridPath][1];
-        let scalePowerOf10 = this.versions[sysname].legendData["scalePowerOf10"];
+        const width = this.versions[sysname].legendData["gridData"][currentGridPath]["width"];
+        const scaleNiceNumber = this.versions[sysname].legendData["gridData"][currentGridPath]["scaleNiceNumber"];
+        const scalePowerOf10 = this.versions[sysname].legendData["scalePowerOf10"];
 
         const legendSquare = legendSVG.append('rect')
                                         .attr('id', legendSVGID + "A")
@@ -1165,7 +1168,15 @@ class CartMap {
 
         // Set different legend text transition duration so that legend text doesn't overlap with legend square transition
         let legendTextsTransitionDuration = 1000;
-        if(currentGridPath == "gridC") {
+        if(change_map == true) {
+            legendTextsTransitionDuration = 1000;
+        }
+        else if(old_sysname != null) {
+            if(this.versions[old_sysname].legendData["legendSelected"] == "static") {
+                legendTextsTransitionDuration = 800;
+            }
+        }
+        else if(currentGridPath == "gridC") {
             legendTextsTransitionDuration= 1000;
         }
         else if(currentGridPath == "gridB") {
@@ -1175,11 +1186,6 @@ class CartMap {
             legendTextsTransitionDuration= 600;
         }
 
-         if(old_sysname != null) {
-            if(this.versions[old_sysname].legendData["legendSelected"] == "static") {
-            legendTextsTransitionDuration = 800;
-            }
-        }
 
         legendText
             .transition()
@@ -1199,7 +1205,7 @@ class CartMap {
         // buttons on place
         let legendSVGHeight = width;
         Object.keys(this.versions).forEach(function (version_sysname) {
-            legendSVGHeight = Math.max(legendSVGHeight, this.versions[version_sysname].legendData["gridData"]["gridC"][0]);
+            legendSVGHeight = Math.max(legendSVGHeight, this.versions[version_sysname].legendData["gridData"]["gridC"]["width"]);
                 }, this);
 
         // Adjust height of legendSVG
@@ -1233,20 +1239,20 @@ class CartMap {
         // Retrive legend information
         const unit = this.versions[sysname].legendData["unit"];
         const versionTotalValue = this.versions[sysname].legendData["versionTotalValue"];
-        var scalePowerOf10 = this.versions[sysname].legendData["scalePowerOf10"];
-        var widthA = this.versions[sysname].legendData["gridData"]["gridA"][0];
-        var widthB = this.versions[sysname].legendData["gridData"]["gridB"][0];
-        var widthC = this.versions[sysname].legendData["gridData"]["gridC"][0];
-        var scaleNiceNumberA = this.versions[sysname].legendData["gridData"]["gridA"][1];
-        var scaleNiceNumberB = this.versions[sysname].legendData["gridData"]["gridB"][1];
-        var scaleNiceNumberC = this.versions[sysname].legendData["gridData"]["gridC"][1];
-        const gridA = this.versions[sysname].legendData["gridData"]["gridA"][2];
-        const gridB = this.versions[sysname].legendData["gridData"]["gridB"][2];
-        const gridC = this.versions[sysname].legendData["gridData"]["gridC"][2];
+        const scalePowerOf10 = this.versions[sysname].legendData["scalePowerOf10"];
+        const widthA = this.versions[sysname].legendData["gridData"]["gridA"]["width"];
+        const widthB = this.versions[sysname].legendData["gridData"]["gridB"]["width"];
+        const widthC = this.versions[sysname].legendData["gridData"]["gridC"]["width"];
+        const scaleNiceNumberA = this.versions[sysname].legendData["gridData"]["gridA"]["scaleNiceNumber"];
+        const scaleNiceNumberB = this.versions[sysname].legendData["gridData"]["gridB"]["scaleNiceNumber"];
+        const scaleNiceNumberC = this.versions[sysname].legendData["gridData"]["gridC"]["scaleNiceNumber"];
+        const gridA = this.versions[sysname].legendData["gridData"]["gridA"]["gridPath"];
+        const gridB = this.versions[sysname].legendData["gridData"]["gridB"]["gridPath"];
+        const gridC = this.versions[sysname].legendData["gridData"]["gridC"]["gridPath"];
 
 
         // We get currently selected grid path (i.e. whether "gridA", "gridB", or "gridC")
-        var currentGridPath = this.versions[sysname].legendData["currentGridPath"];
+        let currentGridPath = this.versions[sysname].legendData["currentGridPath"];
 
         // We keep separate track for "1-conventional" of Equal Area Map because "1-conventional" map is also in
         // display in Cartogram section (right)
@@ -1255,26 +1261,26 @@ class CartMap {
         }
 
         // Get legend width data of previous version/ previous static legend
-        var transitionWidthA;
-        var transitionWidthB;
-        var transitionWidthC;
+        let transitionWidthA;
+        let transitionWidthB;
+        let transitionWidthC;
 
         // When switching between static and selectable legend.
         if (old_sysname == null) {
-            transitionWidthA = transitionWidthB = transitionWidthC = this.versions[sysname].legendData["gridData"][currentGridPath][0];
+            transitionWidthA = transitionWidthB = transitionWidthC = this.versions[sysname].legendData["gridData"][currentGridPath]["width"];
             if(legendSVGID == "map-area-legend") {
-                transitionWidthA = transitionWidthB = transitionWidthC = this.versions[sysname].legendData["gridData"][currentGridPath][0];
+                transitionWidthA = transitionWidthB = transitionWidthC = this.versions[sysname].legendData["gridData"][currentGridPath]["width"];
             }
         }
         // When switching between static and selectable legend.
         else {
             if (this.versions[old_sysname].legendData["legendSelected"] == "static") {
-                transitionWidthA = transitionWidthB = transitionWidthC = this.versions[old_sysname].legendData["gridData"][currentGridPath][0];
+                transitionWidthA = transitionWidthB = transitionWidthC = this.versions[old_sysname].legendData["gridData"][currentGridPath]["width"];
             }
             else {
-                transitionWidthA = this.versions[old_sysname].legendData["gridData"]["gridA"][0];
-                transitionWidthB = this.versions[old_sysname].legendData["gridData"]["gridB"][0];
-                transitionWidthC = this.versions[old_sysname].legendData["gridData"]["gridC"][0];
+                transitionWidthA = this.versions[old_sysname].legendData["gridData"]["gridA"]["width"];
+                transitionWidthB = this.versions[old_sysname].legendData["gridData"]["gridB"]["width"];
+                transitionWidthC = this.versions[old_sysname].legendData["gridData"]["gridC"]["width"];
             }
         }
 
@@ -1523,7 +1529,7 @@ class CartMap {
         // buttons on place
         let legendSVGHeight = widthC;
         Object.keys(this.versions).forEach(function (version_sysname) {
-            legendSVGHeight = Math.max(legendSVGHeight, this.versions[version_sysname].legendData["gridData"]["gridC"][0]);
+            legendSVGHeight = Math.max(legendSVGHeight, this.versions[version_sysname].legendData["gridData"]["gridC"]["width"]);
                 }, this);
 
         // Adjust height of legendSVG
@@ -1665,23 +1671,23 @@ class CartMap {
      */
     drawGridLines(sysname, mapSVGID, old_sysname = null) {
 
-        const gridPath = this.versions[sysname].legendData["gridData"][this.versions[sysname].legendData["currentGridPath"]][2];
+        const gridPath = this.versions[sysname].legendData["gridData"][this.versions[sysname].legendData["currentGridPath"]]["gridPath"];
         const mapSVG = d3.select("#" + mapSVGID + "-svg");
 
-        var gridSVGID = mapSVGID + "-grid";
+        let gridSVGID = mapSVGID + "-grid";
         mapSVG.selectAll("#" + gridSVGID).remove()  // Remove existing grid
 
-        var stroke_opacity = 0;
+        let stroke_opacity = 0;
 
         if (d3.select("#gridline-toggle-cartogram").property("checked")) {
             stroke_opacity = 0.4;
         }
 
         // The previous grid path from which we want to transition from
-        var transitionGridPath = null;
+        let transitionGridPath = null;
 
         if(old_sysname != null) {
-            transitionGridPath = this.versions[old_sysname].legendData["gridData"][this.versions[old_sysname].legendData["currentGridPath"]][2];
+            transitionGridPath = this.versions[old_sysname].legendData["gridData"][this.versions[old_sysname].legendData["currentGridPath"]]["gridPath"];
         }
 
         mapSVG.append("path")
@@ -3487,8 +3493,8 @@ class Cartogram {
                             }
 
                             // The following line draws the conventional legend when the page first loads.
-                            this.model.map.drawLegend("1-conventional", "map-area-legend");
-                            this.model.map.drawLegend(this.model.current_sysname, "cartogram-area-legend");
+                            this.model.map.drawLegend("1-conventional", "map-area-legend", null, true);
+                            this.model.map.drawLegend(this.model.current_sysname, "cartogram-area-legend", null, true);
                             this.model.map.drawGridLines("1-conventional", "map-area");
                             this.model.map.drawGridLines(this.model.current_sysname, "cartogram-area");
                             this.model.map.switchLegends(this.model.current_sysname);
@@ -3742,8 +3748,8 @@ class Cartogram {
             document.getElementById("gridline-toggle-map").checked = false;
 
             // The following line draws the conventional legend when the page first loads.
-            this.model.map.drawLegend("1-conventional", "map-area-legend");
-            this.model.map.drawLegend(this.model.current_sysname, "cartogram-area-legend");
+            this.model.map.drawLegend("1-conventional", "map-area-legend", null, true);
+            this.model.map.drawLegend(this.model.current_sysname, "cartogram-area-legend", null, true);
             this.model.map.drawGridLines("1-conventional", "map-area");
             this.model.map.drawGridLines(this.model.current_sysname, "cartogram-area");
             this.model.map.switchLegends(this.model.current_sysname);
