@@ -1423,7 +1423,7 @@ class CartMap {
                 .attr('d', gridC);
 
             d3.select("#" + legendSVGID + "-number")
-              .text(parseInt(legendNumber.substring(0,1))/scaleNiceNumberA*scaleNiceNumberC + legendNumber.substring(1, legendNumber.length));
+            .text(parseInt(parseInt(legendNumber.substring(0,1))/scaleNiceNumberA*scaleNiceNumberC + legendNumber.substring(1, legendNumber.length).split(' ').join('')).toLocaleString().split(',').join(' '));
         }
 
         const changeToB = () => {
@@ -1446,7 +1446,7 @@ class CartMap {
               .attr('d', gridB);
 
             d3.select("#" + legendSVGID + "-number")
-              .text(parseInt(legendNumber.substring(0,1))/scaleNiceNumberA*scaleNiceNumberB + legendNumber.substring(1, legendNumber.length));
+              .text(parseInt(parseInt(legendNumber.substring(0,1))/scaleNiceNumberA*scaleNiceNumberB + legendNumber.substring(1, legendNumber.length).split(' ').join('')).toLocaleString().split(',').join(' '));
         }
 
         const changeToA = () => {
