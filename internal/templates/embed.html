@@ -220,10 +220,10 @@
             </div>
             
 
-            <div id="map-area" style="margin-top: 20px"></div>
+            <div id="map-area" style="margin-top: 20px" data-grid-visibility="off"></div>
 	    
-            <div class="col-12">
-              <svg height="90" id="map-area-legend"></svg>
+            <div style="padding-left: 0;" class="col-12">
+              <svg width="375" height="90" id="map-area-legend" data-legend-type="static" data-current-grid-path="gridA"></svg>
             </div>
 	    
             <p style="margin-top: 20px; display: none"><a class="btn btn-primary" href="" id="map-download">Download</a></p>
@@ -243,10 +243,10 @@
               
             </div>
 	    
-            <div id = "cartogram-area" style="margin-top: 20px"></div>
+            <div id = "cartogram-area" style="margin-top: 20px" data-grid-visibility="off"></div>
 	    
-            <div class="col-12">
-              <svg height="90" id="cartogram-area-legend"></svg>
+            <div style="padding-left: 0;" class="col-12">
+              <svg width="375" height="90" id="cartogram-area-legend" data-legend-type="static" data-current-grid-path="gridA"></svg>
             </div>
 	    
             <div style="display: none">
@@ -349,7 +349,7 @@
 
     window.cartogram = new Cartogram("{{cartogram_url}}", "{{cartogramui_url}}", "{{cartogram_data_dir}}", "{{url_for('gridedit')}}", "{{getprogress_url}}", "{{cartogram_version}}", 0.9);
 
-    window.cartogram.switchMap("{{map_name}}", "");
+    window.cartogram.switchMap("{{map_name}}", "", null, null, null, true);
     
     };
   </script>

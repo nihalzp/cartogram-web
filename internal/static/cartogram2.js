@@ -462,11 +462,6 @@ class MapVersion {
             "scalePowerOf10": null,
             "unit": null,
             "versionTotalValue": null,
-            "currentGridPath": "gridA",
-            "legendSelected": "static",
-            "mapCurrentGridPath" : "gridA",
-            // Since we have two instances of "1-conventional" version on display, "mapCurrentGridPath" keeps
-            // track of user selected grid path for the "1-conventional" map of the Equal Area Map (left).
         }
     }
 }
@@ -985,21 +980,21 @@ class CartMap {
         const gridPathC = this.getGridPath(widthC, this.width, this.height);
 
         // Store legend Information
-        this.versions[sysname].legendData["gridData"]["gridA"]["width"] = widthA;
-        this.versions[sysname].legendData["gridData"]["gridB"]["width"] = widthB;
-        this.versions[sysname].legendData["gridData"]["gridC"]["width"] = widthC;
+        this.versions[sysname].legendData.gridData.gridA.width = widthA;
+        this.versions[sysname].legendData.gridData.gridB.width = widthB;
+        this.versions[sysname].legendData.gridData.gridC.width = widthC;
 
-        this.versions[sysname].legendData["gridData"]["gridA"]["scaleNiceNumber"] = scaleNiceNumberA;
-        this.versions[sysname].legendData["gridData"]["gridB"]["scaleNiceNumber"] = scaleNiceNumberB;
-        this.versions[sysname].legendData["gridData"]["gridC"]["scaleNiceNumber"] = scaleNiceNumberC;
+        this.versions[sysname].legendData.gridData.gridA.scaleNiceNumber = scaleNiceNumberA;
+        this.versions[sysname].legendData.gridData.gridB.scaleNiceNumber = scaleNiceNumberB;
+        this.versions[sysname].legendData.gridData.gridC.scaleNiceNumber = scaleNiceNumberC;
 
-        this.versions[sysname].legendData["gridData"]["gridA"]["gridPath"] = gridPathA;
-        this.versions[sysname].legendData["gridData"]["gridB"]["gridPath"] = gridPathB;
-        this.versions[sysname].legendData["gridData"]["gridC"]["gridPath"] = gridPathC;
+        this.versions[sysname].legendData.gridData.gridA.gridPath = gridPathA;
+        this.versions[sysname].legendData.gridData.gridB.gridPath = gridPathB;
+        this.versions[sysname].legendData.gridData.gridC.gridPath = gridPathC;
 
-        this.versions[sysname].legendData["scalePowerOf10"] = scalePowerOf10;
-        this.versions[sysname].legendData["unit"] = unit;
-        this.versions[sysname].legendData["versionTotalValue"] = versionTotalValue;
+        this.versions[sysname].legendData.scalePowerOf10 = scalePowerOf10;
+        this.versions[sysname].legendData.unit = unit;
+        this.versions[sysname].legendData.versionTotalValue = versionTotalValue;
     }
 
     /**
@@ -1012,20 +1007,15 @@ class CartMap {
     drawLegend(sysname, legendSVGID, old_sysname = null, change_map = false) {
 
         this.getLegendData(sysname);
-
         const legendSVG = d3.select('#' + legendSVGID);
 
         // Remove existing child nodes
         legendSVG.selectAll('*').remove();
-
+        
         // We get the current selected user grid path to draw our static legend
-        let currentGridPath = this.versions[sysname].legendData["currentGridPath"];
-
-        // We keep separate track for "1-conventional" of Equal Area Map because "1-conventional" map is also in
-        // display in Cartogram section (right)
-        if(legendSVGID == "map-area-legend") {
-            currentGridPath = this.versions[sysname].legendData["mapCurrentGridPath"];
-        }
+        
+        let currentGridPath = legendSVG.attr("data-current-grid-path");
+        let prevLegendType = legendSVG.attr("data-legend-type")
 
         // Get the transitionWidth which is previously selected grid path. This value helps in transitioning
         // from static legend to resizable legend.
@@ -1033,27 +1023,28 @@ class CartMap {
 
         // When switching between static and selectable legend.
         if(change_map == true) {
-            transitionWidth = this.versions[sysname].legendData["gridData"]["gridA"]["width"];
+            transitionWidth = this.versions[sysname].legendData.gridData.gridA.width;
         }
         else if (old_sysname == null) {
-            transitionWidth = this.versions[sysname].legendData["gridData"]["gridC"]["width"];
+            transitionWidth = this.versions[sysname].legendData.gridData.gridC.width;
         }
         // When switching between versions
         else {
-            if (this.versions[old_sysname].legendData["legendSelected"] == "static") {
+            if (prevLegendType == "static") {
                 transitionWidth = this.versions[old_sysname].legendData["gridData"][currentGridPath]["width"];
             }
-            else if (this.versions[old_sysname].legendData["legendSelected"] == "selectable") {
-                transitionWidth = this.versions[old_sysname].legendData["gridData"]["gridC"]["width"];
+            else {
+                transitionWidth = this.versions[old_sysname].legendData.gridData.gridC.width;
             }
         }
 
         // Retrive legend information
-        const unit = this.versions[sysname].legendData["unit"];
-        const versionTotalValue = this.versions[sysname].legendData["versionTotalValue"];
+        const unit = this.versions[sysname].legendData.unit;
+        const versionTotalValue = this.versions[sysname].legendData.versionTotalValue;
         const width = this.versions[sysname].legendData["gridData"][currentGridPath]["width"];
+        
         const scaleNiceNumber = this.versions[sysname].legendData["gridData"][currentGridPath]["scaleNiceNumber"];
-        const scalePowerOf10 = this.versions[sysname].legendData["scalePowerOf10"];
+        const scalePowerOf10 = this.versions[sysname].legendData.scalePowerOf10;
 
         const legendSquare = legendSVG.append('rect')
                                         .attr('id', legendSVGID + "A")
@@ -1172,7 +1163,7 @@ class CartMap {
             legendTextsTransitionDuration = 1000;
         }
         else if(old_sysname != null) {
-            if(this.versions[old_sysname].legendData["legendSelected"] == "static") {
+            if(prevLegendType == "static") {
                 legendTextsTransitionDuration = 800;
             }
         }
@@ -1185,7 +1176,6 @@ class CartMap {
         else if(currentGridPath == "gridA") {
             legendTextsTransitionDuration= 600;
         }
-
 
         legendText
             .transition()
@@ -1205,7 +1195,7 @@ class CartMap {
         // buttons on place
         let legendSVGHeight = width;
         Object.keys(this.versions).forEach(function (version_sysname) {
-            legendSVGHeight = Math.max(legendSVGHeight, this.versions[version_sysname].legendData["gridData"]["gridC"]["width"]);
+            legendSVGHeight = Math.max(legendSVGHeight, this.versions[version_sysname].legendData.gridData.gridC.width);
                 }, this);
 
         // Adjust height of legendSVG
@@ -1213,9 +1203,9 @@ class CartMap {
 
         // Verify if legend is accurate
         this.verifyLegend(sysname, width, scaleNiceNumber * Math.pow(10, scalePowerOf10));
-
-        // Update Selected Legend status to static
-        this.versions[sysname].legendData["legendSelected"] = "static";
+                
+        // Update Selected Legend Type in SVG Data
+        document.getElementById(legendSVGID).dataset.legendType = "static";
     }
 
 
@@ -1235,28 +1225,23 @@ class CartMap {
         legendSVG.selectAll('*').remove();
 
         // Retrive legend information
-        const unit = this.versions[sysname].legendData["unit"];
-        const versionTotalValue = this.versions[sysname].legendData["versionTotalValue"];
-        const scalePowerOf10 = this.versions[sysname].legendData["scalePowerOf10"];
-        const widthA = this.versions[sysname].legendData["gridData"]["gridA"]["width"];
-        const widthB = this.versions[sysname].legendData["gridData"]["gridB"]["width"];
-        const widthC = this.versions[sysname].legendData["gridData"]["gridC"]["width"];
-        const scaleNiceNumberA = this.versions[sysname].legendData["gridData"]["gridA"]["scaleNiceNumber"];
-        const scaleNiceNumberB = this.versions[sysname].legendData["gridData"]["gridB"]["scaleNiceNumber"];
-        const scaleNiceNumberC = this.versions[sysname].legendData["gridData"]["gridC"]["scaleNiceNumber"];
-        const gridA = this.versions[sysname].legendData["gridData"]["gridA"]["gridPath"];
-        const gridB = this.versions[sysname].legendData["gridData"]["gridB"]["gridPath"];
-        const gridC = this.versions[sysname].legendData["gridData"]["gridC"]["gridPath"];
+        const unit = this.versions[sysname].legendData.unit;
+        const versionTotalValue = this.versions[sysname].legendData.versionTotalValue;
+        const scalePowerOf10 = this.versions[sysname].legendData.scalePowerOf10;
+        const widthA = this.versions[sysname].legendData.gridData.gridA.width;
+        const widthB = this.versions[sysname].legendData.gridData.gridB.width;
+        const widthC = this.versions[sysname].legendData.gridData.gridC.width;
+        const scaleNiceNumberA = this.versions[sysname].legendData.gridData.gridA.scaleNiceNumber;
+        const scaleNiceNumberB = this.versions[sysname].legendData.gridData.gridB.scaleNiceNumber;
+        const scaleNiceNumberC = this.versions[sysname].legendData.gridData.gridC.scaleNiceNumber;
+        const gridA = this.versions[sysname].legendData.gridData.gridA.gridPath;
+        const gridB = this.versions[sysname].legendData.gridData.gridB.gridPath;
+        const gridC = this.versions[sysname].legendData.gridData.gridC.gridPath;
 
 
-        // We get currently selected grid path (i.e. whether "gridA", "gridB", or "gridC")
-        let currentGridPath = this.versions[sysname].legendData["currentGridPath"];
-
-        // We keep separate track for "1-conventional" of Equal Area Map because "1-conventional" map is also in
-        // display in Cartogram section (right)
-        if(legendSVGID == "map-area-legend") {
-            currentGridPath = this.versions[sysname].legendData["mapCurrentGridPath"];
-        }
+        // We get currently selected grid path (i.e. whether "gridA", "gridB", or "gridC") and type of legend
+        let currentGridPath = legendSVG.attr("data-current-grid-path");
+        let prevLegendType = legendSVG.attr("data-legend-type")
 
         // Get legend width data of previous version/ previous static legend
         let transitionWidthA;
@@ -1266,19 +1251,16 @@ class CartMap {
         // When switching between static and selectable legend.
         if (old_sysname == null) {
             transitionWidthA = transitionWidthB = transitionWidthC = this.versions[sysname].legendData["gridData"][currentGridPath]["width"];
-            if(legendSVGID == "map-area-legend") {
-                transitionWidthA = transitionWidthB = transitionWidthC = this.versions[sysname].legendData["gridData"][currentGridPath]["width"];
-            }
         }
         // When switching between static and selectable legend.
         else {
-            if (this.versions[old_sysname].legendData["legendSelected"] == "static") {
+            if (prevLegendType == "static") {
                 transitionWidthA = transitionWidthB = transitionWidthC = this.versions[old_sysname].legendData["gridData"][currentGridPath]["width"];
             }
             else {
-                transitionWidthA = this.versions[old_sysname].legendData["gridData"]["gridA"]["width"];
-                transitionWidthB = this.versions[old_sysname].legendData["gridData"]["gridB"]["width"];
-                transitionWidthC = this.versions[old_sysname].legendData["gridData"]["gridC"]["width"];
+                transitionWidthA = this.versions[old_sysname].legendData.gridData.gridA.width;
+                transitionWidthB = this.versions[old_sysname].legendData.gridData.gridB.width;
+                transitionWidthC = this.versions[old_sysname].legendData.gridData.gridC.width;
             }
         }
 
@@ -1403,15 +1385,10 @@ class CartMap {
         const legendNumber = d3.select("#" + legendSVGID + "-number").text();
 
         const changeToC = () => {
-
-            // Update currentGridPath in other versions
-            if(legendSVGID != "map-area-legend") {
-                Object.keys(this.versions).forEach(function (version_sysname) {
-                        this.versions[version_sysname].legendData["currentGridPath"] = "gridC";
-                }, this);
-            } else {
-                this.versions[sysname].legendData["mapCurrentGridPath"] = "gridC"
-            }
+            // Update currentGridPath in SVG Data
+            document.getElementById(legendSVGID).dataset.currentGridPath = "gridC";
+            
+            localStorage.setItem(legendSVGID + "-current-grid-path", "gridC")
 
             d3.select("#" + legendSVGID + "C").attr('fill', '#FFFFFF');
             d3.select("#" + legendSVGID + "B").attr('fill', '#FFFFFF');
@@ -1427,14 +1404,10 @@ class CartMap {
         }
 
         const changeToB = () => {
-            // Update currentGridPath in other versions
-            if(legendSVGID != "map-area-legend") {
-                Object.keys(this.versions).forEach(function (version_sysname) {
-                        this.versions[version_sysname].legendData["currentGridPath"] = "gridB";
-                }, this);
-            } else {
-                this.versions[sysname].legendData["mapCurrentGridPath"] = "gridB"
-            }
+            // Update currentGridPath in SVG Data
+            document.getElementById(legendSVGID).dataset.currentGridPath = "gridB";
+            
+            localStorage.setItem(legendSVGID + "-current-grid-path", "gridB")
 
             d3.select("#" + legendSVGID + "C").attr('fill', '#EEEEEE');
             d3.select("#" + legendSVGID + "B").attr('fill', '#FFFFFF');
@@ -1450,14 +1423,10 @@ class CartMap {
         }
 
         const changeToA = () => {
-            // Update currentGridPath in other versions
-            if(legendSVGID != "map-area-legend") {
-                Object.keys(this.versions).forEach(function (version_sysname) {
-                        this.versions[version_sysname].legendData["currentGridPath"] = "gridA";
-                }, this);
-            } else {
-                this.versions[sysname].legendData["mapCurrentGridPath"] = "gridA"
-            }
+            // Update currentGridPath in SVG Data
+            document.getElementById(legendSVGID).dataset.currentGridPath = "gridA";
+            
+            localStorage.setItem(legendSVGID + "-current-grid-path", "gridA")
 
             d3.select("#" + legendSVGID + "C").attr('fill', '#EEEEEE');
             d3.select("#" + legendSVGID + "B").attr('fill', '#EEEEEE');
@@ -1527,7 +1496,7 @@ class CartMap {
         // buttons on place
         let legendSVGHeight = widthC;
         Object.keys(this.versions).forEach(function (version_sysname) {
-            legendSVGHeight = Math.max(legendSVGHeight, this.versions[version_sysname].legendData["gridData"]["gridC"]["width"]);
+            legendSVGHeight = Math.max(legendSVGHeight, this.versions[version_sysname].legendData.gridData.gridC.width);
                 }, this);
 
         // Adjust height of legendSVG
@@ -1606,34 +1575,9 @@ class CartMap {
 
         // Verify if legend is accurate
         this.verifyLegend(sysname, widthA, scaleNiceNumberA * Math.pow(10, scalePowerOf10));
-
-        // Update Selected Legend status to selectable
-        this.versions[sysname].legendData["legendSelected"] = "selectable";
-    }
-
-    /**
-     * The following function switches between static and resizable legends
-     * @param {string} sysname The sysname of the map version
-     */
-    switchLegends(sysname) {
-
-        d3.select("#legend-toggle-cartogram").on("change", () => {
-            if (d3.select("#legend-toggle-cartogram").property("checked")) {
-                this.drawResizableLegend(sysname, "cartogram-area-legend");
-            }
-            else {
-                this.drawLegend(sysname, "cartogram-area-legend");
-            }
-        })
-
-        d3.select("#legend-toggle-map").on("change", () => {
-            if (d3.select("#legend-toggle-map").property("checked")) {
-                this.drawResizableLegend('1-conventional', "map-area-legend");
-            }
-            else {
-                this.drawLegend('1-conventional', "map-area-legend");
-            }
-        })
+        
+        // Update Selected Legend Type in SVG Data
+        document.getElementById(legendSVGID).dataset.legendType = "resizable";
     }
 
     /**
@@ -1666,24 +1610,27 @@ class CartMap {
      * @param {string} old_sysname The previous sysname after map version switch. Optional.
      */
     drawGridLines(sysname, mapSVGID, old_sysname = null) {
-
-        const gridPath = this.versions[sysname].legendData["gridData"][this.versions[sysname].legendData["currentGridPath"]]["gridPath"];
+        
+        const currentGridPath = document.getElementById(mapSVGID + "-legend").dataset.currentGridPath;
+        const gridPath = this.versions[sysname].legendData["gridData"][currentGridPath]["gridPath"];
+        const gridVisibility = document.getElementById(mapSVGID).dataset.gridVisibility;
+        
         const mapSVG = d3.select("#" + mapSVGID + "-svg");
-
         let gridSVGID = mapSVGID + "-grid";
         mapSVG.selectAll("#" + gridSVGID).remove()  // Remove existing grid
 
-        let stroke_opacity = 0;
+        let stroke_opacity;
 
-        if (d3.select("#gridline-toggle-cartogram").property("checked")) {
+        if (gridVisibility == "off") {
+            stroke_opacity = 0;
+        } else {
             stroke_opacity = 0.4;
         }
-
         // The previous grid path from which we want to transition from
         let transitionGridPath = null;
 
         if(old_sysname != null) {
-            transitionGridPath = this.versions[old_sysname].legendData["gridData"][this.versions[old_sysname].legendData["currentGridPath"]]["gridPath"];
+            transitionGridPath = this.versions[old_sysname].legendData["gridData"][currentGridPath]["gridPath"];
         }
 
         mapSVG.append("path")
@@ -1698,38 +1645,6 @@ class CartMap {
             .attr("stroke", "#5A5A5A")
             .attr("stroke-width", "2px")
 
-
-        d3.select("#gridline-toggle-map").on("change",
-            function() {
-                if (d3.select("#gridline-toggle-map").property("checked")) {
-                    d3.select("#map-area-grid").transition()
-                        .ease(d3.easeCubic)
-                        .duration(500)
-                        .attr("stroke-opacity", 0.4)
-                }
-                else {
-                    d3.select("#map-area-grid").transition()
-                        .ease(d3.easeCubic)
-                        .duration(500)
-                        .attr("stroke-opacity", 0)
-                }
-            })
-
-        d3.select("#gridline-toggle-cartogram").on("change",
-            function() {
-                if(d3.select("#gridline-toggle-cartogram").property("checked")){
-                    d3.select("#cartogram-area-grid").transition()
-                        .ease(d3.easeCubic)
-                        .duration(500)
-                        .attr("stroke-opacity", 0.4)
-                }
-                else {
-                    d3.select("#cartogram-area-grid").transition()
-                        .ease(d3.easeCubic)
-                        .duration(500)
-                        .attr("stroke-opacity", 0)
-                }
-            })
     }
 
     /**
@@ -2200,19 +2115,16 @@ class CartMap {
 
         }, this);
 
-
-        if (d3.select("#legend-toggle-cartogram").property("checked")) {
-            this.drawResizableLegend(new_sysname, element_id + "-legend", current_sysname);
+        let selectedLegendType = document.getElementById(element_id + "-legend").dataset.legendType
+        
+        if (selectedLegendType == "static") {
+            this.drawLegend(new_sysname, element_id + "-legend", current_sysname);
         }
         else {
-            this.drawLegend(new_sysname, element_id + "-legend", current_sysname);
+            this.drawResizableLegend(new_sysname, element_id + "-legend", current_sysname);
         }
 
         this.drawGridLines(new_sysname, element_id, current_sysname);
-        this.switchLegends(new_sysname);
-
-
-
     }
 }
 
@@ -3276,14 +3188,16 @@ class Cartogram {
     }
 
     /**
-     * displayCustomisePopup displays the customise popup on click on the customise button
+     * displayCustomisePopup displays the customise popup on click on the customise button and controls the functionality of the checkboxes
      */
-    displayCustomisePopup() {
-
+    displayCustomisePopup(sysname) {
+        
+        // Toggle the display of customise popup
+        
         d3.select("#map-customise").on("click", function () {
-            var element = document.getElementById("map-customise-popup");
-            var style = window.getComputedStyle(element);
-            var display = style.getPropertyValue('display');
+            let element = document.getElementById("map-customise-popup");
+            let style = window.getComputedStyle(element);
+            let display = style.getPropertyValue('display');
             if (display == "block") {
                 document.getElementById("map-customise-popup").style.display = "none";
                 document.getElementById("map-customise").style.backgroundColor = "#d76126";
@@ -3297,9 +3211,9 @@ class Cartogram {
         })
 
         d3.select("#cartogram-customise").on("click", function () {
-            var element = document.getElementById("cartogram-customise-popup");
-            var style = window.getComputedStyle(element);
-            var display = style.getPropertyValue('display');
+            let element = document.getElementById("cartogram-customise-popup");
+            let style = window.getComputedStyle(element);
+            let display = style.getPropertyValue('display');
             if (display == "block") {
                 document.getElementById("cartogram-customise-popup").style.display = "none";
                 document.getElementById("cartogram-customise").style.backgroundColor = "#d76126";
@@ -3309,6 +3223,72 @@ class Cartogram {
                 document.getElementById("cartogram-customise-popup").style.display = "block";
                 document.getElementById("cartogram-customise").style.backgroundColor = "#b75220";
                 document.getElementById("cartogram-customise").style.borderColor = "#ab4e1f";
+            }
+        })
+        
+        // Toggle the gridline visibility
+        
+        d3.select("#gridline-toggle-map").on("change",
+            function() {
+                if (d3.select("#gridline-toggle-map").property("checked")) {
+                    d3.select("#map-area-grid").transition()
+                        .ease(d3.easeCubic)
+                        .duration(500)
+                        .attr("stroke-opacity", 0.4)
+                    document.getElementById("map-area").dataset.gridVisibility = "on";
+                    localStorage.setItem("map-area-grid-visibility", "on");
+                }
+                else {
+                    d3.select("#map-area-grid").transition()
+                        .ease(d3.easeCubic)
+                        .duration(500)
+                        .attr("stroke-opacity", 0)
+                    document.getElementById("map-area").dataset.gridVisibility = "off";
+                    localStorage.setItem("map-area-grid-visibility", "off");
+                }
+            })
+
+        d3.select("#gridline-toggle-cartogram").on("change",
+            function() {
+                if(d3.select("#gridline-toggle-cartogram").property("checked")){
+                    d3.select("#cartogram-area-grid").transition()
+                        .ease(d3.easeCubic)
+                        .duration(500)
+                        .attr("stroke-opacity", 0.4)
+                    document.getElementById("cartogram-area").dataset.gridVisibility = "on";
+                    localStorage.setItem("cartogram-area-grid-visibility", "on");
+                }
+                else {
+                    d3.select("#cartogram-area-grid").transition()
+                        .ease(d3.easeCubic)
+                        .duration(500)
+                        .attr("stroke-opacity", 0)
+                    document.getElementById("cartogram-area").dataset.gridVisibility = "off";
+                    localStorage.setItem("cartogram-area-grid-visibility", "off");
+                }
+            })
+            
+        // Toggle legend between static and resizable
+        
+        d3.select("#legend-toggle-cartogram").on("change", () => {
+            if (d3.select("#legend-toggle-cartogram").property("checked")) {
+                this.model.map.drawResizableLegend(sysname, "cartogram-area-legend");
+                localStorage.setItem("cartogram-area-legend-type", "resizable")
+            }
+            else {
+                this.model.map.drawLegend(sysname, "cartogram-area-legend");
+                localStorage.setItem("cartogram-area-legend-type", "static")
+            }
+        })
+    
+        d3.select("#legend-toggle-map").on("change", () => {
+            if (d3.select("#legend-toggle-map").property("checked")) {
+                this.model.map.drawResizableLegend('1-conventional', "map-area-legend");
+                localStorage.setItem("map-area-legend-type", "resizable")
+            }
+            else {
+                this.model.map.drawLegend('1-conventional', "map-area-legend");
+                localStorage.setItem("map-area-legend-type", "static")
             }
         })
     }
@@ -3325,7 +3305,7 @@ class Cartogram {
 
         this.displayVersionSwitchButtons();
         this.generateSVGDownloadLinks();
-        this.displayCustomisePopup();
+        this.displayCustomisePopup(sysname);
     }
 
     /**
@@ -3482,7 +3462,7 @@ class Cartogram {
 			    this.generateEmbedHTML("cart", response.unique_sharing_key);
                             this.generateSVGDownloadLinks();
                             this.displayVersionSwitchButtons();
-                            this.displayCustomisePopup();
+                            this.displayCustomisePopup(this.model.current_sysname);
 
                             if(update_grid_document) {
                                 this.updateGridDocument(response.grid_document);
@@ -3493,7 +3473,6 @@ class Cartogram {
                             this.model.map.drawLegend(this.model.current_sysname, "cartogram-area-legend", null, true);
                             this.model.map.drawGridLines("1-conventional", "map-area");
                             this.model.map.drawGridLines(this.model.current_sysname, "cartogram-area");
-                            this.model.map.switchLegends(this.model.current_sysname);
 
                             this.exitLoadingState();
                             document.getElementById('cartogram').style.display = "block";
@@ -3615,11 +3594,11 @@ class Cartogram {
      * @param {Object.<string,string>} colors A color palette to use instead of the default one
      * @param {string} sharing_key The unique sharing key associated with this
      *                             cartogram, if any
+     * @param {bool} embed Whether the method is called from embed.html or not
      */
-    switchMap(sysname, hrname, cartogram=null,colors=null,sharing_key=null) {
+    switchMap(sysname, hrname, cartogram=null,colors=null,sharing_key=null, embed = false) {
         if(this.model.in_loading_state)
             return;
-
         this.enterLoadingState();
         this.showProgressBar();
 
@@ -3724,31 +3703,57 @@ class Cartogram {
 
 
 
-	    if(sharing_key !== null) {
-		this.generateSocialMediaLinks("https://go-cart.io/cart/" + sharing_key);
-		this.generateEmbedHTML("cart", sharing_key);
-	    } else {
-		this.generateSocialMediaLinks("https://go-cart.io/cartogram/" + sysname);
-		this.generateEmbedHTML("map", sysname);
-	    }
+            if(sharing_key !== null) {
+            this.generateSocialMediaLinks("https://go-cart.io/cart/" + sharing_key);
+            this.generateEmbedHTML("cart", sharing_key);
+            } else {
+            this.generateSocialMediaLinks("https://go-cart.io/cartogram/" + sysname);
+            this.generateEmbedHTML("map", sysname);
+            }
 
             this.generateSVGDownloadLinks();
             this.displayVersionSwitchButtons();
-            this.displayCustomisePopup();
+            this.displayCustomisePopup(this.model.current_sysname);
             this.updateGridDocument(mappack.griddocument);
-
-            // Clear user choices of customise popup when map changes
-            document.getElementById("legend-toggle-cartogram").checked = false;
-            document.getElementById("gridline-toggle-cartogram").checked = false;
-            document.getElementById("legend-toggle-map").checked = false;
-            document.getElementById("gridline-toggle-map").checked = false;
-
+            
+            if(embed == true) {
+                //Update UI state information in embed.html
+                document.getElementById("map-area-legend").dataset.legendType = localStorage.getItem("map-area-legend-type")
+                document.getElementById("map-area-legend").dataset.currentGridPath = localStorage.getItem("map-area-legend-current-grid-path")
+                document.getElementById("cartogram-area-legend").dataset.legendType = localStorage.getItem("map-area-legend-type")
+                document.getElementById("cartogram-area-legend").dataset.currentGridPath = localStorage.getItem("cartogram-area-legend-current-grid-path")
+                document.getElementById("map-area").dataset.gridVisibility = localStorage.getItem("map-area-grid-visibility")
+                document.getElementById("cartogram-area").dataset.gridVisibility = localStorage.getItem("cartogram-area-grid-visibility")
+            } else {
+                //Update localstorage information with current UI state information
+                localStorage.setItem("map-area-legend-type", document.getElementById("map-area-legend").dataset.legendType)
+                localStorage.setItem("map-area-legend-current-grid-path", document.getElementById("map-area-legend").dataset.currentGridPath)
+                localStorage.setItem("map-area-legend-type", document.getElementById("cartogram-area-legend").dataset.legendType)
+                localStorage.setItem("cartogram-area-legend-current-grid-path", document.getElementById("cartogram-area-legend").dataset.currentGridPath)
+                localStorage.setItem("map-area-grid-visibility", document.getElementById("map-area").dataset.gridVisibility)
+                localStorage.setItem("cartogram-area-grid-visibility", document.getElementById("cartogram-area").dataset.gridVisibility)
+            }
+            
+            let selectedLegendTypeMap = document.getElementById("map-area-legend").dataset.legendType;
+            let selectedLegendTypeCartogram = document.getElementById("cartogram-area-legend").dataset.legendType;
+        
+            if (selectedLegendTypeMap == "static") {
+                this.model.map.drawLegend("1-conventional", "map-area-legend", null, true);
+            }
+            else {
+                this.model.map.drawResizableLegend("1-conventional", "map-area-legend");
+            }
+            
+            if (selectedLegendTypeCartogram == "static") {
+                this.model.map.drawLegend(this.model.current_sysname, "cartogram-area-legend", null, true);
+            }
+            else {
+                this.model.map.drawResizableLegend(this.model.current_sysname, "cartogram-area-legend");
+            }
+            
             // The following line draws the conventional legend when the page first loads.
-            this.model.map.drawLegend("1-conventional", "map-area-legend", null, true);
-            this.model.map.drawLegend(this.model.current_sysname, "cartogram-area-legend", null, true);
             this.model.map.drawGridLines("1-conventional", "map-area");
             this.model.map.drawGridLines(this.model.current_sysname, "cartogram-area");
-            this.model.map.switchLegends(this.model.current_sysname);
 
             document.getElementById('template-link').href = this.config.cartogram_data_dir+ "/" + sysname + "/template.csv";
             document.getElementById('cartogram').style.display = 'block';
