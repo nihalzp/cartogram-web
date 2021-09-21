@@ -3467,10 +3467,25 @@ class Cartogram {
                             if(update_grid_document) {
                                 this.updateGridDocument(response.grid_document);
                             }
-
+                            
                             // The following line draws the conventional legend when the page first loads.
-                            this.model.map.drawLegend("1-conventional", "map-area-legend", null, true);
-                            this.model.map.drawLegend(this.model.current_sysname, "cartogram-area-legend", null, true);
+                            let selectedLegendTypeMap = document.getElementById("map-area-legend").dataset.legendType;
+                            let selectedLegendTypeCartogram = document.getElementById("cartogram-area-legend").dataset.legendType;
+                        
+                            if (selectedLegendTypeMap == "static") {
+                                this.model.map.drawLegend("1-conventional", "map-area-legend", null, true);
+                            }
+                            else {
+                                this.model.map.drawResizableLegend("1-conventional", "map-area-legend");
+                            }
+                            
+                            if (selectedLegendTypeCartogram == "static") {
+                                this.model.map.drawLegend(this.model.current_sysname, "cartogram-area-legend", null, true);
+                            }
+                            else {
+                                this.model.map.drawResizableLegend(this.model.current_sysname, "cartogram-area-legend");
+                            }
+                            
                             this.model.map.drawGridLines("1-conventional", "map-area");
                             this.model.map.drawGridLines(this.model.current_sysname, "cartogram-area");
 
