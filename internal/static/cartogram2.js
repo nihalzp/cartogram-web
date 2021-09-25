@@ -445,13 +445,15 @@ class MapVersion {
      * constructor creates an instance of the MapVersion class
      * @param {string} name The human-readable name of the map version
      * @param {Extrema} extrema Extrema for this map version
+     * @param {Array} dimensions The width and height of the map version
      * @param {Labels} labels The labels of the map version. Optional.
      */
-    constructor(name, extrema, labels=null, world = false) {
+    constructor(name, extrema, dimensions, labels=null, world = false) {
         this.name = name;
         this.extrema = extrema;
         this.labels = labels;
         this.world = world;
+        this.dimensions = dimensions;
         // legendData stores legend and gridline information of the map version.
         this.legendData = {
             "gridData": {
@@ -798,9 +800,8 @@ class CartMap {
         const version_width = this.versions[sysname].extrema.max_x - this.versions[sysname].extrema.min_x;
         const version_height = this.versions[sysname].extrema.max_y - this.versions[sysname].extrema.min_y;
 
-        const scale_x = this.width / version_width;
-        const scale_y = this.height / version_height;
-
+        const scale_x = this.versions[sysname].dimensions.x * this.config.scale / version_width;
+        const scale_y = this.versions[sysname].dimensions.y * this.config.scale / version_height;
         return [scale_x, scale_y];
     }
 
@@ -851,7 +852,6 @@ class CartMap {
             sum += avg_density * na_region.area;
 
         }, this);
-
         return [area, sum];
     }
 
@@ -980,9 +980,9 @@ class CartMap {
         widthB *= Math.sqrt(scaleNiceNumberB * Math.pow(10, scalePowerOf10) / valuePerSquare);
         widthC *= Math.sqrt(scaleNiceNumberC * Math.pow(10, scalePowerOf10) / valuePerSquare);
 
-        const gridPathA = this.getGridPath(widthA, this.width, this.height);
-        const gridPathB = this.getGridPath(widthB, this.width, this.height);
-        const gridPathC = this.getGridPath(widthC, this.width, this.height);
+        const gridPathA = this.getGridPath(widthA, this.versions[sysname].dimensions.x * this.config.scale, this.versions[sysname].dimensions.y * this.config.scale);
+        const gridPathB = this.getGridPath(widthB, this.versions[sysname].dimensions.x * this.config.scale, this.versions[sysname].dimensions.y * this.config.scale);
+        const gridPathC = this.getGridPath(widthC, this.versions[sysname].dimensions.x * this.config.scale, this.versions[sysname].dimensions.y * this.config.scale);
 
         // Store legend Information
         this.versions[sysname].legendData["gridData"]["gridA"]["width"] = widthA;
@@ -1211,7 +1211,6 @@ class CartMap {
         // Adjust height of legendSVG
         legendSVG.attr("height", legendSVGHeight + 30);
         // Leave 70px for Creative Commons icon
-        legendSVG.attr('width', this.width - 90);
 
         // Verify if legend is accurate
         this.verifyLegend(sysname, width, scaleNiceNumber * Math.pow(10, scalePowerOf10));
@@ -1535,7 +1534,6 @@ class CartMap {
         // Adjust height of legendSVG
         legendSVG.attr("height", legendSVGHeight + 30);
         // Leave 70px for Creative Commons icon
-        legendSVG.attr('width', this.width - 90);
 
         // Set "y" of total value text to be 20px below the top of the square.
         const totalValue = legendSVG.append('text')
@@ -1743,236 +1741,87 @@ class CartMap {
      */
     addVersion(sysname, data) {
         
-        
-
-        // if(this.versions.hasOwnProperty(sysname)) {
-        //     delete this.versions[sysname];
-        // }
-
-        // // Here we perform the area equalization.
-        // // We take the largest map version, and scale all others to have the same dimensions.
-
-        // /**
-        //  * @type {Object.<string, {x: number, y: number}>}
-        //  */
-        // var scale_factors = {};
-
-        // var max_height = 0.0;
-        // var max_width = 0.0;
-
-        // Object.keys(this.versions).forEach(function(version_sysname){
-
-        //     var width = this.versions[version_sysname].extrema.max_x - this.versions[version_sysname].extrema.min_x;
-        //     var height = this.versions[version_sysname].extrema.max_y - this.versions[version_sysname].extrema.min_y;
-
-        //     if(width > max_width) {
-        //         max_width = width;
-        //     }
-
-        //     if(height > max_height) {
-        //         max_height = height;
-        //     }
-
-        // }, this);
-
-        // var new_version_width = data.extrema.max_x - data.extrema.min_x;
-        // var new_version_height = data.extrema.max_y - data.extrema.min_y;
-
-        // if(new_version_width > max_width) {
-        //     max_width = new_version_width;
-        // }
-
-        // if(new_version_height > max_height) {
-        //     max_height = new_version_height;
-        // }
-
-        // if(max_width > 400.0) {
-        //     var max_width_old = max_width;
-        //     max_width = 400.0;
-        //     max_height = (max_width / max_width_old) * max_height;
-        // }
-
-        // if(max_height > 500.0) {
-        //     var max_height_old = max_height;
-        //     max_height = 500.0;
-        //     max_width = (max_height / max_height_old) * max_width;
-        // }
-
-        // this.width = max_width * this.config.scale;
-        // this.height = max_height * this.config.scale;
-
-        // Object.keys(this.versions).forEach(function(version_sysname){
-
-        //     var width = this.versions[version_sysname].extrema.max_x - this.versions[version_sysname].extrema.min_x;
-        //     var height = this.versions[version_sysname].extrema.max_y - this.versions[version_sysname].extrema.min_y;
-
-        //     scale_factors[version_sysname] = {x: max_width / width * this.config.scale, y: max_height / height * this.config.scale};
-
-        // }, this);
-
-        // scale_factors[sysname] = {x: max_width / new_version_width * this.config.scale, y: max_height / new_version_height * this.config.scale};
-
-        // Object.keys(data.regions).forEach(function(region_id){
-
-        //     var region = data.regions[region_id];
-
-        //     var polygons = region.polygons.map(polygon =>
-        //         new Polygon(
-        //             polygon.id,
-        //             /*d3.svg.line()
-        //                 .x(d => scale_factors[sysname].x * (-1*(data.extrema.min_x) + d[0]))
-        //                 .y(d => scale_factors[sysname].y * ((data.extrema.max_y) - d[1]))
-        //                 .interpolate("linear")(polygon.coordinates),*/
-        //             SVG.lineFunction(
-        //                 d => scale_factors[sysname].x * (-1*(data.extrema.min_x) + d[0]),
-        //                 d => scale_factors[sysname].y * ((data.extrema.max_y) - d[1]),
-        //                 polygon.coordinates,
-        //                 polygon.holes
-        //             ),
-        //             polygon.coordinates,
-        //             polygon.holes
-
-        //         )
-        //     );
-
-        //     // Create the region if it doesn't exist.
-        //     // This should only happen when adding the first map version.
-        //     if(!this.regions.hasOwnProperty(region_id)) {
-
-        //         this.regions[region_id] = new Region(region.name, region.abbreviation);
-
-        //     }
-
-        //     this.regions[region_id].addVersion(
-        //         sysname,
-        //         new RegionVersion(
-        //             data.name,
-        //             data.unit,
-        //             region.value,
-        //             polygons
-        //         )
-        //     );
-
-
-        // }, this);
-
-        // // Now we need to recompute the D3 line functions of all other map versions to ensure area equalization.
-        // Object.keys(this.versions).forEach(function(version_sysname){
-
-        //     Object.keys(this.regions).forEach(function(region_id){
-
-        //         var polygons = this.regions[region_id].versions[version_sysname].polygons.map(polygon =>
-        //             new Polygon(
-        //                 polygon.id,
-        //                 /*d3.svg.line()
-        //                     .x(d => scale_factors[version_sysname].x * (-1*(this.versions[version_sysname].extrema.min_x) + d[0]))
-        //                     .y(d => scale_factors[version_sysname].y * ((this.versions[version_sysname].extrema.max_y) - d[1]))
-        //                     .interpolate("linear")(polygon.coordinates),*/
-        //                 SVG.lineFunction(
-        //                     d => scale_factors[version_sysname].x * (-1*(this.versions[version_sysname].extrema.min_x) + d[0]),
-        //                     d => scale_factors[version_sysname].y * ((this.versions[version_sysname].extrema.max_y) - d[1]),
-        //                     polygon.coordinates,
-        //                     polygon.holes
-        //                 ),
-        //                 polygon.coordinates,
-        //                 polygon.holes
-        //             )
-        //         )
-
-        //         this.regions[region_id].versions[version_sysname].polygons = polygons;
-
-        //     }, this);
-
-        // },this);
-
-        // this.versions[sysname] = new MapVersion(
-        //     data.name,
-        //     data.extrema,
-        //     data.labels,
-        //     data.world
-        // );
-        
         if(this.versions.hasOwnProperty(sysname)) {
             delete this.versions[sysname];
         }
-
-        // Here we perform the area equalization (area equalization code is commented out). Current version tries to
-        // keep aspect ratio constant.
-        // We take the largest map version, and scale all others to have the same dimensions.
-
-        /**
-         * @type {Object.<string, {x: number, y: number}>}
-         */
+        
+       // Here, the algorithm tries to equalize maps without distorting its initial width-height proportion. We use the equal-area map
+       // as the base area, and try to make population and cartogram maps' area equal to that by scaling them up or down as necessary.
+       
         var scale_factors = {};
-        var width_height = {};
+        var version_dimensions = {};
+        
+        const CANVAS_MAX_HEIGHT = 350;
+        const CANVAS_MAX_WIDTH = 350;
+        
+        var version_height = CANVAS_MAX_HEIGHT;
+        var version_width = CANVAS_MAX_WIDTH;
 
-        var max_height = 500;
-        var max_width = 400;
+        const version_width_geojson = data.extrema.max_x - data.extrema.min_x;
+        const version_height_geojson = data.extrema.max_y - data.extrema.min_y;
 
-        var new_version_width = data.extrema.max_x - data.extrema.min_x;
-        var new_version_height = data.extrema.max_y - data.extrema.min_y;
-
-        if (new_version_width >= new_version_height) {
-            let ratio_height_by_width = new_version_height/new_version_width;
-            max_height = 400 * ratio_height_by_width;
+        if (version_width_geojson >= version_height_geojson) {
+            let ratio_height_by_width = version_height_geojson/version_width_geojson;
+            version_height = CANVAS_MAX_WIDTH * ratio_height_by_width;
         } else {
-            let ratio_width_by_height = new_version_width/new_version_height;
-            max_width = 500 * ratio_width_by_height;
+            let ratio_width_by_height = version_width_geojson/version_height_geojson;
+            version_width = CANVAS_MAX_HEIGHT * ratio_width_by_height;
         }
         
         if(this.versions.hasOwnProperty("1-conventional")) {
+        
+            // Calculate the base version's area to equalise current sysname's area
+            const base_version_geojson_area = this.getTotalAreasAndValuesForVersion("1-conventional")[0]
+            const base_version_width_geojson = this.versions["1-conventional"].extrema.max_x - this.versions["1-conventional"].extrema.min_x
+            const base_version_height_geojson = this.versions["1-conventional"].extrema.max_y - this.versions["1-conventional"].extrema.min_y
+            const base_version_width = this.versions["1-conventional"].dimensions.x
+            const base_version_height = this.versions["1-conventional"].dimensions.y
+            const area_factor = (base_version_height_geojson/base_version_height) * (base_version_width_geojson/base_version_width)
+            const base_version_area = base_version_geojson_area / area_factor;
             
-            var equalAreaMapArea = this.getTotalAreasAndValuesForVersion("1-conventional")[0]
-            
-            var totalArea = 0;
+            // Calculate current sysname's area
+            var version_total_area_geojson = 0;
             Object.keys(data.regions).forEach(function(region_id){
-                var region = data.regions[region_id];
+                let region = data.regions[region_id];
 
-                var areaValue = 0;
+                let version_area_value_geojson = 0;
                 region.polygons.forEach(function(polygon){
                     const coordinates = polygon.coordinates;
-    
-                    areaValue += Math.abs(d3.polygonArea(coordinates));
-    
+
+                    version_area_value_geojson += Math.abs(d3.polygonArea(coordinates));
+
                     polygon.holes.forEach(function(hole){
-    
-                        areaValue -= Math.abs(d3.polygonArea(hole));
-    
+
+                        version_area_value_geojson -= Math.abs(d3.polygonArea(hole));
+
                     }, this);
-    
+
                 }, this);
-                totalArea += areaValue;
+                version_total_area_geojson += version_area_value_geojson;
                 
             },this); 
-            // let factor_ratio = equalAreaMapArea/
-            // max_width = 
-            console.log("Sysname: ", sysname, " Area: ", totalArea/((new_version_width/ max_width) * (new_version_height/max_height) ))
+            
+            var version_area =  version_total_area_geojson/((version_width_geojson/ version_width) * (version_height_geojson/version_height));
+            const equalization_factor = base_version_area/version_area;
+            
+            //Update the version_width and version_height with new equalised values
+            version_width = version_width * Math.sqrt(equalization_factor) ;
+            version_height = version_height * Math.sqrt(equalization_factor);
+            
+            // Diagnostic check to see if areas are equal
+            version_area =  version_total_area_geojson/((version_width_geojson/ version_width) * (version_height_geojson/version_height));
+            console.log( sysname, " Area: ", version_area)
+            console.log( "1-conventional Area:", base_version_area)
         }
+    
+            
+        // this.width = version_width * this.config.scale;
+        // this.height = version_height * this.config.scale;
+                
        
-
-        this.width = max_width * this.config.scale;
-        this.height = max_height * this.config.scale;
-
-        width_height = {x: this.width, y: this.height};
-
-        // Commenting out since we no longer are doing area equalization
-        // Object.keys(this.versions).forEach(function(version_sysname){
-
-        //     var width = this.versions[version_sysname].extrema.max_x - this.versions[version_sysname].extrema.min_x;
-        //     var height = this.versions[version_sysname].extrema.max_y - this.versions[version_sysname].extrema.min_y;
-
-        //     // Keeping aspect ratio same for all maps with keeping in mind that all three maps are
-        //     // within 520 by 650 pixel boundary
-        //     if (max_width >= max_height){
-        //         scale_factors[version_sysname] = {x: max_width / width * this.config.scale, y: max_width / width * this.config.scale};
-        //     } else {
-        //         scale_factors[version_sysname] = {x: max_height / height * this.config.scale, y: max_height / height * this.config.scale};
-        //     }
-
-        // }, this);
-
-        scale_factors[sysname] = {x: max_width / new_version_width * this.config.scale, y: max_height / new_version_height * this.config.scale};
-
+        scale_factors[sysname] = {x: (version_width * this.config.scale) / version_width_geojson, y: (version_height * this.config.scale) / version_height_geojson};
+        version_dimensions = {x: version_width, y: version_height};
+        
         Object.keys(data.regions).forEach(function(region_id){
 
             var region = data.regions[region_id];
@@ -2020,9 +1869,9 @@ class CartMap {
         this.versions[sysname] = new MapVersion(
             data.name,
             data.extrema,
+            version_dimensions,
             data.labels,
-            data.world,
-            width_height
+            data.world
         );
     }
 
@@ -2085,7 +1934,9 @@ class CartMap {
     drawVersion(sysname, element_id, where_drawn) {
         var map_container = document.getElementById(element_id);
         var version = this.versions[sysname];
-
+        var version_width = this.versions[sysname].dimensions.x * this.config.scale
+        var version_height = this.versions[sysname].dimensions.y * this.config.scale
+        
         // Empty the map container element
         while(map_container.firstChild) {
             map_container.removeChild(map_container.firstChild);
@@ -2093,8 +1944,8 @@ class CartMap {
 
         var canvas = d3.select('#' + element_id).append("svg")
             .attr("id", element_id + "-svg")
-            .attr("width", this.width)
-            .attr("height", this.height);
+            .attr("width", version_width)
+            .attr("height", version_height);
 
         var polygons_to_draw = [];
 
@@ -2227,8 +2078,8 @@ class CartMap {
                                        y2Gall,
                                        y2Ink);
 
-                const scaleX = this.width / ((version.extrema.max_x - version.extrema.min_x) * gallScale);
-                const scaleY = this.height / ((version.extrema.max_y - version.extrema.min_y) * gallScale);
+                const scaleX = version_width / ((version.extrema.max_x - version.extrema.min_x) * gallScale);
+                const scaleY = version_height / ((version.extrema.max_y - version.extrema.min_y) * gallScale);
 
                 var text = canvas.selectAll("text")
                     .data(labels.labels)
@@ -2257,9 +2108,9 @@ class CartMap {
             } else {
                 // Label transformation for non-World Maps.
 
-                var scale_x = this.width / ((version.extrema.max_x - version.extrema.min_x) * labels.scale_x);
-                var scale_y = this.height / ((version.extrema.max_y - version.extrema.min_y) * labels.scale_y);
-
+                var scale_x = version_width / ((version.extrema.max_x - version.extrema.min_x) * labels.scale_x);
+                var scale_y = version_height / ((version.extrema.max_y - version.extrema.min_y) * labels.scale_y);
+                
                 var text = canvas.selectAll("text")
                     .data(labels.labels)
                     .enter()
@@ -2286,6 +2137,7 @@ class CartMap {
 
             }
         }
+                
     }
 
     /**
