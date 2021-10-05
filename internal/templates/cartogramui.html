@@ -1,3 +1,4 @@
+
 <style>
     {#.world-border > svg {#}
     {#    border: 1px solid black;#}
@@ -22,25 +23,58 @@
     .bar{
         fill: steelblue;
     }
+
     .bar:hover{
         fill: brown;
     }
+
     .axis {
     font: 11px sans-serif;
     }
+
     .axis path,
     .axis line {
     fill: none;
     stroke: #000;
     shape-rendering: crispEdges;
     }
+
+    .customise-popup {
+      color: white;
+      border: 5px solid #d76127;
+      background-color: #d76127;
+      padding: 3px;
+      position: absolute;
+      margin-bottom: 10px;
+      margin-top: -10px;
+      border-radius: 1.2rem;
+      width: 180px;
+      z-index: 1000;
+    }
+
+    .checkbox-customise {
+      cursor: pointer;
+    }
+
+    /* We use the following attributes so that clicking the checkbox text doesn't select them */
+    .checkbox-label {
+      cursor: pointer;
+      -moz-user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -o-user-select: none;
+    }
+
     #barchart svg {
         overflow: visible !important;
     }
+
     #barchart text.label {
         font-size: .8rem;
         letter-spacing: -0.01rem;
     }
+
     #tooltip {
       display: none;
       background: rgba(255,255,255,0.7);
@@ -55,7 +89,6 @@
       left: 0;
       z-index: 1000;
     }
-
 
     @media screen and (min-width:1600px) {
         .main-content {
@@ -79,8 +112,9 @@
         width: 960px;
         height: 450px;
     }
-    
-</style> 
+
+
+</style>
 
 
 <p id="tooltip">&nbsp;</p>
@@ -189,63 +223,69 @@
 
       <div id="cartogram">
         <div class="row" id="cartogram-row">
-
           <div class="col-md-6" >
-              
               <div style="height: 40px">
                   <h4 class="mb-0">Equal-Area Map</h4>
                   <!--<p id="tooltip">&nbsp;</p>-->
-                </div>
-               
-
-               <div id = "map-area" style="margin-top: 20px"></div>
-
-              <div class="col-12">
-                  <svg width="300" height="90" id="map-area-legend"></svg>
-                  <img src="/static/creativecommons_icon.svg" width="80" alt="Creative Commons Icon" style="position: absolute; top: 10px; margin-right: 0px">
               </div>
 
-               <p style="margin-top: 20px"><a class="btn btn-primary" href="" id="map-download">Download</a></p>
+              <div id = "map-area" style="margin-top: 20px" data-grid-visibility="off"></div>
+              <div style="padding-left: 0; padding-top: 10px" class="col-12"> <!-- padding-top to add spacing between mapSVG and legend -->
+                <svg width="375" height="90" id="map-area-legend" data-legend-type="static" data-current-grid-path="gridA"></svg>
+                <img src="/static/creativecommons_icon.svg" width="80" alt="Creative Commons Icon" style="position: absolute; top: 10px; margin-right: 0px">
+              </div>
 
+              <div class="d-flex">
+                <p style="margin-top: 20px; color: white; cursor: pointer" class="d-inline-block"><a class="btn btn-primary btn-customise"
+                     id="map-customise">Customise</a></p>
+                <p style="margin-top: 20px; margin-left: 10px"><a class="btn btn-primary" href="" id="map-download">Download</a></p>
+              </div>
+
+              <div style="display: none" class="customise-popup" id="map-customise-popup">
+                <form class="customise-container">
+                  <input type="checkbox" class="checkbox-customise" id="gridline-toggle-map" name="gridline" value="false" autocomplete="off">
+                  <label class="checkbox-label" for="gridline-toggle-map">Show Gridlines</label><br>
+                  <input type="checkbox" class="checkbox-customise" id="legend-toggle-map" name="legend" value="false" autocomplete="off">
+                  <label class="checkbox-label" for="legend-toggle-map">Resizable Legend</label>
+                </form>
+              </div>
           </div>
 
           <div class="col-md-6" id="cartogram-container">
-             
+
               <div style="height: 40px">
                   <div class="d-flex align-items-center">
                       <h4 class="d-inline-block mb-0">Cartogram</h4>
                       <div id="map2-switch" class="ml-2">
                           <div  id="map2-switch-buttons"></div>
-                        </div>
-                      
+                      </div>
                   </div>
-                
-                </div>
+              </div>
 
-                <div id = "cartogram-area" style="margin-top: 20px"></div>
+              <div id = "cartogram-area" style="margin-top: 20px" data-grid-visibility="off"></div>
+              <div style="padding-left: 0; padding-top: 10px" class="col-12">
+                <svg width="375" height="90" id="cartogram-area-legend" data-legend-type="static" data-current-grid-path="gridA"></svg>
+                <img src="/static/creativecommons_icon.svg" width="80" alt="Creative Commons Icon" style="position: absolute; top: 10px; margin-right: 0px">
+              </div>
 
-                <div class="col-12">
-                    <svg width="300" height="90" id="cartogram-area-legend"></svg>
-                    <img src="/static/creativecommons_icon.svg" width="80" alt="Creative Commons Icon" style="position: absolute; top: 10px; margin-right: 0px">
-                </div>
-                <div class="col-4">
+              <div class="d-flex">
+                  <p style="margin-top: 20px; color: white; cursor: pointer;" class="d-inline-block"><a class="btn btn-primary btn-customise"
+                    id="cartogram-customise">Customise</a></p>
+                  <p style="margin-top: 20px; margin-left: 10px" class="d-inline-block"><a class="btn btn-primary" href="" download="" id="cartogram-download">Download</a></p>
+                  <p style="margin-top: 20px; margin-left: 10px" class="d-inline-block"><a class="btn btn-info mr-2 text-light" href="" data-toggle="modal" data-target="#share-modal">Share</a></p>
+              </div>
 
-                </div>
-
-                <div class="d-flex">
-                    <p style="margin-top: 20px" class="d-inline-block"><a class="btn btn-info mr-2 text-light" href="" data-toggle="modal" data-target="#share-modal" >Share</a></p>
-                    <p style="margin-top: 20px" class="d-inline-block"><a class="btn btn-primary" href="" download="" id="cartogram-download">Download</a></p>
-                </div>
-                
-
-
+              <div style="display: none" class="customise-popup" id="cartogram-customise-popup">
+                <form class="customise-container">
+                  <input type="checkbox" class="checkbox-customise" id="gridline-toggle-cartogram" name="gridline" value="false" autocomplete="off">
+                  <label class="checkbox-label" for="gridline-toggle-cartogram">Show Gridlines</label><br>
+                  <input type="checkbox" class="checkbox-customise" id="legend-toggle-cartogram" name="legend" value="false" autocomplete="off">
+                  <label class="checkbox-label" for="legend-toggle-cartogram">Resizable Legend</label>
+                </form>
+              </div>
           </div>
-        
-
       </div>
-
       <span id="map1-switch"></span>
-
       </div>
 </div>
 
@@ -275,7 +315,7 @@
       </div>
     </div>
   </div>
-     
+
   <div class="modal fade" id="share-modal" tabindex="-1" role="dialog" aria-hidden="true">
       <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -329,7 +369,6 @@
             <p class="text-primary">Gastner MT, Seguy V, More P. Fast flow-based algorithm for creating
               density-equalizing map projections. Proc Natl Acad Sci USA 115(10):E2156–E2164 (2018).</p>
 	    </div>
-	    
           </div>
           <!--<div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -338,6 +377,3 @@
         </div>
       </div>
     </div>
-
-
-    

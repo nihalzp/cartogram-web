@@ -56,6 +56,33 @@
       text-decoration-color: #D76127;
       color: #D76127 !important;
     }
+    
+    .customise-popup {
+      color: white;
+      border: 5px solid #d76127;
+      background-color: #d76127;
+      padding: 3px;
+      position: absolute;
+      margin-bottom: 10px;
+      margin-top: -10px;
+      border-radius: 1.2rem;
+      width: 180px;
+      z-index: 1000;
+    }
+
+    .checkbox-customise {
+      cursor: pointer;
+    }
+
+    /* We use the following attributes so that clicking the checkbox text doesn't select them */
+    .checkbox-label {
+      cursor: pointer;
+      -moz-user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -o-user-select: none;
+    }
 
     footer p {
       font-size: small;
@@ -220,14 +247,25 @@
             </div>
             
 
-            <div id="map-area" style="margin-top: 20px"></div>
+            <div id="map-area" style="margin-top: 20px" data-grid-visibility="off"></div>
 	    
-            <div class="col-12">
-              <svg height="90" id="map-area-legend"></svg>
+            <div style="padding-left: 0;" class="col-12">
+              <svg width="375" height="90" id="map-area-legend" data-legend-type="static" data-current-grid-path="gridA"></svg>
             </div>
-	    
+            
+            <p style="margin-top: 20px; color: white; cursor: pointer" class="d-inline-block"><a class="btn btn-primary btn-customise"
+              id="map-customise">Customise</a></p>
             <p style="margin-top: 20px; display: none"><a class="btn btn-primary" href="" id="map-download">Download</a></p>
-	    
+              
+            <div style="display: none" class="customise-popup" id="map-customise-popup">
+              <form class="customise-container">
+                <input type="checkbox" class="checkbox-customise" id="gridline-toggle-map" name="gridline" value="false" autocomplete="off">
+                <label class="checkbox-label" for="gridline-toggle-map">Show Gridlines</label><br>
+                <input type="checkbox" class="checkbox-customise" id="legend-toggle-map" name="legend" value="false" autocomplete="off">
+                <label class="checkbox-label" for="legend-toggle-map">Resizable Legend</label>
+              </form>
+            </div>
+            
           </div>
 	  
           <div class="col-md-6" id="cartogram-container">
@@ -243,15 +281,26 @@
               
             </div>
 	    
-            <div id = "cartogram-area" style="margin-top: 20px"></div>
+            <div id = "cartogram-area" style="margin-top: 20px" data-grid-visibility="off"></div>
 	    
-            <div class="col-12">
-              <svg height="90" id="cartogram-area-legend"></svg>
+            <div style="padding-left: 0;" class="col-12">
+              <svg width="375" height="90" id="cartogram-area-legend" data-legend-type="static" data-current-grid-path="gridA"></svg>
             </div>
-	    
+
+            <p style="margin-top: 20px; color: white; cursor: pointer;" class="d-inline-block"><a class="btn btn-primary btn-customise"
+              id="cartogram-customise">Customise</a></p>
             <div style="display: none">
               <p style="margin-top: 20px" class="d-inline-block"><a class="btn btn-info mr-2 text-light" href="" data-toggle="modal" data-target="#share-modal" >Share</a></p>
               <p style="margin-top: 20px" class="d-inline-block"><a class="btn btn-primary" href="" download="" id="cartogram-download">Download</a></p>
+            </div>
+            
+            <div style="display: none" class="customise-popup" id="cartogram-customise-popup">
+              <form class="customise-container">
+                <input type="checkbox" class="checkbox-customise" id="gridline-toggle-cartogram" name="gridline" value="false" autocomplete="off">
+                <label class="checkbox-label" for="gridline-toggle-cartogram">Show Gridlines</label><br>
+                <input type="checkbox" class="checkbox-customise" id="legend-toggle-cartogram" name="legend" value="false" autocomplete="off">
+                <label class="checkbox-label" for="legend-toggle-cartogram">Resizable Legend</label>
+              </form>
             </div>
           </div>
         </div>
@@ -349,7 +398,7 @@
 
     window.cartogram = new Cartogram("{{cartogram_url}}", "{{cartogramui_url}}", "{{cartogram_data_dir}}", "{{url_for('gridedit')}}", "{{getprogress_url}}", "{{cartogram_version}}", 0.9);
 
-    window.cartogram.switchMap("{{map_name}}", "");
+    window.cartogram.switchMap("{{map_name}}", "", null, null, null, true);
     
     };
   </script>
