@@ -1388,8 +1388,6 @@ class CartMap {
             // Update currentGridPath in SVG Data
             document.getElementById(legendSVGID).dataset.currentGridPath = "gridC";
             
-            localStorage.setItem(legendSVGID + "-current-grid-path", "gridC")
-
             d3.select("#" + legendSVGID + "C").attr('fill', '#FFFFFF');
             d3.select("#" + legendSVGID + "B").attr('fill', '#FFFFFF');
             d3.select("#" + legendSVGID + "A").attr('fill', '#FFFFFF');
@@ -1407,8 +1405,6 @@ class CartMap {
             // Update currentGridPath in SVG Data
             document.getElementById(legendSVGID).dataset.currentGridPath = "gridB";
             
-            localStorage.setItem(legendSVGID + "-current-grid-path", "gridB")
-
             d3.select("#" + legendSVGID + "C").attr('fill', '#EEEEEE');
             d3.select("#" + legendSVGID + "B").attr('fill', '#FFFFFF');
             d3.select("#" + legendSVGID + "A").attr('fill', '#FFFFFF');
@@ -1426,8 +1422,6 @@ class CartMap {
             // Update currentGridPath in SVG Data
             document.getElementById(legendSVGID).dataset.currentGridPath = "gridA";
             
-            localStorage.setItem(legendSVGID + "-current-grid-path", "gridA")
-
             d3.select("#" + legendSVGID + "C").attr('fill', '#EEEEEE');
             d3.select("#" + legendSVGID + "B").attr('fill', '#EEEEEE');
             d3.select("#" + legendSVGID + "A").attr('fill', '#FFFFFF');
@@ -3236,7 +3230,6 @@ class Cartogram {
                         .duration(500)
                         .attr("stroke-opacity", 0.4)
                     document.getElementById("map-area").dataset.gridVisibility = "on";
-                    localStorage.setItem("map-area-grid-visibility", "on");
                 }
                 else {
                     d3.select("#map-area-grid").transition()
@@ -3244,7 +3237,6 @@ class Cartogram {
                         .duration(500)
                         .attr("stroke-opacity", 0)
                     document.getElementById("map-area").dataset.gridVisibility = "off";
-                    localStorage.setItem("map-area-grid-visibility", "off");
                 }
             })
 
@@ -3256,7 +3248,6 @@ class Cartogram {
                         .duration(500)
                         .attr("stroke-opacity", 0.4)
                     document.getElementById("cartogram-area").dataset.gridVisibility = "on";
-                    localStorage.setItem("cartogram-area-grid-visibility", "on");
                 }
                 else {
                     d3.select("#cartogram-area-grid").transition()
@@ -3264,7 +3255,6 @@ class Cartogram {
                         .duration(500)
                         .attr("stroke-opacity", 0)
                     document.getElementById("cartogram-area").dataset.gridVisibility = "off";
-                    localStorage.setItem("cartogram-area-grid-visibility", "off");
                 }
             })
             
@@ -3273,22 +3263,18 @@ class Cartogram {
         d3.select("#legend-toggle-cartogram").on("change", () => {
             if (d3.select("#legend-toggle-cartogram").property("checked")) {
                 this.model.map.drawResizableLegend(sysname, "cartogram-area-legend");
-                localStorage.setItem("cartogram-area-legend-type", "resizable")
             }
             else {
                 this.model.map.drawLegend(sysname, "cartogram-area-legend");
-                localStorage.setItem("cartogram-area-legend-type", "static")
             }
         })
     
         d3.select("#legend-toggle-map").on("change", () => {
             if (d3.select("#legend-toggle-map").property("checked")) {
                 this.model.map.drawResizableLegend('1-conventional', "map-area-legend");
-                localStorage.setItem("map-area-legend-type", "resizable")
             }
             else {
                 this.model.map.drawLegend('1-conventional', "map-area-legend");
-                localStorage.setItem("map-area-legend-type", "static")
             }
         })
     }
@@ -3730,24 +3716,6 @@ class Cartogram {
             this.displayVersionSwitchButtons();
             this.displayCustomisePopup(this.model.current_sysname);
             this.updateGridDocument(mappack.griddocument);
-            
-            if(embed == true) {
-                //Update UI state information in embed.html
-                document.getElementById("map-area-legend").dataset.legendType = localStorage.getItem("map-area-legend-type")
-                document.getElementById("map-area-legend").dataset.currentGridPath = localStorage.getItem("map-area-legend-current-grid-path")
-                document.getElementById("cartogram-area-legend").dataset.legendType = localStorage.getItem("map-area-legend-type")
-                document.getElementById("cartogram-area-legend").dataset.currentGridPath = localStorage.getItem("cartogram-area-legend-current-grid-path")
-                document.getElementById("map-area").dataset.gridVisibility = localStorage.getItem("map-area-grid-visibility")
-                document.getElementById("cartogram-area").dataset.gridVisibility = localStorage.getItem("cartogram-area-grid-visibility")
-            } else {
-                //Update localstorage information with current UI state information
-                localStorage.setItem("map-area-legend-type", document.getElementById("map-area-legend").dataset.legendType)
-                localStorage.setItem("map-area-legend-current-grid-path", document.getElementById("map-area-legend").dataset.currentGridPath)
-                localStorage.setItem("map-area-legend-type", document.getElementById("cartogram-area-legend").dataset.legendType)
-                localStorage.setItem("cartogram-area-legend-current-grid-path", document.getElementById("cartogram-area-legend").dataset.currentGridPath)
-                localStorage.setItem("map-area-grid-visibility", document.getElementById("map-area").dataset.gridVisibility)
-                localStorage.setItem("cartogram-area-grid-visibility", document.getElementById("cartogram-area").dataset.gridVisibility)
-            }
             
             let selectedLegendTypeMap = document.getElementById("map-area-legend").dataset.legendType;
             let selectedLegendTypeCartogram = document.getElementById("cartogram-area-legend").dataset.legendType;
