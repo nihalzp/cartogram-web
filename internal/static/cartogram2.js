@@ -3050,45 +3050,21 @@ class Cartogram {
 
                         if(progress.progress === null)
                         {
+                            cartogram_inst.updateProgressBar(5, 100, 8);
                             return;
                         }
 
-                        if(cartogram_inst.model.loading_state === null) {
+                        let percentage = Math.floor(progress.progress * 100);
 
-                            cartogram_inst.model.loading_state = Math.log10(progress.progress);
-                            cartogram_inst.updateProgressBar(0, 100, 5);
+                        cartogram_inst.updateProgressBar(5, 100, percentage);
 
-                        } else {
-
-                            if(progress.progress < 0.01) {
-                                progress.progress = 0.01
-                            }
-
-                            if(progress.progress > cartogram_inst.model.loading_state) {
-                                progress.progress = cartogram_inst.model.loading_state;
-                            }
-
-                            /*console.log("progress: " + progress.progress);
-                            console.log("distance: " + Math.abs(cartogram_inst.model.loading_state - Math.log10(progress.progress)));
-                            console.log("area: " + Math.abs(cartogram_inst.model.loading_state - (-2)));*/
-
-
-                            var percentage = Math.floor(Math.abs(cartogram_inst.model.loading_state - Math.log10(progress.progress)) / Math.abs(cartogram_inst.model.loading_state - (-2))*100);
-
-                            /*console.log("percentage: " + percentage);
-                            console.log("");*/
-
-                            cartogram_inst.updateProgressBar(5, 100, percentage);
-
-                            cartogram_inst.setExtendedErrorInfo(progress.stderr);
-                        }
+                        cartogram_inst.setExtendedErrorInfo(progress.stderr);
 
                     });
 
                 };
-
             }(this, unique_sharing_key), 500);
-
+            
             // HTTP.streaming(
             //     this.config.cartogram_url,
             //     "POST",
