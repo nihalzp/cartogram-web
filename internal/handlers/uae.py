@@ -22,13 +22,14 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Abu Dhabi
-2 {} Ajman
-3 {} Dubai
-4 {} Fujairah
-5 {} Ras Al-Khaimah
-6 {} Sharjah
-7 {} Umm Al-Quwain""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Abu Dhabi,
+2,{},Ajman,
+3,{},Dubai,
+4,{},Fujairah,
+5,{},Ras Al-Khaimah,
+6,{},Sharjah,
+7,{},Umm Al-Quwain,""".format(*values)
     
     def expect_geojson_output(self):
         return True

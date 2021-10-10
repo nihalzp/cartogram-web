@@ -22,20 +22,21 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Attica
-2 {} Central Greece
-3 {} Central Macedonia
-4 {} Crete
-5 {} East Macedonia and Thrace
-6 {} Epirus
-7 {} Ionian Islands
-8 {} Mount Athos
-9 {} North Aegean
-10 {} Peloponnese
-11 {} South Aegean
-12 {} Thessaly
-13 {} West Greece
-14 {} West Macedonia""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Attica,
+2,{},Central Greece,
+3,{},Central Macedonia,
+4,{},Crete,
+5,{},East Macedonia and Thrace,
+6,{},Epirus,
+7,{},Ionian Islands,
+8,{},Mount Athos,
+9,{},North Aegean,
+10,{},Peloponnese,
+11,{},South Aegean,
+12,{},Thessaly,
+13,{},West Greece,
+14,{},West Macedonia,""".format(*values)
     
     def expect_geojson_output(self):
         return True

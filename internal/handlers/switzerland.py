@@ -22,32 +22,33 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Aargau
-2 {} Appenzell Ausserrhoden
-3 {} Appenzell Innerrhoden
-4 {} Basel-Landschaft
-5 {} Basel-Stadt
-6 {} Bern
-7 {} Fribourg
-8 {} Geneva
-9 {} Glarus
-10 {} Graubunden
-11 {} Jura
-12 {} Lucerne
-13 {} Neuchatel
-14 {} Nidwalden
-15 {} Obwalden
-16 {} Sankt Gallen
-17 {} Schaffhausen
-18 {} Schwyz
-19 {} Solothurn
-20 {} Thurgau
-21 {} Ticino
-22 {} Uri
-23 {} Valais
-24 {} Vaud
-25 {} Zug
-26 {} Zurich""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Aargau,
+2,{},Appenzell Ausserrhoden,
+3,{},Appenzell Innerrhoden,
+4,{},Basel-Landschaft,
+5,{},Basel-Stadt,
+6,{},Bern,
+7,{},Fribourg,
+8,{},Geneva,
+9,{},Glarus,
+10,{},Graubunden,
+11,{},Jura,
+12,{},Lucerne,
+13,{},Neuchatel,
+14,{},Nidwalden,
+15,{},Obwalden,
+16,{},Sankt Gallen,
+17,{},Schaffhausen,
+18,{},Schwyz,
+19,{},Solothurn,
+20,{},Thurgau,
+21,{},Ticino,
+22,{},Uri,
+23,{},Valais,
+24,{},Vaud,
+25,{},Zug,
+26,{},Zurich,""".format(*values)
     
     def expect_geojson_output(self):
         return True

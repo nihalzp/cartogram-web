@@ -22,14 +22,15 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Barisal
-2 {} Chittagong
-3 {} Dhaka
-4 {} Khulna
-5 {} Mymensingh
-6 {} Rajshahi
-7 {} Rangpur
-8 {} Sylhet""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Barisal,
+2,{},Chittagong,
+3,{},Dhaka,
+4,{},Khulna,
+5,{},Mymensingh,
+6,{},Rajshahi,
+7,{},Rangpur,
+8,{},Sylhet,""".format(*values)
     
     def expect_geojson_output(self):
         return True

@@ -22,32 +22,33 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Amazonas
-2 {} Ancash
-3 {} Apurimac
-4 {} Arequipa
-5 {} Ayacucho
-6 {} Cajamarca
-7 {} Callao
-8 {} Cusco
-9 {} Huancavelica
-10 {} Huanuco
-11 {} Ica
-12 {} Junin
-13 {} La Libertad
-14 {} Lambayeque
-15 {} Lima
-16 {} Lima Province
-17 {} Loreto
-18 {} Madre de Dios
-19 {} Moquegua
-20 {} Pasco
-21 {} Piura
-22 {} Puno
-23 {} San Martin
-24 {} Tacna
-25 {} Tumbes
-26 {} Ucayali""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Amazonas,
+2,{},Ancash,
+3,{},Apurimac,
+4,{},Arequipa,
+5,{},Ayacucho,
+6,{},Cajamarca,
+7,{},Callao,
+8,{},Cusco,
+9,{},Huancavelica,
+10,{},Huanuco,
+11,{},Ica,
+12,{},Junin,
+13,{},La Libertad,
+14,{},Lambayeque,
+15,{},Lima,
+16,{},Lima Province,
+17,{},Loreto,
+18,{},Madre de Dios,
+19,{},Moquegua,
+20,{},Pasco,
+21,{},Piura,
+22,{},Puno,
+23,{},San Martin,
+24,{},Tacna,
+25,{},Tumbes,
+26,{},Ucayali,""".format(*values)
     
     def expect_geojson_output(self):
         return True

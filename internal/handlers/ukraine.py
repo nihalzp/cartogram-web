@@ -22,33 +22,34 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Cherkasy
-2 {} Chernihiv
-3 {} Chernivtsi
-4 {} Crimea
-5 {} Dnipropetrovsk
-6 {} Donetsk
-7 {} Ivano-Frankivsk
-8 {} Kharkiv
-9 {} Kherson
-10 {} Khmelnytskyi
-11 {} Kiev
-12 {} Kiev City
-13 {} Kirovohrad
-14 {} Lviv
-15 {} Luhansk
-16 {} Mykolayiv
-17 {} Odessa
-18 {} Poltava
-19 {} Rivne
-20 {} Sevastopol
-21 {} Sumy
-22 {} Ternopil
-23 {} Transcarpathia
-24 {} Vinnytsya
-25 {} Volyn
-26 {} Zaporizhzhya
-27 {} Zhytomyr""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Cherkasy,
+2,{},Chernihiv,
+3,{},Chernivtsi,
+4,{},Crimea,
+5,{},Dnipropetrovsk,
+6,{},Donetsk,
+7,{},Ivano-Frankivsk,
+8,{},Kharkiv,
+9,{},Kherson,
+10,{},Khmelnytskyi,
+11,{},Kiev,
+12,{},Kiev City,
+13,{},Kirovohrad,
+14,{},Lviv,
+15,{},Luhansk,
+16,{},Mykolayiv,
+17,{},Odessa,
+18,{},Poltava,
+19,{},Rivne,
+20,{},Sevastopol,
+21,{},Sumy,
+22,{},Ternopil,
+23,{},Transcarpathia,
+24,{},Vinnytsya,
+25,{},Volyn,
+26,{},Zaporizhzhya,
+27,{},Zhytomyr,""".format(*values)
     
     def expect_geojson_output(self):
         return True

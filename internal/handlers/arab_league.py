@@ -22,28 +22,29 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Algeria
-2 {} Bahrain
-3 {} Comoros
-4 {} Djibouti
-5 {} Egypt
-6 {} Iraq
-7 {} Jordan
-8 {} Kuwait
-9 {} Lebanon
-10 {} Libya
-11 {} Mauritania
-12 {} Morocco
-13 {} Oman
-14 {} Palestine
-15 {} Qatar
-16 {} Saudi Arabia
-17 {} Somalia
-18 {} Sudan
-19 {} Syria
-20 {} Tunisia
-21 {} United Arab Emirates
-22 {} Yemen""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Algeria,
+2,{},Bahrain,
+3,{},Comoros,
+4,{},Djibouti,
+5,{},Egypt,
+6,{},Iraq,
+7,{},Jordan,
+8,{},Kuwait,
+9,{},Lebanon,
+10,{},Libya,
+11,{},Mauritania,
+12,{},Morocco,
+13,{},Oman,
+14,{},Palestine,
+15,{},Qatar,
+16,{},Saudi Arabia,
+17,{},Somalia,
+18,{},Sudan,
+19,{},Syria,
+20,{},Tunisia,
+21,{},United Arab Emirates,
+22,{},Yemen,""".format(*values)
     
     def expect_geojson_output(self):
         return True

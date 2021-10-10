@@ -22,27 +22,28 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Bjelovar-Bilogora
-2 {} Brod-Posavina
-3 {} Dubrovnik-Neretva
-4 {} City of Zagreb
-5 {} Istria
-6 {} Karlovac
-7 {} Koprivnica-Krizevci
-8 {} Krapina-Zagorje
-9 {} Lika-Senj
-10 {} Medimurje
-11 {} Osijek-Baranja
-12 {} Pozega-Slavonia
-13 {} Primorje-Gorski Kotar
-14 {} Sibenik-Knin
-15 {} Sisak-Moslavina
-16 {} Split-Dalmatia
-17 {} Varazdin
-18 {} Virovitica-Podravina
-19 {} Vukovar-Srijem
-20 {} Zadar
-21 {} Zagreb County""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Bjelovar-Bilogora,
+2,{},Brod-Posavina,
+3,{},Dubrovnik-Neretva,
+4,{},City of Zagreb,
+5,{},Istria,
+6,{},Karlovac,
+7,{},Koprivnica-Krizevci,
+8,{},Krapina-Zagorje,
+9,{},Lika-Senj,
+10,{},Medimurje,
+11,{},Osijek-Baranja,
+12,{},Pozega-Slavonia,
+13,{},Primorje-Gorski Kotar,
+14,{},Sibenik-Knin,
+15,{},Sisak-Moslavina,
+16,{},Split-Dalmatia,
+17,{},Varazdin,
+18,{},Virovitica-Podravina,
+19,{},Vukovar-Srijem,
+20,{},Zadar,
+21,{},Zagreb County,""".format(*values)
     
     def expect_geojson_output(self):
         return True

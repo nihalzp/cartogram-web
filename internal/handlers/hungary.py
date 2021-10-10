@@ -22,26 +22,27 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Bacs-Kiskun
-2 {} Baranya
-3 {} Bekes
-4 {} Borsod-Abauj-Zemplen
-5 {} Budapest
-6 {} Csongrad
-7 {} Fejer
-8 {} Gyor-Moson-Sopron
-9 {} Hajdu-Bihar
-10 {} Heves
-11 {} Jasz-Nagykun-Szolnok
-12 {} Komarom-Esztergom
-13 {} Nograd
-14 {} Pest
-15 {} Somogy
-16 {} Szabolcs-Szatmar-Bereg
-17 {} Tolna
-18 {} Vas
-19 {} Veszprem
-20 {} Zala""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Bacs-Kiskun,
+2,{},Baranya,
+3,{},Bekes,
+4,{},Borsod-Abauj-Zemplen,
+5,{},Budapest,
+6,{},Csongrad,
+7,{},Fejer,
+8,{},Gyor-Moson-Sopron,
+9,{},Hajdu-Bihar,
+10,{},Heves,
+11,{},Jasz-Nagykun-Szolnok,
+12,{},Komarom-Esztergom,
+13,{},Nograd,
+14,{},Pest,
+15,{},Somogy,
+16,{},Szabolcs-Szatmar-Bereg,
+17,{},Tolna,
+18,{},Vas,
+19,{},Veszprem,
+20,{},Zala,""".format(*values)
     
     def expect_geojson_output(self):
         return True

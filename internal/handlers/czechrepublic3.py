@@ -22,20 +22,21 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} South Moravian
-2 {} South Bohemian
-3 {} Karlovy Vary
-4 {} Vysocina
-5 {} Hradec Kralove
-6 {} Liberec
-7 {} Moravian-Silesian
-8 {} Olomouc
-9 {} Pardubice
-10 {} Plzen
-11 {} Prague
-12 {} Central Bohemian
-13 {} Zlin
-14 {} Usti nad Labem""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},South Moravian,
+2,{},South Bohemian,
+3,{},Karlovy Vary,
+4,{},Vysocina,
+5,{},Hradec Kralove,
+6,{},Liberec,
+7,{},Moravian-Silesian,
+8,{},Olomouc,
+9,{},Pardubice,
+10,{},Plzen,
+11,{},Prague,
+12,{},Central Bohemian,
+13,{},Zlin,
+14,{},Usti nad Labem,""".format(*values)
     
     def expect_geojson_output(self):
         return True

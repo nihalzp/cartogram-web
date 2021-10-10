@@ -22,18 +22,19 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Capellen
-2 {} Clervaux
-3 {} Diekirch
-4 {} Echternach
-5 {} Esch-sur-Alzette
-6 {} Grevenmacher
-7 {} Luxembourg
-8 {} Mersch
-9 {} Redange
-10 {} Remich
-11 {} Vianden
-12 {} Wiltz""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Capellen,
+2,{},Clervaux,
+3,{},Diekirch,
+4,{},Echternach,
+5,{},Esch-sur-Alzette,
+6,{},Grevenmacher,
+7,{},Luxembourg,
+8,{},Mersch,
+9,{},Redange,
+10,{},Remich,
+11,{},Vianden,
+12,{},Wiltz,""".format(*values)
     
     def expect_geojson_output(self):
         return True

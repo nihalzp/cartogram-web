@@ -22,21 +22,22 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Ayeyarwady
-2 {} Bago
-3 {} Chin
-4 {} Kachin
-5 {} Kayah
-6 {} Kayin
-7 {} Magway
-8 {} Mandalay
-9 {} Mon
-10 {} Naypyitaw
-11 {} Rakhine
-12 {} Sagaing
-13 {} Shan
-14 {} Tanintharyi
-15 {} Yangon""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Ayeyarwady,
+2,{},Bago,
+3,{},Chin,
+4,{},Kachin,
+5,{},Kayah,
+6,{},Kayin,
+7,{},Magway,
+8,{},Mandalay,
+9,{},Mon,
+10,{},Naypyitaw,
+11,{},Rakhine,
+12,{},Sagaing,
+13,{},Shan,
+14,{},Tanintharyi,
+15,{},Yangon,""".format(*values)
     
     def expect_geojson_output(self):
         return True

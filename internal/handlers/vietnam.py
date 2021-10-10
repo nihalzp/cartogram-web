@@ -22,69 +22,70 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} An Giang
-2 {} Ba Ria - Vung Tau
-3 {} Bac Giang
-4 {} Bac Kan
-5 {} Bac Lieu
-6 {} Bac Ninh
-7 {} Ben Tre
-8 {} Binh Dinh
-9 {} Binh Duong
-10 {} Binh Phuoc
-11 {} Binh Thuan
-12 {} Ca Mau
-13 {} Can Tho
-14 {} Cao Bang
-15 {} Da Nang
-16 {} Dak Lak
-17 {} Dak Nong
-18 {} Dien Bien
-19 {} Dong Nai
-20 {} Dong Thap
-21 {} Gia Lai
-22 {} Ha Giang
-23 {} Ha Nam
-24 {} Ha Noi
-25 {} Ha Tinh
-26 {} Hai Duong
-27 {} Hai Phong
-28 {} Hau Giang
-29 {} Ho Chi Minh
-30 {} Hoa Binh
-31 {} Hung Yen
-32 {} Khanh Hoa
-33 {} Kien Giang
-34 {} Kon Tum
-35 {} Lai Chau
-36 {} Lam Dong
-37 {} Lang Son
-38 {} Lao Cai
-39 {} Long An
-40 {} Nam Dinh
-41 {} Nghe An
-42 {} Ninh Binh
-43 {} Ninh Thuan
-44 {} Phu Tho
-45 {} Phu Yen
-46 {} Quang Binh
-47 {} Quang Nam
-48 {} Quang Ngai
-49 {} Quang Ninh
-50 {} Quang Tri
-51 {} Soc Trang
-52 {} Son La
-53 {} Tay Ninh
-54 {} Thai Binh
-55 {} Thai Nguyen
-56 {} Thanh Hoa
-57 {} Thua Thien Hue
-58 {} Tien Giang
-59 {} Tra Vinh
-60 {} Tuyen Quang
-61 {} Vinh Long
-62 {} Vinh Phuc
-63 {} Yen Bai""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},An Giang,
+2,{},Ba Ria - Vung Tau,
+3,{},Bac Giang,
+4,{},Bac Kan,
+5,{},Bac Lieu,
+6,{},Bac Ninh,
+7,{},Ben Tre,
+8,{},Binh Dinh,
+9,{},Binh Duong,
+10,{},Binh Phuoc,
+11,{},Binh Thuan,
+12,{},Ca Mau,
+13,{},Can Tho,
+14,{},Cao Bang,
+15,{},Da Nang,
+16,{},Dak Lak,
+17,{},Dak Nong,
+18,{},Dien Bien,
+19,{},Dong Nai,
+20,{},Dong Thap,
+21,{},Gia Lai,
+22,{},Ha Giang,
+23,{},Ha Nam,
+24,{},Ha Noi,
+25,{},Ha Tinh,
+26,{},Hai Duong,
+27,{},Hai Phong,
+28,{},Hau Giang,
+29,{},Ho Chi Minh,
+30,{},Hoa Binh,
+31,{},Hung Yen,
+32,{},Khanh Hoa,
+33,{},Kien Giang,
+34,{},Kon Tum,
+35,{},Lai Chau,
+36,{},Lam Dong,
+37,{},Lang Son,
+38,{},Lao Cai,
+39,{},Long An,
+40,{},Nam Dinh,
+41,{},Nghe An,
+42,{},Ninh Binh,
+43,{},Ninh Thuan,
+44,{},Phu Tho,
+45,{},Phu Yen,
+46,{},Quang Binh,
+47,{},Quang Nam,
+48,{},Quang Ngai,
+49,{},Quang Ninh,
+50,{},Quang Tri,
+51,{},Soc Trang,
+52,{},Son La,
+53,{},Tay Ninh,
+54,{},Thai Binh,
+55,{},Thai Nguyen,
+56,{},Thanh Hoa,
+57,{},Thua Thien Hue,
+58,{},Tien Giang,
+59,{},Tra Vinh,
+60,{},Tuyen Quang,
+61,{},Vinh Long,
+62,{},Vinh Phuc,
+63,{},Yen Bai,""".format(*values)
     
     def expect_geojson_output(self):
         return True

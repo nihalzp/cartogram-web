@@ -22,54 +22,55 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Adrar
-2 {} Ain Defla
-3 {} Ain Temouchent
-4 {} Alger
-5 {} Annaba
-6 {} Batna
-7 {} Bechar
-8 {} Bejaia
-9 {} Biskra
-10 {} Blida
-11 {} Bordj Bou Arreridj
-12 {} Bouira
-13 {} Boumerdes
-14 {} Chlef
-15 {} Constantine
-16 {} Djelfa
-17 {} El Bayadh
-18 {} El Oued
-19 {} El Tarf
-20 {} Ghardaia
-21 {} Guelma
-22 {} Illizi
-23 {} Jijel
-24 {} Khenchela
-25 {} Laghouat
-26 {} M'Sila
-27 {} Mascara
-28 {} Medea
-29 {} Mila
-30 {} Mostaganem
-31 {} Naama
-32 {} Oran
-33 {} Ouargla
-34 {} Oum el Bouaghi
-35 {} Relizane
-36 {} Saida
-37 {} Setif
-38 {} Sidi Bel Abbes
-39 {} Skikda
-40 {} Souk Ahras
-41 {} Tamanghasset
-42 {} Tebessa
-43 {} Tiaret
-44 {} Tindouf
-45 {} Tipaza
-46 {} Tissemsilt
-47 {} Tizi Ouzou
-48 {} Tlemcen""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Adrar,
+2,{},Ain Defla,
+3,{},Ain Temouchent,
+4,{},Alger,
+5,{},Annaba,
+6,{},Batna,
+7,{},Bechar,
+8,{},Bejaia,
+9,{},Biskra,
+10,{},Blida,
+11,{},Bordj Bou Arreridj,
+12,{},Bouira,
+13,{},Boumerdes,
+14,{},Chlef,
+15,{},Constantine,
+16,{},Djelfa,
+17,{},El Bayadh,
+18,{},El Oued,
+19,{},El Tarf,
+20,{},Ghardaia,
+21,{},Guelma,
+22,{},Illizi,
+23,{},Jijel,
+24,{},Khenchela,
+25,{},Laghouat,
+26,{},M'Sila,
+27,{},Mascara,
+28,{},Medea,
+29,{},Mila,
+30,{},Mostaganem,
+31,{},Naama,
+32,{},Oran,
+33,{},Ouargla,
+34,{},Oum el Bouaghi,
+35,{},Relizane,
+36,{},Saida,
+37,{},Setif,
+38,{},Sidi Bel Abbes,
+39,{},Skikda,
+40,{},Souk Ahras,
+41,{},Tamanghasset,
+42,{},Tebessa,
+43,{},Tiaret,
+44,{},Tindouf,
+45,{},Tipaza,
+46,{},Tissemsilt,
+47,{},Tizi Ouzou,
+48,{},Tlemcen,""".format(*values)
     
     def expect_geojson_output(self):
         return True

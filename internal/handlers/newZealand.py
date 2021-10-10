@@ -22,22 +22,23 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Auckland
-2 {} Bay of Plenty
-3 {} Canterbury
-4 {} Gisborne
-5 {} Hawke's Bay
-6 {} Manawatu-Wanganui
-7 {} Marlborough
-8 {} Nelson
-9 {} Northland
-10 {} Otago
-11 {} Southland
-12 {} Taranaki
-13 {} Tasman
-14 {} Waikato
-15 {} Wellington
-16 {} West Coast""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Auckland,
+2,{},Bay of Plenty,
+3,{},Canterbury,
+4,{},Gisborne,
+5,{},Hawke's Bay,
+6,{},Manawatu-Wanganui,
+7,{},Marlborough,
+8,{},Nelson,
+9,{},Northland,
+10,{},Otago,
+11,{},Southland,
+12,{},Taranaki,
+13,{},Tasman,
+14,{},Waikato,
+15,{},Wellington,
+16,{},West Coast,""".format(*values)
     
     def expect_geojson_output(self):
         return True

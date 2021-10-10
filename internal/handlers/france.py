@@ -22,19 +22,20 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Auvergne-Rhone-Alpes
-2 {} Bourgogne-Franche-Comte
-3 {} Brittany
-4 {} Centre-Val de Loire
-5 {} Corsica
-6 {} Grand Est
-7 {} Hauts-de-France
-8 {} Ile-de-France
-9 {} Normandy
-10 {} Nouvelle-Aquitaine
-11 {} Occitanie
-12 {} Pays de la Loire
-13 {} Provence-Alpes-Cote d'Azur""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Auvergne-Rhone-Alpes,
+2,{},Bourgogne-Franche-Comte,
+3,{},Brittany,
+4,{},Centre-Val de Loire,
+5,{},Corsica,
+6,{},Grand Est,
+7,{},Hauts-de-France,
+8,{},Ile-de-France,
+9,{},Normandy,
+10,{},Nouvelle-Aquitaine,
+11,{},Occitanie,
+12,{},Pays de la Loire,
+13,{},Provence-Alpes-Cote d'Azur,""".format(*values)
     
     def expect_geojson_output(self):
         return True

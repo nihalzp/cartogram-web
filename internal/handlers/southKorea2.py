@@ -22,23 +22,24 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Busan
-2 {} Chungcheongbuk-do
-3 {} Chungcheongnam-do
-4 {} Daegu
-5 {} Daejeon
-6 {} Gangwon-do
-7 {} Gwangju
-8 {} Gyeonggi-do
-9 {} Gyeongsangbuk-do
-10 {} Gyeongsangnam-do
-11 {} Incheon
-12 {} Jeju
-13 {} Jeollabuk-do
-14 {} Jeollanam-do
-15 {} Sejong
-16 {} Seoul
-17 {} Ulsan""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Busan,
+2,{},Chungcheongbuk-do,
+3,{},Chungcheongnam-do,
+4,{},Daegu,
+5,{},Daejeon,
+6,{},Gangwon-do,
+7,{},Gwangju,
+8,{},Gyeonggi-do,
+9,{},Gyeongsangbuk-do,
+10,{},Gyeongsangnam-do,
+11,{},Incheon,
+12,{},Jeju,
+13,{},Jeollabuk-do,
+14,{},Jeollanam-do,
+15,{},Sejong,
+16,{},Seoul,
+17,{},Ulsan,""".format(*values)
     
     def expect_geojson_output(self):
         return True

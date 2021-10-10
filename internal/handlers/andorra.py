@@ -22,13 +22,14 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Andorra la Vella
-2 {} Canillo
-3 {} Encamp
-4 {} Escaldes-Engordany
-5 {} La Massana
-6 {} Ordino
-7 {} Sant Julia de Loria""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Andorra la Vella,
+2,{},Canillo,
+3,{},Encamp,
+4,{},Escaldes-Engordany,
+5,{},La Massana,
+6,{},Ordino,
+7,{},Sant Julia de Loria,""".format(*values)
     
     def expect_geojson_output(self):
         return True

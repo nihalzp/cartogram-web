@@ -22,41 +22,42 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Austria
-2 {} Belgium
-3 {} Bosnia and Herzegovina
-4 {} Bulgaria
-5 {} Croatia
-6 {} Czech Republic
-7 {} Denmark
-8 {} Estonia
-9 {} Finland
-10 {} France
-11 {} Germany
-12 {} Greece
-13 {} Hungary
-14 {} Iceland
-15 {} Ireland
-16 {} Italy
-17 {} Latvia
-18 {} Liechtenstein
-19 {} Lithuania
-20 {} Luxembourg
-21 {} Malta
-22 {} Netherlands
-23 {} North Macedonia
-24 {} Norway
-25 {} Poland
-26 {} Portugal
-27 {} Republic of Cyprus
-28 {} Republic of Serbia
-29 {} Romania
-30 {} Slovakia
-31 {} Slovenia
-32 {} Spain
-33 {} Sweden
-34 {} Switzerland
-35 {} United Kingdom""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Austria,
+2,{},Belgium,
+3,{},Bosnia and Herzegovina,
+4,{},Bulgaria,
+5,{},Croatia,
+6,{},Czech Republic,
+7,{},Denmark,
+8,{},Estonia,
+9,{},Finland,
+10,{},France,
+11,{},Germany,
+12,{},Greece,
+13,{},Hungary,
+14,{},Iceland,
+15,{},Ireland,
+16,{},Italy,
+17,{},Latvia,
+18,{},Liechtenstein,
+19,{},Lithuania,
+20,{},Luxembourg,
+21,{},Malta,
+22,{},Netherlands,
+23,{},North Macedonia,
+24,{},Norway,
+25,{},Poland,
+26,{},Portugal,
+27,{},Republic of Cyprus,
+28,{},Republic of Serbia,
+29,{},Romania,
+30,{},Slovakia,
+31,{},Slovenia,
+32,{},Spain,
+33,{},Sweden,
+34,{},Switzerland,
+35,{},United Kingdom,""".format(*values)
     
     def expect_geojson_output(self):
         return True

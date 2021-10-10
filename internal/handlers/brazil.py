@@ -22,33 +22,34 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Acre
-2 {} Alagoas
-3 {} Amapa
-4 {} Amazonas
-5 {} Bahia
-6 {} Ceara
-7 {} Distrito Federal
-8 {} Espirito Santo
-9 {} Goias
-10 {} Maranhao
-11 {} Mato Grosso
-12 {} Mato Grosso do Sul
-13 {} Minas Gerais
-14 {} Para
-15 {} Paraiba
-16 {} Parana
-17 {} Pernambuco
-18 {} Piaui
-19 {} Rio de Janeiro
-20 {} Rio Grande do Norte
-21 {} Rio Grande do Sul
-22 {} Rondonia
-23 {} Roraima
-24 {} Santa Catarina
-25 {} Sao Paulo
-26 {} Sergipe
-27 {} Tocantins""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Acre,
+2,{},Alagoas,
+3,{},Amapa,
+4,{},Amazonas,
+5,{},Bahia,
+6,{},Ceara,
+7,{},Distrito Federal,
+8,{},Espirito Santo,
+9,{},Goias,
+10,{},Maranhao,
+11,{},Mato Grosso,
+12,{},Mato Grosso do Sul,
+13,{},Minas Gerais,
+14,{},Para,
+15,{},Paraiba,
+16,{},Parana,
+17,{},Pernambuco,
+18,{},Piaui,
+19,{},Rio de Janeiro,
+20,{},Rio Grande do Norte,
+21,{},Rio Grande do Sul,
+22,{},Rondonia,
+23,{},Roraima,
+24,{},Santa Catarina,
+25,{},Sao Paulo,
+26,{},Sergipe,
+27,{},Tocantins,""".format(*values)
     
     def expect_geojson_output(self):
         return True

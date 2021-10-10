@@ -22,45 +22,46 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Adams
-2 {} Asotin
-3 {} Benton
-4 {} Chelan
-5 {} Clallam
-6 {} Clark
-7 {} Columbia
-8 {} Cowlitz
-9 {} Douglas
-10 {} Ferry
-11 {} Franklin
-12 {} Garfield
-13 {} Grant
-14 {} Grays Harbor
-15 {} Island
-16 {} Jefferson
-17 {} King
-18 {} Kitsap
-19 {} Kittitas
-20 {} Klickitat
-21 {} Lewis
-22 {} Lincoln
-23 {} Mason
-24 {} Okanogan
-25 {} Pacific
-26 {} Pend Oreille
-27 {} Pierce
-28 {} San Juan
-29 {} Skagit
-30 {} Skamania
-31 {} Snohomish
-32 {} Spokane
-33 {} Stevens
-34 {} Thurston
-35 {} Wahkiakum
-36 {} Walla Walla
-37 {} Whatcom
-38 {} Whitman
-39 {} Yakima""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Adams,
+2,{},Asotin,
+3,{},Benton,
+4,{},Chelan,
+5,{},Clallam,
+6,{},Clark,
+7,{},Columbia,
+8,{},Cowlitz,
+9,{},Douglas,
+10,{},Ferry,
+11,{},Franklin,
+12,{},Garfield,
+13,{},Grant,
+14,{},Grays Harbor,
+15,{},Island,
+16,{},Jefferson,
+17,{},King,
+18,{},Kitsap,
+19,{},Kittitas,
+20,{},Klickitat,
+21,{},Lewis,
+22,{},Lincoln,
+23,{},Mason,
+24,{},Okanogan,
+25,{},Pacific,
+26,{},Pend Oreille,
+27,{},Pierce,
+28,{},San Juan,
+29,{},Skagit,
+30,{},Skamania,
+31,{},Snohomish,
+32,{},Spokane,
+33,{},Stevens,
+34,{},Thurston,
+35,{},Wahkiakum,
+36,{},Walla Walla,
+37,{},Whatcom,
+38,{},Whitman,
+39,{},Yakima,""".format(*values)
     
     def expect_geojson_output(self):
         return True

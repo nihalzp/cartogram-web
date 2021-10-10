@@ -22,24 +22,25 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Andalusia
-2 {} Aragon
-13 {} Balearic Islands
-16 {} Basque Autonomous Community
-14 {} Canary Islands
-3 {} Cantabria
-4 {} Castile and Leon
-5 {} Castile-La Mancha
-6 {} Catalonia
-7 {} Ceuta y Melilla
-9 {} Chartered Community of Navarre
-8 {} Community of Madrid
-11 {} Extremadura
-12 {} Galicia
-15 {} La Rioja
-17 {} Principality of Asturias
-18 {} Region of Murcia
-10 {} Valencian Community""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Andalusia,
+2,{},Aragon,
+13,{},Balearic Islands,
+16,{},Basque Autonomous Community,
+14,{},Canary Islands,
+3,{},Cantabria,
+4,{},Castile and Leon,
+5,{},Castile-La Mancha,
+6,{},Catalonia,
+7,{},Ceuta y Melilla,
+9,{},Chartered Community of Navarre,
+8,{},Community of Madrid,
+11,{},Extremadura,
+12,{},Galicia,
+15,{},La Rioja,
+17,{},Principality of Asturias,
+18,{},Region of Murcia,
+10,{},Valencian Community,""".format(*values)
     
     def expect_geojson_output(self):
         return True

@@ -22,22 +22,23 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Aisen del General Carlos Ibanez del Campo
-2 {} Antofagasta
-3 {} Araucania
-4 {} Arica y Parinacota
-5 {} Atacama
-6 {} Biobio
-7 {} Coquimbo
-8 {} Libertador General Bernardo O'Higgins
-9 {} Los Lagos
-10 {} Los Rios
-11 {} Magallanes y Antartica Chilena
-12 {} Maule
-13 {} Nuble
-14 {} Region Metropolitana de Santiago
-15 {} Tarapaca
-16 {} Valparaiso""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Aisen del General Carlos Ibanez del Campo,
+2,{},Antofagasta,
+3,{},Araucania,
+4,{},Arica y Parinacota,
+5,{},Atacama,
+6,{},Biobio,
+7,{},Coquimbo,
+8,{},Libertador General Bernardo O'Higgins,
+9,{},Los Lagos,
+10,{},Los Rios,
+11,{},Magallanes y Antartica Chilena,
+12,{},Maule,
+13,{},Nuble,
+14,{},Region Metropolitana de Santiago,
+15,{},Tarapaca,
+16,{},Valparaiso,""".format(*values)
     
     def expect_geojson_output(self):
         return True

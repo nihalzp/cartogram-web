@@ -22,38 +22,39 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Amazonas
-2 {} Antioquia
-3 {} Arauca
-4 {} Atlantico
-5 {} Bolivar
-6 {} Boyaca
-7 {} Caldas
-8 {} Caqueta
-9 {} Casanare
-10 {} Cauca
-11 {} Cesar
-12 {} Choco
-13 {} Cordoba
-14 {} Cundinamarca
-15 {} Guainia
-16 {} Guaviare
-17 {} Huila
-18 {} La Guajira
-19 {} Magdalena
-20 {} Meta
-21 {} Narino
-22 {} Norte de Santander
-23 {} Putumayo
-24 {} Quindio
-25 {} Risaralda
-26 {} San Andres y Providencia  
-27 {} Santander
-28 {} Sucre
-29 {} Tolima
-30 {} Valle del Cauca
-31 {} Vaupes
-32 {} Vichada""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Amazonas,
+2,{},Antioquia,
+3,{},Arauca,
+4,{},Atlantico,
+5,{},Bolivar,
+6,{},Boyaca,
+7,{},Caldas,
+8,{},Caqueta,
+9,{},Casanare,
+10,{},Cauca,
+11,{},Cesar,
+12,{},Choco,
+13,{},Cordoba,
+14,{},Cundinamarca,
+15,{},Guainia,
+16,{},Guaviare,
+17,{},Huila,
+18,{},La Guajira,
+19,{},Magdalena,
+20,{},Meta,
+21,{},Narino,
+22,{},Norte de Santander,
+23,{},Putumayo,
+24,{},Quindio,
+25,{},Risaralda,
+26,{},San Andres y Providencia  ,
+27,{},Santander,
+28,{},Sucre,
+29,{},Tolima,
+30,{},Valle del Cauca,
+31,{},Vaupes,
+32,{},Vichada,""".format(*values)
     
     def expect_geojson_output(self):
         return True

@@ -17,38 +17,39 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Azua
-2 {} Bahoruco
-3 {} Barahona
-4 {} Dajabon
-5 {} Distrito Nacional
-6 {} Duarte
-7 {} El Seibo
-8 {} Espaillat
-9 {} Hato Mayor
-10 {} Hermanas Mirabal
-11 {} Independencia
-12 {} La Altagracia
-13 {} Elias Pina
-14 {} La Romana
-15 {} La Vega
-16 {} Maria Trinidad Sanchez
-17 {} Monsenor Nouel
-18 {} Monte Cristi
-19 {} Monte Plata
-20 {} Pedernales
-21 {} Peravia
-22 {} Puerto Plata
-23 {} Samana
-24 {} San Cristobal
-25 {} San Jose de Ocoa
-26 {} San Juan
-27 {} San Pedro de Macoris
-28 {} Sanchez Ramirez
-29 {} Santiago
-30 {} Santiago Rodriguez
-31 {} Santo Domingo
-32 {} Valverde""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Azua,
+2,{},Bahoruco,
+3,{},Barahona,
+4,{},Dajabon,
+5,{},Distrito Nacional,
+6,{},Duarte,
+7,{},El Seibo,
+8,{},Espaillat,
+9,{},Hato Mayor,
+10,{},Hermanas Mirabal,
+11,{},Independencia,
+12,{},La Altagracia,
+13,{},Elias Pina,
+14,{},La Romana,
+15,{},La Vega,
+16,{},Maria Trinidad Sanchez,
+17,{},Monsenor Nouel,
+18,{},Monte Cristi,
+19,{},Monte Plata,
+20,{},Pedernales,
+21,{},Peravia,
+22,{},Puerto Plata,
+23,{},Samana,
+24,{},San Cristobal,
+25,{},San Jose de Ocoa,
+26,{},San Juan,
+27,{},San Pedro de Macoris,
+28,{},Sanchez Ramirez,
+29,{},Santiago,
+30,{},Santiago Rodriguez,
+31,{},Santo Domingo,
+32,{},Valverde,""".format(*values)
     
     def expect_geojson_output(self):
         return True

@@ -22,17 +22,18 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Addis Abeba
-2 {} Afar
-3 {} Amhara
-4 {} Benshangul-Gumaz
-5 {} Dire Dawa
-6 {} Gambela
-7 {} Harari
-8 {} Oromia
-9 {} Somali
-10 {} Southern Nations, Nationalities and Peoples
-11 {} Tigray""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Addis Abeba,
+2,{},Afar,
+3,{},Amhara,
+4,{},Benshangul-Gumaz,
+5,{},Dire Dawa,
+6,{},Gambela,
+7,{},Harari,
+8,{},Oromia,
+9,{},Somali,
+10,{},"Southern Nations, Nationalities and Peoples",
+11,{},Tigray,""".format(*values)
     
     def expect_geojson_output(self):
         return True

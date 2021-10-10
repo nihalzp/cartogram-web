@@ -22,88 +22,89 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Abra
-2 {} Agusan del Norte
-3 {} Agusan del Sur
-4 {} Aklan
-5 {} Albay
-6 {} Antique
-7 {} Apayao
-8 {} Aurora
-9 {} Basilan
-10 {} Bataan
-11 {} Batanes
-12 {} Batangas
-13 {} Benguet
-14 {} Biliran
-15 {} Bohol
-16 {} Bukidnon
-17 {} Bulacan
-18 {} Cagayan
-19 {} Camarines Norte
-20 {} Camarines Sur
-21 {} Camiguin
-22 {} Capiz
-23 {} Catanduanes
-24 {} Cavite
-25 {} Cebu
-26 {} Compostela Valley
-27 {} Davao del Norte
-28 {} Davao del Sur
-29 {} Davao Occidental
-30 {} Davao Oriental
-31 {} Dinagat Islands
-32 {} Eastern Samar
-33 {} Guimaras
-34 {} Ifugao
-35 {} Ilocos Norte
-36 {} Ilocos Sur
-37 {} Iloilo
-38 {} Isabela
-39 {} Kalinga
-40 {} La Union
-41 {} Laguna
-42 {} Lanao del Norte
-43 {} Lanao del Sur
-44 {} Leyte
-45 {} Maguindanao
-46 {} Marinduque
-47 {} Masbate
-48 {} Metropolitan Manila
-49 {} Misamis Occidental
-50 {} Misamis Oriental
-51 {} Mountain Province
-52 {} Negros Occidental
-53 {} Negros Oriental
-54 {} North Cotabato
-55 {} Northern Samar
-56 {} Nueva Ecija
-57 {} Nueva Vizcaya
-58 {} Occidental Mindoro
-59 {} Oriental Mindoro
-60 {} Palawan
-61 {} Pampanga
-62 {} Pangasinan
-63 {} Quezon
-64 {} Quirino
-65 {} Rizal
-66 {} Romblon
-67 {} Samar
-68 {} Sarangani
-69 {} Siquijor
-70 {} Sorsogon
-71 {} South Cotabato
-72 {} Southern Leyte
-73 {} Sultan Kudarat
-74 {} Sulu
-75 {} Surigao del Norte
-76 {} Surigao del Sur
-77 {} Tarlac
-78 {} Tawi-Tawi
-79 {} Zambales
-80 {} Zamboanga del Norte
-81 {} Zamboanga del Sur
-82 {} Zamboanga Sibugay""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Abra,
+2,{},Agusan del Norte,
+3,{},Agusan del Sur,
+4,{},Aklan,
+5,{},Albay,
+6,{},Antique,
+7,{},Apayao,
+8,{},Aurora,
+9,{},Basilan,
+10,{},Bataan,
+11,{},Batanes,
+12,{},Batangas,
+13,{},Benguet,
+14,{},Biliran,
+15,{},Bohol,
+16,{},Bukidnon,
+17,{},Bulacan,
+18,{},Cagayan,
+19,{},Camarines Norte,
+20,{},Camarines Sur,
+21,{},Camiguin,
+22,{},Capiz,
+23,{},Catanduanes,
+24,{},Cavite,
+25,{},Cebu,
+26,{},Compostela Valley,
+27,{},Davao del Norte,
+28,{},Davao del Sur,
+29,{},Davao Occidental,
+30,{},Davao Oriental,
+31,{},Dinagat Islands,
+32,{},Eastern Samar,
+33,{},Guimaras,
+34,{},Ifugao,
+35,{},Ilocos Norte,
+36,{},Ilocos Sur,
+37,{},Iloilo,
+38,{},Isabela,
+39,{},Kalinga,
+40,{},La Union,
+41,{},Laguna,
+42,{},Lanao del Norte,
+43,{},Lanao del Sur,
+44,{},Leyte,
+45,{},Maguindanao,
+46,{},Marinduque,
+47,{},Masbate,
+48,{},Metropolitan Manila,
+49,{},Misamis Occidental,
+50,{},Misamis Oriental,
+51,{},Mountain Province,
+52,{},Negros Occidental,
+53,{},Negros Oriental,
+54,{},North Cotabato,
+55,{},Northern Samar,
+56,{},Nueva Ecija,
+57,{},Nueva Vizcaya,
+58,{},Occidental Mindoro,
+59,{},Oriental Mindoro,
+60,{},Palawan,
+61,{},Pampanga,
+62,{},Pangasinan,
+63,{},Quezon,
+64,{},Quirino,
+65,{},Rizal,
+66,{},Romblon,
+67,{},Samar,
+68,{},Sarangani,
+69,{},Siquijor,
+70,{},Sorsogon,
+71,{},South Cotabato,
+72,{},Southern Leyte,
+73,{},Sultan Kudarat,
+74,{},Sulu,
+75,{},Surigao del Norte,
+76,{},Surigao del Sur,
+77,{},Tarlac,
+78,{},Tawi-Tawi,
+79,{},Zambales,
+80,{},Zamboanga del Norte,
+81,{},Zamboanga del Sur,
+82,{},Zamboanga Sibugay,""".format(*values)
     
     def expect_geojson_output(self):
         return True

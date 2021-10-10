@@ -22,28 +22,29 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Arhangay
-2 {} Bayan-Olgii
-3 {} Bayankhongor
-4 {} Bulgan
-5 {} Darkhan-Uul
-6 {} Dornod
-7 {} Dornogovi
-8 {} Dundgovi
-9 {} Zavkhan
-10 {} Govi-Altai
-11 {} Govisumber
-12 {} Khentii
-13 {} Khovd
-14 {} Khovsgol
-15 {} Omnogovi
-16 {} Orkhon
-17 {} Ovorkhangai
-18 {} Selenge
-19 {} Sukhbaatar
-20 {} Tov
-21 {} Ulaanbaatar
-22 {} Uvs""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Arhangay,
+2,{},Bayan-Olgii,
+3,{},Bayankhongor,
+4,{},Bulgan,
+5,{},Darkhan-Uul,
+6,{},Dornod,
+7,{},Dornogovi,
+8,{},Dundgovi,
+9,{},Zavkhan,
+10,{},Govi-Altai,
+11,{},Govisumber,
+12,{},Khentii,
+13,{},Khovd,
+14,{},Khovsgol,
+15,{},Omnogovi,
+16,{},Orkhon,
+17,{},Ovorkhangai,
+18,{},Selenge,
+19,{},Sukhbaatar,
+20,{},Tov,
+21,{},Ulaanbaatar,
+22,{},Uvs,""".format(*values)
     
     def expect_geojson_output(self):
         return True

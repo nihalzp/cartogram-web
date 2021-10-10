@@ -22,20 +22,21 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Almaty
-2 {} Akmola
-3 {} Aktobe
-4 {} Atyrau
-5 {} East Kazakhstan
-6 {} Mangystau
-7 {} North Kazakhstan
-8 {} Pavlodar
-9 {} Karagandy
-10 {} Kostanay
-11 {} Kyzylorda
-12 {} Turkistan Region
-13 {} West Kazakhstan
-14 {} Zhambyl""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Almaty,
+2,{},Akmola,
+3,{},Aktobe,
+4,{},Atyrau,
+5,{},East Kazakhstan,
+6,{},Mangystau,
+7,{},North Kazakhstan,
+8,{},Pavlodar,
+9,{},Karagandy,
+10,{},Kostanay,
+11,{},Kyzylorda,
+12,{},Turkistan Region,
+13,{},West Kazakhstan,
+14,{},Zhambyl,""".format(*values)
     
     def expect_geojson_output(self):
         return True

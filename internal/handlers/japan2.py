@@ -22,53 +22,54 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Aichi
-2 {} Akita
-3 {} Aomori
-4 {} Chiba
-5 {} Ehime
-6 {} Fukui
-7 {} Fukuoka
-8 {} Fukushima
-9 {} Gifu
-10 {} Gunma
-11 {} Hiroshima
-12 {} Hokkaido
-13 {} Hyogo
-14 {} Ibaraki
-15 {} Ishikawa
-16 {} Iwate
-17 {} Kagawa
-18 {} Kagoshima
-19 {} Kanagawa
-20 {} Kochi
-21 {} Kumamoto
-22 {} Kyoto
-23 {} Mie
-24 {} Miyagi
-25 {} Miyazaki
-26 {} Nagano
-27 {} Nagasaki
-28 {} Nara
-29 {} Niigata
-30 {} Oita
-31 {} Okayama
-32 {} Okinawa
-33 {} Osaka
-34 {} Saga
-35 {} Saitama
-36 {} Shiga
-37 {} Shimane
-38 {} Shizuoka
-39 {} Tochigi
-40 {} Tokushima
-41 {} Tokyo
-42 {} Tottori
-43 {} Toyama
-44 {} Wakayama
-45 {} Yamagata
-46 {} Yamaguchi
-47 {} Yamanashi""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Aichi,
+2,{},Akita,
+3,{},Aomori,
+4,{},Chiba,
+5,{},Ehime,
+6,{},Fukui,
+7,{},Fukuoka,
+8,{},Fukushima,
+9,{},Gifu,
+10,{},Gunma,
+11,{},Hiroshima,
+12,{},Hokkaido,
+13,{},Hyogo,
+14,{},Ibaraki,
+15,{},Ishikawa,
+16,{},Iwate,
+17,{},Kagawa,
+18,{},Kagoshima,
+19,{},Kanagawa,
+20,{},Kochi,
+21,{},Kumamoto,
+22,{},Kyoto,
+23,{},Mie,
+24,{},Miyagi,
+25,{},Miyazaki,
+26,{},Nagano,
+27,{},Nagasaki,
+28,{},Nara,
+29,{},Niigata,
+30,{},Oita,
+31,{},Okayama,
+32,{},Okinawa,
+33,{},Osaka,
+34,{},Saga,
+35,{},Saitama,
+36,{},Shiga,
+37,{},Shimane,
+38,{},Shizuoka,
+39,{},Tochigi,
+40,{},Tokushima,
+41,{},Tokyo,
+42,{},Tottori,
+43,{},Toyama,
+44,{},Wakayama,
+45,{},Yamagata,
+46,{},Yamaguchi,
+47,{},Yamanashi,""".format(*values)
     
     def expect_geojson_output(self):
         return True

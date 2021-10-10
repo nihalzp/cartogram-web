@@ -22,48 +22,49 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Alba
-2 {} Arad
-3 {} Arges
-4 {} Bacau
-5 {} Bihor
-6 {} Bistrita-Nasaud
-7 {} Botosani
-8 {} Braila
-9 {} Brasov
-10 {} Bucharest
-11 {} Buzau
-12 {} Calarasi
-13 {} Caras-Severin
-14 {} Cluj
-15 {} Constanta
-16 {} Covasna
-17 {} Dambovita
-18 {} Dolj
-19 {} Galati
-20 {} Giurgiu
-21 {} Gorj
-22 {} Harghita
-23 {} Hunedoara
-24 {} Ialomita
-25 {} Iasi
-26 {} Ilfov
-27 {} Maramures
-28 {} Mehedinti
-29 {} Mures
-30 {} Neamt
-31 {} Olt
-32 {} Prahova
-33 {} Salaj
-34 {} Satu Mare
-35 {} Sibiu
-36 {} Suceava
-37 {} Teleorman
-38 {} Timis
-39 {} Tulcea
-40 {} Valcea
-41 {} Vaslui
-42 {} Vrancea""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Alba,
+2,{},Arad,
+3,{},Arges,
+4,{},Bacau,
+5,{},Bihor,
+6,{},Bistrita-Nasaud,
+7,{},Botosani,
+8,{},Braila,
+9,{},Brasov,
+10,{},Bucharest,
+11,{},Buzau,
+12,{},Calarasi,
+13,{},Caras-Severin,
+14,{},Cluj,
+15,{},Constanta,
+16,{},Covasna,
+17,{},Dambovita,
+18,{},Dolj,
+19,{},Galati,
+20,{},Giurgiu,
+21,{},Gorj,
+22,{},Harghita,
+23,{},Hunedoara,
+24,{},Ialomita,
+25,{},Iasi,
+26,{},Ilfov,
+27,{},Maramures,
+28,{},Mehedinti,
+29,{},Mures,
+30,{},Neamt,
+31,{},Olt,
+32,{},Prahova,
+33,{},Salaj,
+34,{},Satu Mare,
+35,{},Sibiu,
+36,{},Suceava,
+37,{},Teleorman,
+38,{},Timis,
+39,{},Tulcea,
+40,{},Valcea,
+41,{},Vaslui,
+42,{},Vrancea,""".format(*values)
     
     def expect_geojson_output(self):
         return True

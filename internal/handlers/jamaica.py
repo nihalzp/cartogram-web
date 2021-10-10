@@ -22,20 +22,21 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Clarendon
-2 {} Hanover
-3 {} Kingston
-4 {} Manchester
-5 {} Portland
-6 {} Saint Andrew
-7 {} Saint Ann
-8 {} Saint Catherine
-9 {} Saint Elizabeth
-10 {} Saint James
-11 {} Saint Mary
-12 {} Saint Thomas
-13 {} Trelawny
-14 {} Westmoreland""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Clarendon,
+2,{},Hanover,
+3,{},Kingston,
+4,{},Manchester,
+5,{},Portland,
+6,{},Saint Andrew,
+7,{},Saint Ann,
+8,{},Saint Catherine,
+9,{},Saint Elizabeth,
+10,{},Saint James,
+11,{},Saint Mary,
+12,{},Saint Thomas,
+13,{},Trelawny,
+14,{},Westmoreland,""".format(*values)
     
     def expect_geojson_output(self):
         return True

@@ -22,25 +22,26 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Abaco
-2 {} Acklins
-3 {} Andros
-4 {} Berry Islands
-5 {} Bimini
-6 {} Cat Island
-7 {} Crooked Island
-8 {} Eleuthera
-9 {} Exuma
-10 {} Grand Bahama
-11 {} Harbour Island
-12 {} Inagua
-13 {} Long Island
-14 {} Mayaguana
-15 {} New Providence
-16 {} Ragged Islands
-17 {} Rum Cay
-18 {} San Salvador
-19 {} Spanish Wells""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Abaco,
+2,{},Acklins,
+3,{},Andros,
+4,{},Berry Islands,
+5,{},Bimini,
+6,{},Cat Island,
+7,{},Crooked Island,
+8,{},Eleuthera,
+9,{},Exuma,
+10,{},Grand Bahama,
+11,{},Harbour Island,
+12,{},Inagua,
+13,{},Long Island,
+14,{},Mayaguana,
+15,{},New Providence,
+16,{},Ragged Islands,
+17,{},Rum Cay,
+18,{},San Salvador,
+19,{},Spanish Wells,""".format(*values)
     
     def expect_geojson_output(self):
         return True
