@@ -154,7 +154,7 @@
                </p>
              </div>
              <div class="col-5">
-                <select class="form-control border-primary bg-primary text-light" id="handler">
+                <select style="cursor: pointer" class="form-control border-primary bg-primary text-light" id="handler">
                     {% for handler in cartogram_handlers %}
                     <option value="{{handler.id}}" {% if handler.id == default_cartogram_handler %}selected{% endif %} >{{handler.display_name}}</option>
                     {% endfor %}

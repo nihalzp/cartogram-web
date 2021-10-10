@@ -3108,6 +3108,7 @@ class Cartogram {
 
         var select = document.createElement("select")
         select.className = "form-control bg-primary text-light border-primary";
+        select.style.cursor = "pointer";
         select.value = this.model.current_sysname;
 
         // Sorting keeps the ordering of versions consistent
