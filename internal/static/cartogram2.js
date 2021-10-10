@@ -445,11 +445,13 @@ class MapVersion {
      * constructor creates an instance of the MapVersion class
      * @param {string} name The human-readable name of the map version
      * @param {Extrema} extrema Extrema for this map version
+     * @param {Array} dimension The width and height of the map version
      * @param {Labels} labels The labels of the map version. Optional.
      */
-    constructor(name, extrema, labels=null, world = false) {
+    constructor(name, extrema, dimension, labels=null, world = false) {
         this.name = name;
         this.extrema = extrema;
+        this.dimension = dimension;
         this.labels = labels;
         this.world = world;
         // legendData stores legend and gridline information of the map version.
@@ -744,16 +746,10 @@ class CartMap {
         this.regions = {};
 
         /**
-         * The width of the map.
+         * The max height of the map. It is used to make the height of map display SVG canvas constant.
          * @type {number}
          */
-        this.width = 0.0;
-
-        /**
-         * The height of the map.
-         * @type {number}
-         */
-        this.height = 0.0;
+        this.max_height = 0.0;
 
     }
 
@@ -793,8 +789,8 @@ class CartMap {
         const version_width = this.versions[sysname].extrema.max_x - this.versions[sysname].extrema.min_x;
         const version_height = this.versions[sysname].extrema.max_y - this.versions[sysname].extrema.min_y;
 
-        const scale_x = this.width / version_width;
-        const scale_y = this.height / version_height;
+        const scale_x = this.versions[sysname].dimension.x / version_width;
+        const scale_y = this.versions[sysname].dimension.y / version_height;
 
         return [scale_x, scale_y];
     }
@@ -975,9 +971,9 @@ class CartMap {
         widthB *= Math.sqrt(scaleNiceNumberB * Math.pow(10, scalePowerOf10) / valuePerSquare);
         widthC *= Math.sqrt(scaleNiceNumberC * Math.pow(10, scalePowerOf10) / valuePerSquare);
 
-        const gridPathA = this.getGridPath(widthA, this.width, this.height);
-        const gridPathB = this.getGridPath(widthB, this.width, this.height);
-        const gridPathC = this.getGridPath(widthC, this.width, this.height);
+        const gridPathA = this.getGridPath(widthA, this.versions[sysname].dimension.x, this.versions[sysname].dimension.y);
+        const gridPathB = this.getGridPath(widthB, this.versions[sysname].dimension.x, this.versions[sysname].dimension.y);
+        const gridPathC = this.getGridPath(widthC, this.versions[sysname].dimension.x, this.versions[sysname].dimension.y);
 
         // Store legend Information
         this.versions[sysname].legendData.gridData.gridA.width = widthA;
@@ -1645,76 +1641,89 @@ class CartMap {
      * addVersion adds a new version to the map. If a version with the specified sysname already exists, it will be overwritten.
      * @param {string} sysname A unique system identifier for the version
      * @param {MapVersionData} data Data for the new map version.
+     * @param {string} base_sysname Sysname of the version to be used as the standard for area equalization
      */
-    addVersion(sysname, data) {
-
+     addVersion(sysname, data, base_sysname) {
+        
         if(this.versions.hasOwnProperty(sysname)) {
             delete this.versions[sysname];
         }
-
-        // Here we perform the area equalization.
-        // We take the largest map version, and scale all others to have the same dimensions.
-
-        /**
-         * @type {Object.<string, {x: number, y: number}>}
-         */
+        
+       // Here, the algorithm tries to equalize maps without distorting its initial width-height proportion. It uses the base version's
+       // area as standard (currently, it is always the equal area map) and tries to make other map version's area (e.g population and cartogram map) 
+       // equal to that by scaling them  up or down as necessary.
         var scale_factors = {};
+        var version_dimension = {};
+        
+        const CANVAS_MAX_HEIGHT = 350;
+        const CANVAS_MAX_WIDTH = 350;
+        
+        var version_height = CANVAS_MAX_HEIGHT;
+        var version_width = CANVAS_MAX_WIDTH;
 
-        var max_height = 0.0;
-        var max_width = 0.0;
+        const version_width_geojson = data.extrema.max_x - data.extrema.min_x;
+        const version_height_geojson = data.extrema.max_y - data.extrema.min_y;
 
-        Object.keys(this.versions).forEach(function(version_sysname){
-
-            var width = this.versions[version_sysname].extrema.max_x - this.versions[version_sysname].extrema.min_x;
-            var height = this.versions[version_sysname].extrema.max_y - this.versions[version_sysname].extrema.min_y;
-
-            if(width > max_width) {
-                max_width = width;
-            }
-
-            if(height > max_height) {
-                max_height = height;
-            }
-
-        }, this);
-
-        var new_version_width = data.extrema.max_x - data.extrema.min_x;
-        var new_version_height = data.extrema.max_y - data.extrema.min_y;
-
-        if(new_version_width > max_width) {
-            max_width = new_version_width;
+        if (version_width_geojson >= version_height_geojson) {
+            let ratio_height_by_width = version_height_geojson/version_width_geojson;
+            version_height = CANVAS_MAX_WIDTH * ratio_height_by_width;
+        } else {
+            let ratio_width_by_height = version_width_geojson/version_height_geojson;
+            version_width = CANVAS_MAX_HEIGHT * ratio_width_by_height;
         }
+        
+        if(this.versions.hasOwnProperty(base_sysname)) {
+        
+            // Calculate the base version's area to equalise current sysname's area
+            const base_version_geojson_area = this.getTotalAreasAndValuesForVersion(base_sysname)[0]
+            const base_version_width_geojson = this.versions[base_sysname].extrema.max_x - this.versions[base_sysname].extrema.min_x
+            const base_version_height_geojson = this.versions[base_sysname].extrema.max_y - this.versions[base_sysname].extrema.min_y
+            const base_version_width = this.versions[base_sysname].dimension.x / this.config.scale
+            const base_version_height = this.versions[base_sysname].dimension.y / this.config.scale
+            const area_factor = (base_version_height_geojson/base_version_height) * (base_version_width_geojson/base_version_width)
+            const base_version_area = base_version_geojson_area / area_factor;
+            
+            // Calculate current sysname's GeoJSON area
+            var version_total_area_geojson = 0;
+            Object.keys(data.regions).forEach(function(region_id){
+                let region = data.regions[region_id];
 
-        if(new_version_height > max_height) {
-            max_height = new_version_height;
-        }
+                let version_area_value_geojson = 0;
+                region.polygons.forEach(function(polygon){
+                    const coordinates = polygon.coordinates;
 
-        if(max_width > 400.0) {
-            var max_width_old = max_width;
-            max_width = 400.0;
-            max_height = (max_width / max_width_old) * max_height;
-        }
+                    version_area_value_geojson += Math.abs(d3.polygonArea(coordinates));
 
-        if(max_height > 500.0) {
-            var max_height_old = max_height;
-            max_height = 500.0;
-            max_width = (max_height / max_height_old) * max_width;
-        }
+                    polygon.holes.forEach(function(hole){
 
-        this.width = max_width * this.config.scale;
-        this.height = max_height * this.config.scale;
+                        version_area_value_geojson -= Math.abs(d3.polygonArea(hole));
 
-        Object.keys(this.versions).forEach(function(version_sysname){
+                    }, this);
 
-            var width = this.versions[version_sysname].extrema.max_x - this.versions[version_sysname].extrema.min_x;
-            var height = this.versions[version_sysname].extrema.max_y - this.versions[version_sysname].extrema.min_y;
-
-            scale_factors[version_sysname] = {x: max_width / width * this.config.scale, y: max_height / height * this.config.scale};
-
-        }, this);
-
-        scale_factors[sysname] = {x: max_width / new_version_width * this.config.scale, y: max_height / new_version_height * this.config.scale};
-
+                }, this);
+                version_total_area_geojson += version_area_value_geojson;
+                
+            },this); 
+            
+            var version_area =  version_total_area_geojson/((version_width_geojson/ version_width) * (version_height_geojson/version_height));
+            const equalization_factor = base_version_area/version_area;
+            
+            //Update the version_width and version_height with new equalised values
+            version_width = version_width * Math.sqrt(equalization_factor) ;
+            version_height = version_height * Math.sqrt(equalization_factor);
+            
+            // Diagnostic check to see if areas are equal
+            // version_area =  version_total_area_geojson/((version_width_geojson/ version_width) * (version_height_geojson/version_height));
+            // console.log( sysname, " Area: ", version_area)
+            // console.log( base_sysname, ":", base_version_area)
+        }       
+       
+        scale_factors[sysname] = {x: (version_width * this.config.scale) / version_width_geojson, y: (version_height * this.config.scale) / version_height_geojson};
+        
+        version_dimension = {x: version_width * this.config.scale, y: version_height * this.config.scale};
+        
+        this.max_height = Math.max(this.max_height, version_dimension.y)
+        
         Object.keys(data.regions).forEach(function(region_id){
 
             var region = data.regions[region_id];
@@ -1759,38 +1768,10 @@ class CartMap {
 
         }, this);
 
-        // Now we need to recompute the D3 line functions of all other map versions to ensure area equalization.
-        Object.keys(this.versions).forEach(function(version_sysname){
-
-            Object.keys(this.regions).forEach(function(region_id){
-
-                var polygons = this.regions[region_id].versions[version_sysname].polygons.map(polygon =>
-                    new Polygon(
-                        polygon.id,
-                        /*d3.svg.line()
-                            .x(d => scale_factors[version_sysname].x * (-1*(this.versions[version_sysname].extrema.min_x) + d[0]))
-                            .y(d => scale_factors[version_sysname].y * ((this.versions[version_sysname].extrema.max_y) - d[1]))
-                            .interpolate("linear")(polygon.coordinates),*/
-                        SVG.lineFunction(
-                            d => scale_factors[version_sysname].x * (-1*(this.versions[version_sysname].extrema.min_x) + d[0]),
-                            d => scale_factors[version_sysname].y * ((this.versions[version_sysname].extrema.max_y) - d[1]),
-                            polygon.coordinates,
-                            polygon.holes
-                        ),
-                        polygon.coordinates,
-                        polygon.holes
-                    )
-                )
-
-                this.regions[region_id].versions[version_sysname].polygons = polygons;
-
-            }, this);
-
-        },this);
-
         this.versions[sysname] = new MapVersion(
             data.name,
             data.extrema,
+            version_dimension,
             data.labels,
             data.world
         );
@@ -1855,6 +1836,8 @@ class CartMap {
     drawVersion(sysname, element_id, where_drawn) {
         var map_container = document.getElementById(element_id);
         var version = this.versions[sysname];
+        var version_width = this.versions[sysname].dimension.x;
+        var version_height = this.versions[sysname].dimension.y;
 
         // Empty the map container element
         while(map_container.firstChild) {
@@ -1863,9 +1846,9 @@ class CartMap {
 
         var canvas = d3.select('#' + element_id).append("svg")
             .attr("id", element_id + "-svg")
-            .attr("width", this.width)
-            .attr("height", this.height);
-
+            .attr("width", version_width)
+            .attr("height", this.max_height);
+            
         var polygons_to_draw = [];
 
         // First we collect the information for each polygon to make using D3 easier.
@@ -1997,8 +1980,8 @@ class CartMap {
                                        y2Gall,
                                        y2Ink);
 
-                const scaleX = this.width / ((version.extrema.max_x - version.extrema.min_x) * gallScale);
-                const scaleY = this.height / ((version.extrema.max_y - version.extrema.min_y) * gallScale);
+                const scaleX = version_width / ((version.extrema.max_x - version.extrema.min_x) * gallScale);
+                const scaleY = version_height / ((version.extrema.max_y - version.extrema.min_y) * gallScale);
 
                 var text = canvas.selectAll("text")
                     .data(labels.labels)
@@ -2027,8 +2010,8 @@ class CartMap {
             } else {
                 // Label transformation for non-World Maps.
 
-                var scale_x = this.width / ((version.extrema.max_x - version.extrema.min_x) * labels.scale_x);
-                var scale_y = this.height / ((version.extrema.max_y - version.extrema.min_y) * labels.scale_y);
+                var scale_x = version_width / ((version.extrema.max_x - version.extrema.min_x) * labels.scale_x);
+                var scale_y = version_height / ((version.extrema.max_y - version.extrema.min_y) * labels.scale_y);
 
                 var text = canvas.selectAll("text")
                     .data(labels.labels)
@@ -3404,11 +3387,11 @@ class Cartogram {
                                 world = (cartogram.extent === 'world');
                             }
 
-                                this.model.map.addVersion("3-cartogram", new MapVersionData(cartogram.features, extrema, response.tooltip, null, null, MapDataFormat.GEOJSON, world));
+                                this.model.map.addVersion("3-cartogram", new MapVersionData(cartogram.features, extrema, response.tooltip, null, null, MapDataFormat.GEOJSON, world), "1-conventional");
 
 
                             } else {
-                                this.model.map.addVersion("3-cartogram", new MapVersionData(cartogram.features, cartogram.extrema, response.tooltip,null, null,  MapDataFormat.GOCARTJSON));
+                                this.model.map.addVersion("3-cartogram", new MapVersionData(cartogram.features, cartogram.extrema, response.tooltip,null, null,  MapDataFormat.GOCARTJSON), "1-conventional");
                             }
 
 
@@ -3624,10 +3607,10 @@ class Cartogram {
                     max_y: mappack.original.bbox[3]
                 };
 
-                map.addVersion("1-conventional", new MapVersionData(mappack.original.features, extrema, mappack.original.tooltip, mappack.abbreviations, mappack.labels, MapDataFormat.GEOJSON, world));
+                map.addVersion("1-conventional", new MapVersionData(mappack.original.features, extrema, mappack.original.tooltip, mappack.abbreviations, mappack.labels, MapDataFormat.GEOJSON, world), "1-conventional");
 
             } else {
-                map.addVersion("1-conventional", new MapVersionData(mappack.original.features, mappack.original.extrema, mappack.original.tooltip, mappack.abbreviations, mappack.labels, MapDataFormat.GOCARTJSON, world));
+                map.addVersion("1-conventional", new MapVersionData(mappack.original.features, mappack.original.extrema, mappack.original.tooltip, mappack.abbreviations, mappack.labels, MapDataFormat.GOCARTJSON, world), "1-conventional");
             }
 
             if(mappack.population.hasOwnProperty("bbox")) {
@@ -3639,14 +3622,14 @@ class Cartogram {
                     max_y: mappack.population.bbox[3]
                 };
 
-                map.addVersion("2-population", new MapVersionData(mappack.population.features, extrema, mappack.population.tooltip, null, null, MapDataFormat.GEOJSON, world));
+                map.addVersion("2-population", new MapVersionData(mappack.population.features, extrema, mappack.population.tooltip, null, null, MapDataFormat.GEOJSON, world), "1-conventional");
 
             } else {
-                map.addVersion("2-population", new MapVersionData(mappack.population.features, mappack.population.extrema, mappack.population.tooltip, null, null, MapDataFormat.GOCARTJSON, world));
+                map.addVersion("2-population", new MapVersionData(mappack.population.features, mappack.population.extrema, mappack.population.tooltip, null, null, MapDataFormat.GOCARTJSON, world), "1-conventional");
             }
 
             if(cartogram !== null) {
-                map.addVersion("3-cartogram", cartogram);
+                map.addVersion("3-cartogram", cartogram, "1-conventional");
             }
 
             /*
