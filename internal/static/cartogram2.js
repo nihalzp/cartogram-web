@@ -1463,16 +1463,29 @@ class CartMap {
             .text(scaleNiceNumberC)
             .attr("opacity",0)
             .on("click", changeToC);
-
+            
+        let b_label_location_shift_x = 10;
+        let b_label_location_shift_y = 0;
+        // If there is less space between 'a' square and 'b' square, then we move the b label bit to the right and down
+        if(widthB - widthA < 11) {
+            b_label_location_shift_y = 2.3;
+            if(scaleNiceNumberB >= 10) {
+                b_label_location_shift_x = 9;
+            }
+            else {
+                b_label_location_shift_x = 7;
+            }
+        }
+        
         const b_label = legendSVG.append("text")
-            .attr("x", 20+widthB-10)
-            .attr("y", widthB)
+            .attr("x", 20+widthB-b_label_location_shift_x)
+            .attr("y", widthB + b_label_location_shift_y)
             .attr("font-size", 8)
             .attr("cursor", "pointer")
             .text(scaleNiceNumberB)
             .attr("opacity",0)
             .on("click", changeToB);
-
+            
         const a_label = legendSVG.append("text")
             .attr("x", 20+widthA-10)
             .attr("y", widthA)
