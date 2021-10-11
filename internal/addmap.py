@@ -19,6 +19,7 @@ import redis
 import settings
 import awslambda
 import threading, queue
+import re
 
 def get_random_string(length):
     return ''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(length))
@@ -916,6 +917,131 @@ def data(map_name):
     print("All done!")
     print()
 
+
+def delete(map_name):
+    
+    def try_again():
+        map_name = input("Enter map name to delete: ")
+        if map_name == 'exit':
+            return
+        else:  
+            delete(map_name)
+            return
+    
+    try:
+        with open("handlers/{}.py".format(map_name), "r") as handler_file:
+            handler_file_content = handler_file.read()
+            handler_file_lines = handler_file_content.split("\n")
+            friendly_name_found = False
+            for line in handler_file_lines:
+                if friendly_name_found:
+                    friendly_name = re.findall('"([^"]*)"', line)[0]
+                    break
+                elif line.strip() == "def get_name(self):":
+                    friendly_name_found = True
+                
+    except:
+        print()
+        print("Seems like your map doesn't exist (I couldn't find it in handlers directory). Please input accurate map name or else type 'exit' get out of Add Map Wizard")
+        print()
+        try_again()
+        return
+        
+    print("Add Map Wizard is going to delete all the files related to the map named: \n \t\t\t " + friendly_name)
+    print()
+    proceed = input("Enter 'Yes' to confirm or anything else to start over: ")
+    print()
+    if proceed == "exit":
+        return
+    elif proceed != "Yes":
+        try_again()
+        return
+
+    print()
+    print("I will now modify web.py to remove your new map. Before I do this, I will back up the current version of web.py to web.py.bak.")
+    print()
+
+    print("Backing up web.py...")
+    print()
+
+    try:
+        shutil.copy("web.py", "web.py.bak")
+    except:
+        print("Backing up failed. Try again: ")
+        try_again()
+        return
+    print("Editing web.py...")
+    
+    
+    try:
+        with open("web.py", "r") as web_py_file:
+
+            try:
+                web_py_contents = web_py_file.read()
+                web_py_lines = web_py_contents.split("\n")
+            except:
+                print("Cannot read web.py. Try again.")
+                try_again()
+                return
+            
+        web_py_new_lines = []
+        found_header = False
+        found_body = False
+        
+        for line in web_py_lines:
+            if line.strip() == "from handlers import {}".format(map_name):
+                found_header = True
+            elif line.strip() == "'{0}': {0}.CartogramHandler(),".format(map_name):
+                found_body = True
+            else:
+                web_py_new_lines.append(line)
+            
+        if not found_header or not found_body:
+            print()
+            print("I was not able to find your map's handler information in web.py file.")
+            print()
+            print("Do you still want to continue deleting other files?")
+            print()
+            proceed = input("Enter 'Yes' to continue: ")
+            if proceed == "Yes":
+                pass
+            else:
+                try_again()
+                return
+        else:
+            with open("web.py", "w") as web_py_file:
+                try:
+                    web_py_file.write("\n".join(web_py_new_lines))
+                except:
+                    print("An error occured while trying to write changes to web.py.")
+                    try_again()
+                    return
+        
+    except:
+        print("Cannot open web.py. Try again.")
+        try_again()
+        return
+    
+    print()
+    
+    try:
+        print("Removing handlers/{}.py...".format(map_name))
+        print()
+        os.remove("handlers/{}.py".format(map_name))
+        print("Removing {}.svg...".format(map_name))
+        print()
+        os.remove("{}.svg".format(map_name))
+    except OSError:
+        pass
+    
+    print("Removing static/cartdata/{}...".format(map_name))
+    print()
+    shutil.rmtree("static/cartdata/{}".format(map_name), ignore_errors=True)
+    
+    
+    
+    
+
 print_welcome()
 
 if len(sys.argv) < 3:
@@ -926,6 +1052,8 @@ if sys.argv[1] == "init":
     init(sys.argv[2])
 elif sys.argv[1] == "data":
     data(sys.argv[2])
+elif sys.argv[1] == "del":
+    delete(sys.argv[2])
 else:
     print_usage()
     sys.exit(1)
