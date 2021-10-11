@@ -749,6 +749,12 @@ class CartMap {
          * The max height of the map. It is used to make the height of map display SVG canvas constant.
          * @type {number}
          */
+         this.max_width = 0.0;
+         
+        /**
+         * The max height of the map. It is used to make the height of map display SVG canvas constant.
+         * @type {number}
+         */
         this.max_height = 0.0;
 
     }
@@ -971,9 +977,9 @@ class CartMap {
         widthB *= Math.sqrt(scaleNiceNumberB * Math.pow(10, scalePowerOf10) / valuePerSquare);
         widthC *= Math.sqrt(scaleNiceNumberC * Math.pow(10, scalePowerOf10) / valuePerSquare);
 
-        const gridPathA = this.getGridPath(widthA, this.versions[sysname].dimension.x, this.versions[sysname].dimension.y);
-        const gridPathB = this.getGridPath(widthB, this.versions[sysname].dimension.x, this.versions[sysname].dimension.y);
-        const gridPathC = this.getGridPath(widthC, this.versions[sysname].dimension.x, this.versions[sysname].dimension.y);
+        const gridPathA = this.getGridPath(widthA, this.max_width, this.max_height);
+        const gridPathB = this.getGridPath(widthB, this.max_width, this.max_height);
+        const gridPathC = this.getGridPath(widthC, this.max_width, this.max_height);
 
         // Store legend Information
         this.versions[sysname].legendData.gridData.gridA.width = widthA;
@@ -1593,12 +1599,12 @@ class CartMap {
         let gridPath = ""
 
         // Vertical lines
-        for (let i = 0; i < 50; i++) {
+        for (let i = 0; i < 30; i++) {
             gridPath += "M" + (20 + gridWidth*i) + " 0 L" + (20 + gridWidth*i) + " " + height + " ";
         }
 
         // Horizontal Lines
-        for (let j = 1; j <= 50; j++) {
+        for (let j = 1; j <= 30; j++) {
             gridPath += "M0 " + (height - gridWidth*j) + " L" + width + " " + (height - gridWidth*j) + " ";
         }
 
@@ -1735,7 +1741,8 @@ class CartMap {
         
         version_dimension = {x: version_width * this.config.scale, y: version_height * this.config.scale};
         
-        this.max_height = Math.max(this.max_height, version_dimension.y)
+        this.max_width = Math.max(this.max_width, version_dimension.x);
+        this.max_height = Math.max(this.max_height, version_dimension.y);
         
         Object.keys(data.regions).forEach(function(region_id){
 
@@ -1859,7 +1866,7 @@ class CartMap {
 
         var canvas = d3.select('#' + element_id).append("svg")
             .attr("id", element_id + "-svg")
-            .attr("width", version_width)
+            .attr("width", this.max_width)
             .attr("height", this.max_height);
             
         var polygons_to_draw = [];
