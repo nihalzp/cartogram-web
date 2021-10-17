@@ -3721,7 +3721,13 @@ class Cartogram {
             document.getElementById('cartogram').style.display = 'block';
 
         }.bind(this));
-
+        
+        // Following code removes the creative commons logo if the website is opened from a mobile browser
+        const isMobile = navigator.userAgentData.mobile;
+        if(isMobile) {
+            document.querySelectorAll(".creative-commons").forEach(el => el.remove());
+        }
+    
     }
 
 }
