@@ -90,6 +90,8 @@ from handlers import srilanka
 from handlers import germany
 from handlers import indonesia
 from handlers import singaporeRe
+from handlers import usa_test2
+from handlers import mymap3
 # ---addmap.py header marker---
 # !!!END DO NOT MODFIY
 
@@ -217,6 +219,8 @@ cartogram_handlers = {
 'germany': germany.CartogramHandler(),
 'indonesia': indonesia.CartogramHandler(),
 'singaporeRe': singaporeRe.CartogramHandler(),
+'usa_test2': usa_test2.CartogramHandler(),
+'mymap3': mymap3.CartogramHandler(),
 # ---addmap.py body marker---
 # !!!END DO NOT MODFIY
 }
@@ -573,9 +577,9 @@ def cartogram_ui():
         json_response['error'] = 'The handler specified was invaild.'
         return Response(json.dumps(json_response), status=200, content_type="application/json")
 
-    if 'csv' not in request.files:
-        json_response['error'] = 'You must upload CSV data.'
-        return Response(json.dumps(json_response), status=200, content_type="application/json")
+    # if 'csv' not in request.files:
+    #     json_response['error'] = 'You must upload CSV data.'
+    #     return Response(json.dumps(json_response), status=200, content_type="application/json")
 
     cartogram_handler = cartogram_handlers[request.form['handler']]
 

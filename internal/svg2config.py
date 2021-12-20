@@ -7,7 +7,7 @@ import os
 
 polygon_id_re = re.compile(r'polygon-([0-9]+)')
 
-def convert(svg_filepath):
+def svg2config(svg_filepath, config_filepath):
 
     config = {
         'dont_draw': [],
@@ -34,8 +34,11 @@ def convert(svg_filepath):
         print("Elevating polygon {}.".format(polygon_id))
         
         config['elevate'].append(polygon_id)
+        
+    with open(config_filepath, 'w') as config_json_file:
+        json.dump(config, config_json_file, indent=4)
     
-    return config
+    return
 
     
 

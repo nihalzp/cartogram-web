@@ -72,11 +72,12 @@ def init(map_name):
     print()
 
     map_gen_path = input("Enter the location of the .json file for this map: ")
-    map_dat_path = input("Enter the location of the .csv file for this map: ")
 
     if not os.path.exists("{}/{}".format(os.environ["CARTOGRAM_DATA_DIR"], map_gen_path)):
         print("Error: It looks like the file {}/{} does not exist.".format(os.environ["CARTOGRAM_DATA_DIR"], map_gen_path))
         return
+    
+    map_dat_path = input("Enter the location of the .csv file for this map: ")
     
     if not os.path.exists("{}/{}".format(os.environ["CARTOGRAM_DATA_DIR"], map_dat_path)):
         print("Error: It looks like the file {}/{} does not exist.".format(os.environ["CARTOGRAM_DATA_DIR"], map_dat_path))
@@ -266,8 +267,10 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
                 width = max_x - min_x
                 height = max_y - min_y
 
-
-                scale = 750.0/width
+                if width >= height:
+                    scale = 450.0/width
+                else:
+                    scale = 450.0/height
                 
                 width *= scale
                 height *= scale

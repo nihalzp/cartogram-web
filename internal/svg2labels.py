@@ -23,7 +23,7 @@ def getInnerText(node):
     
     return text
 
-def convert(svg_filepath, scale_x, scale_y):
+def svg2labels(svg_filepath, labels_filepath, scale_x, scale_y):
     svg_map = minidom.parse(svg_filepath)
     labels = {"scale_x": scale_x, "scale_y": scale_y, "labels": [], "lines": []}
 
@@ -86,7 +86,10 @@ def convert(svg_filepath, scale_x, scale_y):
 
             continue
     
-    return labels
+    with open(labels_filepath, "w") as labels_json_file:
+                json.dump(labels, labels_json_file)
+    
+    return
     
 
 

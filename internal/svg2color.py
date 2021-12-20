@@ -47,7 +47,7 @@ def get_color_from_linear_gradient(lgs, lg_id):
     else:
         return lgs[lg_id]['value']
 
-def convert(svg_filepath, default_colors_filepath):
+def svg2color(svg_filepath, default_colors_filepath):
 
     colors = {}
     colors_by_name = {}
@@ -90,7 +90,7 @@ def convert(svg_filepath, default_colors_filepath):
                 css_properties = parse_inline_css(stop.getAttribute("style"))
                 linear_gradients[linear_gradient.getAttribute("id")] = {'link': False, 'value': css_properties["stop-color"]}
 
-
+    print_color_info = {}
     for path in svg_map.getElementsByTagName("path"):
 
         # First, see if we have a valid region
@@ -99,10 +99,20 @@ def convert(svg_filepath, default_colors_filepath):
         except NotAValidRegionException:
             continue
         
+        
+        if region_id in print_color_info:
+            print_color_info[region_id] = False
+        else:
+            print_color_info[region_id] = True
+            
+            
         # Next, see if its ID is in the color definition
         if 'id_{}'.format(region_id) not in colors:
             print("ID {} is not a valid ID.".format(region_id))
             continue
+        
+        
+        
         
         # Now, update the color if necessary. If the color specified in the SVG
         # file is the same as the original color, then we don't update.
@@ -128,14 +138,19 @@ def convert(svg_filepath, default_colors_filepath):
                 else:
                     new_color = css_properties["fill"]
 
-        if original_colors['id_{}'.format(region_id)].lower() != new_color and new_color != os.environ['CARTOGRAM_COLOR']:
+        if original_colors['id_{}'.format(region_id)].lower() != new_color and new_color != os.environ['CARTOGRAM_COLOR'] and print_color_info[region_id]:
             print("Updating color for region {} (original color {}, new color {})".format(region_id, original_colors['id_{}'.format(region_id)], new_color))
             colors['id_{}'.format(region_id)] = new_color
         else:
-            print("Did not get new color for region {} (original color {}, new color {})".format(region_id, original_colors['id_{}'.format(region_id)], new_color))
+            if print_color_info[region_id]:
+                print("Did not get new color for region {} (original color {}, new color {})".format(region_id, original_colors['id_{}'.format(region_id)], new_color))
         
         if path.hasAttribute("gocart:regionname"):
             colors_by_name[path.getAttribute("gocart:regionname")] = colors['id_{}'.format(region_id)]
+    
+    
+    with open(default_colors_filepath, "w") as colors_json_file:
+                json.dump(colors, colors_json_file)
     
     return colors, colors_by_name
 
