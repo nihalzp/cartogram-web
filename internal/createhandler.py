@@ -35,7 +35,7 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
     def csv_to_area_string_and_colors(self, csvfile):
         if(isinstance(csvfile, types.GeneratorType)):
             csvfile = csv.reader(csvfile)
-        return self.order_by_example(csv.reader(csvfile), "{4}", 0, 1, 2, 3, [{5}], [0.0 for i in range(0,{2})], {{{6}}})
+        return self.order_by_example(csvfile, "{4}", 0, 1, 2, 3, [{5}], [0.0 for i in range(0,{2})], {{{6}}})
 '''
     
     area_data_template = "\n".join(list(map(lambda region: "{},{{}},{},{}".format(region["id"], region["name"], region["inset"]), csv_data)))
