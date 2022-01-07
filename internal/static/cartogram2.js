@@ -40,6 +40,17 @@ function clearFileInput(ctrl) {
       ctrl.parentNode.replaceChild(ctrl.cloneNode(true), ctrl);
     }
   }
+  
+function removeCCLogoFromMobileDevices() {
+    // Following code removes the creative commons logo if the website is opened from a mobile browser
+    const isMobile = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    if(isMobile) {
+        document.querySelectorAll(".cc-logo").forEach(el => el.remove());
+    }
+    
+}
+
+window.onload = removeCCLogoFromMobileDevices();
 
 /**
  * HTTP contains some helper methods for making AJAX requests
@@ -3720,16 +3731,8 @@ class Cartogram {
             document.getElementById('template-link').href = this.config.cartogram_data_dir+ "/" + sysname + "/template.csv";
             document.getElementById('cartogram').style.display = 'block';
 
-        }.bind(this));
-        
-        // Following code removes the creative commons logo if the website is opened from a mobile browser
-        const isMobile = navigator.userAgentData.mobile;
-        if(isMobile) {
-            document.querySelectorAll(".creative-commons").forEach(el => el.remove());
-        }
-    
+        }.bind(this)); 
     }
-
 }
 
 /**
