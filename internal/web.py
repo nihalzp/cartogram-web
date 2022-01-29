@@ -607,7 +607,7 @@ def cartogram_ui():
 
     except (KeyError, csv.Error, ValueError, UnicodeDecodeError) as error:
 
-        json_response['error'] = 'There was a problem reading your CSV file.'
+        json_response['error'] = 'There was a problem reading your CSV/Excel file.'
         return Response(json.dumps(json_response), status=200, content_type="application/json")
 
 

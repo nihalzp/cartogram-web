@@ -66,6 +66,52 @@
       -o-user-select: none;
     }
 
+    .no-click {
+      pointer-events: none;
+    }
+    
+    .dropdown {
+	    margin-right:10px;
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-content {
+      list-style:none;
+      position: absolute;
+      left:-9999px; /* Move it off-screen until hover */
+      border-radius: 1.2rem;
+      margin-top: 1px;
+      width: 100px;
+      background-color: #d76127;
+      z-index: 1;
+    }
+    
+    .dropdown-content a {
+      color: white;
+      padding: 6px 8px;
+      text-decoration: none;
+      display: block;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #b75222;
+    }
+    
+    .dropdown-content .top-item:hover{
+      border-radius: 1.2rem 1.2rem 0 0;
+    }
+    
+    .dropdown-content .bottom-item:hover{
+      border-radius: 0 0 1.2rem 1.2rem;
+    }
+
+    .dropdown:hover .dropdown-content {
+      left:auto; /* Bring back on-screen when needed */
+      right:0;
+    }
+    
+    
     #barchart svg {
         overflow: visible !important;
     }
@@ -141,7 +187,13 @@
                <p class="lead">Input:</p>
              </div>
              <div class="col-10">
-                <a class="btn btn-primary" href="{{cartogram_data_dir}}/{{default_cartogram_handler}}/template.csv" role="button" id="template-link">Download CSV Template</a>
+              <div class="dropdown">
+                <button class="btn btn btn-primary no-click" >Download Template Data</button>
+                <div class=" dropdown-content">
+                  <a class="top-item" id="csv-template-link" href="#">CSV File</a>
+                  <a class="bottom-item" id="xlsx-template-link" href="#">Excel File</a>
+                </div>
+              </div>
              </div>
            </div>
          </div>
