@@ -39,7 +39,30 @@ function clearFileInput(ctrl) {
     if (ctrl.value) {
       ctrl.parentNode.replaceChild(ctrl.cloneNode(true), ctrl);
     }
-  }
+ }
+
+function addClipboard (button_id, message) {
+
+    $("#" + button_id).tooltip({
+        trigger : 'hover',
+      })
+      
+    document.getElementById(button_id).onclick = function() {
+        var icon_id = button_id + "-icon";
+        navigator.clipboard.writeText(message);
+        document.getElementById(icon_id).src = 'static/clipboard-check.svg';
+        $("#" + button_id)
+        .attr('data-original-title', "Copied!")
+        .tooltip('show');
+        
+        setTimeout(function() {
+            document.getElementById(icon_id).src = 'static/clipboard.svg';
+            $("#" + button_id)
+            .attr('data-original-title', "Copy")
+        }
+        , 2000);
+    };
+}
   
 function removeCCLogoFromMobileDevices() {
     // Following code removes the creative commons logo if the website is opened from a mobile browser
@@ -3028,8 +3051,9 @@ class Cartogram {
 
         document.getElementById('email-share').href = "mailto:?body=" + window.encodeURIComponent(url);
 
-	document.getElementById('share-link-href').value = url;
+	    document.getElementById('share-link-href').value = url;
 
+        addClipboard('clipboard-link', url);
     }
 
     /**
@@ -3040,9 +3064,13 @@ class Cartogram {
      * @param {string} key The embed key
      */
     generateEmbedHTML(mode, key) {
+        var embeded_html = '<iframe src="https://go-cart.io/embed/' + mode + '/' + key + '" width="800" height="550" style="border: 1px solid black;"></iframe>'
+        
+        document.getElementById('share-embed-code').innerHTML = embeded_html;
 
-	document.getElementById('share-embed-code').innerHTML = '<iframe src="https://go-cart.io/embed/' + mode + '/' + key + '" width="800" height="550" style="border: 1px solid black;"></iframe>';
-	document.getElementById('share-embed').style.display = 'block';
+        document.getElementById('share-embed').style.display = 'block';
+        
+        addClipboard('clipboard-embed', embeded_html);
     }
 
     /**

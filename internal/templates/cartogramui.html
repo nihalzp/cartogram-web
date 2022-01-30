@@ -111,6 +111,25 @@
       right:0;
     }
     
+    .form-group {
+      position: relative;
+    }
+    
+    .clipboard-copy {
+      position: absolute;
+      top: 0;
+      right: 0;
+      margin-top: 8px;
+      margin-right: 15px;
+      cursor: pointer;
+      border-radius: 3px;
+      border: 1px solid #d7d3d3;
+    }
+    
+    .clipboard-copy:hover {
+      background-color: #dfdbdb;
+    }
+    
     
     #barchart svg {
         overflow: visible !important;
@@ -357,8 +376,15 @@
               <a href="" download="" id="download-modal-geojson-link" class="btn btn-lg btn-primary ml-5" style="border-radius: 1.2em">Download GeoJSON</a>
           </p>
           <p class="lead text-center">Liked our work? Make sure to credit us using the citation below:</p>
-          <p class="text-primary">Gastner MT, Seguy V, More P. Fast flow-based algorithm for creating
-              density-equalizing map projections. Proc Natl Acad Sci USA 115(10):E2156–E2164 (2018).</p>
+          <div class="form-group">
+            <a id="citation-text2" class="text-primary" href="https://www.pnas.org/content/115/10/E2156" target="_blank" rel="noopener noreferrer" >Gastner MT, Seguy V, More P. Fast 
+              low-based algorithm for creating density-equalizing map projections. Proc Natl Acad Sci USA 115(10):E2156–E2164 (2018).</a>
+        
+            <button style="margin-top:25px;" class="clipboard-copy" id="clipboard-citation2" data-animation="false" title="Copy" onclick="addClipboard('clipboard-citation2',document.getElementById('citation-text2').innerText);
+                document.getElementById('clipboard-citation2').click()">
+              <img id="clipboard-citation2-icon" src="/static/clipboard.svg" alt="Copy" />
+            </button>
+          </div>
         </div>
         <!--<div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -407,19 +433,36 @@
 
 	    <div class="mb-3">
 	      <h3 class="text-center">Link</h3>
-	      <input type="text" id="share-link-href" class="form-control w-100" disabled style="font-family: monospace;" value="https://go-cart.io"/>
+        <div class="form-group">
+          <input type="text" id="share-link-href" class="form-control w-100" disabled style="font-family: monospace;" value="https://go-cart.io"/>
+          <button style= "margin-top: 4.6px;" data-animation="false" class="clipboard-copy " id="clipboard-link" title="Copy">
+            <img id="clipboard-link-icon" src="/static/clipboard.svg" alt="Copy" />
+          </button>
+        </div>
 	    </div>
 
 	    <div id="share-embed" class="mb-5" style="display: none">
 	      <h3 class="text-center">Embed</h3>
-	      <p class="text-center">To embed your cartogram into any webpage, insert the HTML code below:</p>
-	      <textarea id="share-embed-code" class="form-control w-100" disabled rows="3" style="font-family: monospace; resize: none"></textarea>
+	      <p class="text-center">To embed yor cartogram into any webpage, insert the HTML code below:</p>
+        <div class="form-group">
+          <textarea id="share-embed-code" class="form-control w-100" disabled rows="3" style="font-family: monospace; resize: none"></textarea>
+          <button class="clipboard-copy"  id="clipboard-embed" data-animation="false" title="Copy">
+            <img id="clipboard-embed-icon" src="/static/clipboard.svg" alt="Copy" />
+          </button>
+        </div>
 	    </div>
 
 	    <div>
             <p class="lead text-center">Liked our work? Make sure to credit us using the citation below:</p>
-            <p class="text-primary">Gastner MT, Seguy V, More P. Fast flow-based algorithm for creating
-              density-equalizing map projections. Proc Natl Acad Sci USA 115(10):E2156–E2164 (2018).</p>
+            <div class="form-group">
+            <a id="citation-text" class="text-primary" href="https://www.pnas.org/content/115/10/E2156" target="_blank" rel="noopener noreferrer" >Gastner MT, Seguy V, More P. Fast 
+              low-based algorithm for creating density-equalizing map projections. Proc Natl Acad Sci USA 115(10):E2156–E2164 (2018).</a>
+        
+            <button style="margin-top:25px;" class="clipboard-copy" id="clipboard-citation" data-animation="false" title="Copy" onclick="addClipboard('clipboard-citation',document.getElementById('citation-text').innerText);
+                document.getElementById('clipboard-citation').click()">
+              <img id="clipboard-citation-icon" src="/static/clipboard.svg" alt="Copy" />
+            </button>
+            </div>
 	    </div>
           </div>
           <!--<div class="modal-footer">

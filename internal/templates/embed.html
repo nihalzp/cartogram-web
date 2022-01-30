@@ -3,8 +3,9 @@
   <head>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://d3js.org/d3-ease.v1.min.js"></script>
-  <script src="https://d3js.org/d3-polygon.v1.min.js"></script>
-  <script src="{{ url_for('static', filename='tracking.js') }}"></script>
+    <script src="https://d3js.org/d3-polygon.v1.min.js"></script>
+    <script src="{{ url_for('static', filename='tracking.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.6/xlsx.full.min.js"></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
@@ -220,7 +221,8 @@
       
 
       <!-- dummy element so we can reuse existing JS code -->
-      <a href="" id="template-link" style="display: none"></a>
+      <a href="" id="csv-template-link" style="display: none"></a>
+      <a href="" id="xlsx-template-link" style="display: none"></a>
       <div id="piechart" style="display: none"></div>
       <div id="upload-button" style="display: none"></div>
       <div id="edit-button" style="display: none"></div>
@@ -356,20 +358,35 @@
 
 	      <div class="mb-2">
 	      <h3 class="text-center">Link</h3>
-	      <input type="text" id="share-link-href" class="form-control w-100" disabled style="font-family: monospace;" value="https://go-cart.io"/>
-	    </div>
+	      <div class="form-group">
+          <input type="text" id="share-link-href" class="form-control w-100" disabled style="font-family: monospace;" value="https://go-cart.io"/>
+          <button style= "margin-top: 4.7px;" data-animation="false" class="clipboard-copy " id="clipboard-link" title="Copy">
+            <img id="clipboard-link-icon" src="/static/clipboard.svg" alt="Copy" />
+          </button>
+        </div></div>
 	      
 	      <div id="share-embed" class="mb-5" style="display: none">
 	      <h3 class="text-center">Embed</h3>
 	      <p class="text-center">To embed your cartogram into any webpage, insert the HTML code below:</p>
-	      <textarea id="share-embed-code" class="form-control w-100" disabled rows="3" style="font-family: monospace">Help</textarea>
-	    </div>
+	      <div class="form-group">
+          <textarea id="share-embed-code" class="form-control w-100" disabled rows="3" style="font-family: monospace; resize: none"></textarea>
+          <button class="clipboard-copy"  id="clipboard-embed" data-animation="false" title="Copy">
+            <img id="clipboard-embed-icon" src="/static/clipboard.svg" alt="Copy" />
+          </button>
+        </div></div>
 
             </div>
             <p class="lead text-center">Liked our work? Make sure to credit us using the citation below:</p>
-            <p class="text-primary">Gastner MT, Seguy V, More P. Fast flow-based algorithm for creating
-                density-equalizing map projections. Proc Natl Acad Sci USA 115(10):E2156–E2164 (2018).</p>
-          </div>
+            <div class="form-group">
+              <a id="citation-text" class="text-primary" href="https://www.pnas.org/content/115/10/E2156" target="_blank" rel="noopener noreferrer" >Gastner MT, Seguy V, More P. Fast 
+                low-based algorithm for creating density-equalizing map projections. Proc Natl Acad Sci USA 115(10):E2156–E2164 (2018).</a>
+          
+              <button style="margin-top:25px;" class="clipboard-copy" id="clipboard-citation" data-animation="false" title="Copy" onclick="addClipboard('clipboard-citation',document.getElementById('citation-text').innerText);
+                  document.getElementById('clipboard-citation').click()">
+                <img id="clipboard-citation-icon" src="/static/clipboard.svg" alt="Copy" />
+              </button>
+              </div>
+            </div>
           <!--<div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             <button type="button" class="btn btn-primary">Save changes</button>
