@@ -64,14 +64,14 @@ function addClipboard (button_id, message) {
     };
 }
   
-function removeCCLogoFromSmallScreens() {
+function removeCCLogoFromMobileDevices() {
     // Following code removes the creative commons logo if screen width is less than 768px
     @media (min-width: 767px) {
         document.querySelectorAll(".cc-logo").forEach(el => el.remove());
     }
 }
 
-window.onload = removeCCLogoFromSmallScreens();
+window.onload = removeCCLogoFromMobileDevices();
 
 /**
  * HTTP contains some helper methods for making AJAX requests
