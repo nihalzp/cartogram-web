@@ -84,10 +84,10 @@ class HTTP {
      * @param {string} url The URL of the GET request
      * @param {number} timeout The timeout, in seconds, of the GET request
      * @param {function} onprogress A function to be called when the request progress information is updated
-     * @param {boolean} csv_file Whether the response is a CSV file
+     * @param {boolean} parse_json Whether to parse the response as JSON
      * @returns {Promise} A promise to the HTTP response
      */
-    static get(url, timeout=null, onprogress=null, csv_file=false) {
+    static get(url, timeout=null, onprogress=null, parse_json=true) {
         return new Promise(function(resolve, reject){
 
             var xhttp = new XMLHttpRequest();
@@ -100,7 +100,7 @@ class HTTP {
                         try
                         {
                             
-                            if(csv_file) 
+                            if(!parse_json) 
                             {
                                 resolve(this.response);
                             } 
@@ -3218,7 +3218,7 @@ class Cartogram {
         document.getElementById('csv-template-link').href = this.config.cartogram_data_dir+ "/" + sysname + "/template.csv";
         document.getElementById('csv-template-link').download = sysname + "_template.csv";
         
-        var csv_file_promise = HTTP.get(this.config.cartogram_data_dir+ "/" + sysname + "/template.csv", null, null, true);
+        var csv_file_promise = HTTP.get(this.config.cartogram_data_dir+ "/" + sysname + "/template.csv", null, null, false);
         var csv_file = await csv_file_promise.then(function(response){
             return response;
         });
