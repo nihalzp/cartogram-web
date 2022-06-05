@@ -64,15 +64,15 @@ function addClipboard (button_id, message) {
     };
 }
   
-function removeCCLogoFromMobileDevices() {
-    // Following code removes the creative commons logo if the website is opened from a mobile browser
-    const isMobile = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-    if(isMobile) {
+function removeCCLogoFromSmallScreens() {
+    // Following code removes the creative commons logo if the screen size is small
+    const is_small_screen = window.matchMedia("(max-width: 767px)")
+    if(is_small_screen.matches) {
         document.querySelectorAll(".cc-logo").forEach(el => el.remove());
     }
 }
 
-window.onload = removeCCLogoFromMobileDevices();
+window.onload = removeCCLogoFromSmallScreens();
 
 /**
  * HTTP contains some helper methods for making AJAX requests
