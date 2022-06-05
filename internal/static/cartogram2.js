@@ -3223,7 +3223,7 @@ class Cartogram {
             return response;
         });
    
-        // convert the csv file json for easy convertion to excel file
+        // convert the csv file to json for easy convertion to excel file
         var lines=csv_file.split("\n");
         
         var json_file = [];
@@ -3405,9 +3405,9 @@ class Cartogram {
                 return false;
             }
             
-            // convert given xlsx file to csv
+            // convert given xlsx/xls file to csv
             var input_data_file = document.getElementById('csv').files[0];
-            if(input_data_file.name.split('.').pop() === 'xlsx') {
+            if(input_data_file.name.split('.').pop().slice(0, 3) === 'xls') {
                 
                 var reader = new FileReader();
                 reader.onloadend = function(e) {
