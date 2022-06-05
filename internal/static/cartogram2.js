@@ -65,9 +65,8 @@ function addClipboard (button_id, message) {
 }
   
 function removeCCLogoFromMobileDevices() {
-    // Following code removes the creative commons logo if the website is opened from a mobile browser
-    const isMobile = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-    if(isMobile) {
+    // Following code removes the creative commons logo if screen width is less than 768px
+    @media (min-width: 767px) {
         document.querySelectorAll(".cc-logo").forEach(el => el.remove());
     }
 }
