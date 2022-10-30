@@ -22,15 +22,16 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Eastern Cape
-2 {} Free State
-3 {} Gauteng
-4 {} KwaZulu-Natal
-5 {} Limpopo
-6 {} Mpumalanga
-7 {} North West
-8 {} Northern Cape
-9 {} Western Cape""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Eastern Cape,
+2,{},Free State,
+3,{},Gauteng,
+4,{},KwaZulu-Natal,
+5,{},Limpopo,
+6,{},Mpumalanga,
+7,{},North West,
+8,{},Northern Cape,
+9,{},Western Cape,""".format(*values)
     
     def expect_geojson_output(self):
         return True

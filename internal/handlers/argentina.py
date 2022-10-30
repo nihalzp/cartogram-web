@@ -22,30 +22,31 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Buenos Aires
-2 {} Catamarca
-3 {} Chaco
-4 {} Chubut
-5 {} Ciudad de Buenos Aires
-6 {} Cordoba
-7 {} Corrientes
-8 {} Entre Rios
-9 {} Formosa
-10 {} Jujuy
-11 {} La Pampa
-12 {} La Rioja
-13 {} Mendoza
-14 {} Misiones
-15 {} Neuquen
-16 {} Rio Negro
-17 {} Salta
-18 {} San Juan
-19 {} San Luis
-20 {} Santa Cruz
-21 {} Santa Fe
-22 {} Santiago del Estero
-23 {} Tierra del Fuego
-24 {} Tucuman""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Buenos Aires,
+2,{},Catamarca,
+3,{},Chaco,
+4,{},Chubut,
+5,{},Ciudad de Buenos Aires,
+6,{},Cordoba,
+7,{},Corrientes,
+8,{},Entre Rios,
+9,{},Formosa,
+10,{},Jujuy,
+11,{},La Pampa,
+12,{},La Rioja,
+13,{},Mendoza,
+14,{},Misiones,
+15,{},Neuquen,
+16,{},Rio Negro,
+17,{},Salta,
+18,{},San Juan,
+19,{},San Luis,
+20,{},Santa Cruz,
+21,{},Santa Fe,
+22,{},Santiago del Estero,
+23,{},Tierra del Fuego,
+24,{},Tucuman,""".format(*values)
     
     def expect_geojson_output(self):
         return True

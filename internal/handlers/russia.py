@@ -22,89 +22,90 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Adygey
-2 {} Altay
-3 {} Amur
-4 {} Arkhangel'sk
-5 {} Astrakhan'
-6 {} Bashkortostan
-7 {} Belgorod
-8 {} Bryansk
-9 {} Buryat
-10 {} Chechnya
-11 {} Chelyabinsk
-12 {} Chukot
-13 {} Chuvash
-14 {} City of St. Petersburg
-15 {} Dagestan
-16 {} Gorno-Altay
-17 {} Ingush
-18 {} Irkutsk
-19 {} Ivanovo
-20 {} Kabardin-Balkar
-21 {} Kaliningrad
-22 {} Kalmyk
-23 {} Kaluga
-24 {} Kamchatka
-25 {} Karachay-Cherkess
-26 {} Karelia
-27 {} Kemerovo
-28 {} Khabarovsk
-29 {} Khakass
-30 {} Khanty-Mansiy
-31 {} Kirov
-32 {} Komi
-33 {} Kostroma
-34 {} Krasnodar
-35 {} Krasnoyarsk
-36 {} Kurgan
-37 {} Kursk
-38 {} Leningrad
-39 {} Lipetsk
-40 {} Maga Buryatdan
-41 {} Mariy-El
-42 {} Mordovia
-43 {} Moscow City
-44 {} Moskva
-45 {} Murmansk
-46 {} Nenets
-47 {} Nizhegorod
-48 {} North Ossetia
-49 {} Novgorod
-50 {} Novosibirsk
-51 {} Omsk
-52 {} Orel
-53 {} Orenburg
-54 {} Penza
-55 {} Perm'
-56 {} Primor'ye
-57 {} Pskov
-58 {} Rostov
-59 {} Ryazan'
-60 {} Sakha
-61 {} Sakhalin
-62 {} Samara
-63 {} Saratov
-64 {} Smolensk
-65 {} Stavropol'
-66 {} Sverdlovsk
-67 {} Tambov
-68 {} Tatarstan
-69 {} Tomsk
-70 {} Tula
-71 {} Tuva
-72 {} Tver'
-73 {} Tyumen'
-74 {} Udmurt
-75 {} Ul'yanovsk
-76 {} Vladimir
-77 {} Volgograd
-78 {} Vologda
-79 {} Voronezh
-80 {} Yamal-Nenets
-81 {} Yaroslavl'
-82 {} Yevrey
-83 {} Zabaykal'ye""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Adygey,
+2,{},Altay,
+3,{},Amur,
+4,{},Arkhangel'sk,
+5,{},Astrakhan',
+6,{},Bashkortostan,
+7,{},Belgorod,
+8,{},Bryansk,
+9,{},Buryat,
+10,{},Chechnya,
+11,{},Chelyabinsk,
+12,{},Chukot,
+13,{},Chuvash,
+14,{},City of St. Petersburg,
+15,{},Dagestan,
+16,{},Gorno-Altay,
+17,{},Ingush,
+18,{},Irkutsk,
+19,{},Ivanovo,
+20,{},Kabardin-Balkar,
+21,{},Kaliningrad,
+22,{},Kalmyk,
+23,{},Kaluga,
+24,{},Kamchatka,
+25,{},Karachay-Cherkess,
+26,{},Karelia,
+27,{},Kemerovo,
+28,{},Khabarovsk,
+29,{},Khakass,
+30,{},Khanty-Mansiy,
+31,{},Kirov,
+32,{},Komi,
+33,{},Kostroma,
+34,{},Krasnodar,
+35,{},Krasnoyarsk,
+36,{},Kurgan,
+37,{},Kursk,
+38,{},Leningrad,
+39,{},Lipetsk,
+40,{},Maga Buryatdan,
+41,{},Mariy-El,
+42,{},Mordovia,
+43,{},Moscow City,
+44,{},Moskva,
+45,{},Murmansk,
+46,{},Nenets,
+47,{},Nizhegorod,
+48,{},North Ossetia,
+49,{},Novgorod,
+50,{},Novosibirsk,
+51,{},Omsk,
+52,{},Orel,
+53,{},Orenburg,
+54,{},Penza,
+55,{},Perm',
+56,{},Primor'ye,
+57,{},Pskov,
+58,{},Rostov,
+59,{},Ryazan',
+60,{},Sakha,
+61,{},Sakhalin,
+62,{},Samara,
+63,{},Saratov,
+64,{},Smolensk,
+65,{},Stavropol',
+66,{},Sverdlovsk,
+67,{},Tambov,
+68,{},Tatarstan,
+69,{},Tomsk,
+70,{},Tula,
+71,{},Tuva,
+72,{},Tver',
+73,{},Tyumen',
+74,{},Udmurt,
+75,{},Ul'yanovsk,
+76,{},Vladimir,
+77,{},Volgograd,
+78,{},Vologda,
+79,{},Voronezh,
+80,{},Yamal-Nenets,
+81,{},Yaroslavl',
+82,{},Yevrey,
+83,{},Zabaykal'ye,""".format(*values)
     
     def expect_geojson_output(self):
         return True

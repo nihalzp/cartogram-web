@@ -22,14 +22,15 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Azad Kashmir
-2 {} Balochistan
-3 {} Federally Administered Tribal Areas
-4 {} Gilgit-Baltistan
-5 {} Islamabad Capital Territory
-6 {} Khyber Pakhtunkhwa
-7 {} Punjab
-8 {} Sindh""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Azad Kashmir,
+2,{},Balochistan,
+3,{},Federally Administered Tribal Areas,
+4,{},Gilgit-Baltistan,
+5,{},Islamabad Capital Territory,
+6,{},Khyber Pakhtunkhwa,
+7,{},Punjab,
+8,{},Sindh,""".format(*values)
     
     def expect_geojson_output(self):
         return True

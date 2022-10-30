@@ -22,22 +22,23 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Johor
-2 {} Kedah
-3 {} Kelantan
-4 {} Kuala Lumpur
-5 {} Labuan
-6 {} Melaka
-7 {} Negeri Sembilan
-8 {} Pahang
-9 {} Perak
-10 {} Perlis
-11 {} Pulau Pinang
-12 {} Putrajaya
-13 {} Sabah
-14 {} Sarawak
-15 {} Selangor
-16 {} Terengganu""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Johor,
+2,{},Kedah,
+3,{},Kelantan,
+4,{},Kuala Lumpur,
+5,{},Labuan,
+6,{},Melaka,
+7,{},Negeri Sembilan,
+8,{},Pahang,
+9,{},Perak,
+10,{},Perlis,
+11,{},Pulau Pinang,
+12,{},Putrajaya,
+13,{},Sabah,
+14,{},Sarawak,
+15,{},Selangor,
+16,{},Terengganu,""".format(*values)
     
     def expect_geojson_output(self):
         return True

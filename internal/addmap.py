@@ -96,7 +96,8 @@ def init(map_name):
                 "id": row["Region Id"],
                 "data": row["Region Data"],
                 "name": row["Region Name"],
-                "abbreviation": row["Region Abbreviation"]
+                "abbreviation": row["Region Abbreviation"],
+                "inset": row["Region Inset"]
             })
     
     def find_region_by_id(i):
@@ -133,7 +134,8 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """{3}""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+{3}""".format(*values)
     
     def expect_geojson_output(self):
         return True
@@ -143,7 +145,7 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return self.order_by_example(csv.reader(csvfile), "{4}", 0, 1, 2, 3, [{5}], [0.0 for i in range(0,{2})], {{{6}}})
 '''
     
-    area_data_template = "\n".join(list(map(lambda region: "{} {{}} {}".format(region["id"], region["name"]), regions)))
+    area_data_template = "\n".join(list(map(lambda region: "{},{{}},{},{}".format(region["id"], region["name"], region["inset"]), regions)))
     region_names = ",".join(list(map(lambda region: '"{}"'.format(region["name"]), regions)))
     region_name_id_dict = ",".join(list(map(lambda region: '"{}":"{}"'.format(region["name"], region["id"]), regions)))
 

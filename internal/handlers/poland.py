@@ -22,22 +22,23 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """15 {} Greater Poland	
-13 {} Holy Cross
-2 {} Kuyavian-Pomeranian
-6 {} Lesser Poland
-3 {} Lodz
-1 {} Lower Silesian
-4 {} Lublin
-5 {} Lubusz
-7 {} Masovian
-8 {} Opole
-10 {} Podlaskie
-11 {} Pomeranian
-12 {} Silesian
-9 {} Subcarpathian
-14 {} Warmian-Masurian
-16 {} West Pomeranian""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+15,{},Greater Poland	,
+13,{},Holy Cross,
+2,{},Kuyavian-Pomeranian,
+6,{},Lesser Poland,
+3,{},Lodz,
+1,{},Lower Silesian,
+4,{},Lublin,
+5,{},Lubusz,
+7,{},Masovian,
+8,{},Opole,
+10,{},Podlaskie,
+11,{},Pomeranian,
+12,{},Silesian,
+9,{},Subcarpathian,
+14,{},Warmian-Masurian,
+16,{},West Pomeranian,""".format(*values)
     
     def expect_geojson_output(self):
         return True

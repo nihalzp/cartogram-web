@@ -22,87 +22,88 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Adana
-2 {} Adiyaman
-3 {} Afyon
-4 {} Agri
-5 {} Aksaray
-6 {} Amasya
-7 {} Ankara
-8 {} Antalya
-9 {} Ardahan
-10 {} Artvin
-11 {} Aydin
-12 {} Balikesir
-13 {} Bartin
-14 {} Batman
-15 {} Bayburt
-16 {} Bilecik
-17 {} Bingol
-18 {} Bitlis
-19 {} Bolu
-20 {} Burdur
-21 {} Bursa
-22 {} Canakkale
-23 {} Cankiri
-24 {} Corum
-25 {} Denizli
-26 {} Diyarbakir
-27 {} Duzce
-28 {} Edirne
-29 {} Elazig
-30 {} Erzincan
-31 {} Erzurum
-32 {} Eskisehir
-33 {} Gaziantep
-34 {} Giresun
-35 {} Gumushane
-36 {} Hakkari
-37 {} Hatay
-38 {} Igdir
-39 {} Isparta
-40 {} Istanbul
-41 {} Izmir
-42 {} Kahramanmaras
-43 {} Karabuk
-44 {} Karaman
-45 {} Kars
-46 {} Kastamonu
-47 {} Kayseri
-48 {} Kilis
-49 {} Kinkkale
-50 {} Kirklareli
-51 {} Kirsehir
-52 {} Kocaeli
-53 {} Konya
-54 {} Kutahya
-55 {} Malatya
-56 {} Manisa
-57 {} Mardin
-58 {} Mersin
-59 {} Mugla
-60 {} Mus
-61 {} Nevsehir
-62 {} Nigde
-63 {} Ordu
-64 {} Osmaniye
-65 {} Rize
-66 {} Sakarya
-67 {} Samsun
-68 {} Sanliurfa
-69 {} Siirt
-70 {} Sinop
-71 {} Sirnak
-72 {} Sivas
-73 {} Tekirdag
-74 {} Tokat
-75 {} Trabzon
-76 {} Tunceli
-77 {} Usak
-78 {} Van
-79 {} Yalova
-80 {} Yozgat
-81 {} Zonguldak""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Adana,
+2,{},Adiyaman,
+3,{},Afyon,
+4,{},Agri,
+5,{},Aksaray,
+6,{},Amasya,
+7,{},Ankara,
+8,{},Antalya,
+9,{},Ardahan,
+10,{},Artvin,
+11,{},Aydin,
+12,{},Balikesir,
+13,{},Bartin,
+14,{},Batman,
+15,{},Bayburt,
+16,{},Bilecik,
+17,{},Bingol,
+18,{},Bitlis,
+19,{},Bolu,
+20,{},Burdur,
+21,{},Bursa,
+22,{},Canakkale,
+23,{},Cankiri,
+24,{},Corum,
+25,{},Denizli,
+26,{},Diyarbakir,
+27,{},Duzce,
+28,{},Edirne,
+29,{},Elazig,
+30,{},Erzincan,
+31,{},Erzurum,
+32,{},Eskisehir,
+33,{},Gaziantep,
+34,{},Giresun,
+35,{},Gumushane,
+36,{},Hakkari,
+37,{},Hatay,
+38,{},Igdir,
+39,{},Isparta,
+40,{},Istanbul,
+41,{},Izmir,
+42,{},Kahramanmaras,
+43,{},Karabuk,
+44,{},Karaman,
+45,{},Kars,
+46,{},Kastamonu,
+47,{},Kayseri,
+48,{},Kilis,
+49,{},Kinkkale,
+50,{},Kirklareli,
+51,{},Kirsehir,
+52,{},Kocaeli,
+53,{},Konya,
+54,{},Kutahya,
+55,{},Malatya,
+56,{},Manisa,
+57,{},Mardin,
+58,{},Mersin,
+59,{},Mugla,
+60,{},Mus,
+61,{},Nevsehir,
+62,{},Nigde,
+63,{},Ordu,
+64,{},Osmaniye,
+65,{},Rize,
+66,{},Sakarya,
+67,{},Samsun,
+68,{},Sanliurfa,
+69,{},Siirt,
+70,{},Sinop,
+71,{},Sirnak,
+72,{},Sivas,
+73,{},Tekirdag,
+74,{},Tokat,
+75,{},Trabzon,
+76,{},Tunceli,
+77,{},Usak,
+78,{},Van,
+79,{},Yalova,
+80,{},Yozgat,
+81,{},Zonguldak,""".format(*values)
     
     def expect_geojson_output(self):
         return True

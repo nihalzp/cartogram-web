@@ -66,6 +66,71 @@
       -o-user-select: none;
     }
 
+    .no-click {
+      pointer-events: none;
+    }
+    
+    .dropdown {
+	    margin-right:10px;
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-content {
+      list-style:none;
+      position: absolute;
+      left:-9999px; /* Move it off-screen until hover */
+      border-radius: 1.2rem;
+      margin-top: 1px;
+      width: 100px;
+      background-color: #d76127;
+      z-index: 1;
+    }
+    
+    .dropdown-content a {
+      color: white;
+      padding: 6px 8px;
+      text-decoration: none;
+      display: block;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #b75222;
+    }
+    
+    .dropdown-content .top-item:hover{
+      border-radius: 1.2rem 1.2rem 0 0;
+    }
+    
+    .dropdown-content .bottom-item:hover{
+      border-radius: 0 0 1.2rem 1.2rem;
+    }
+
+    .dropdown:hover .dropdown-content {
+      left:auto; /* Bring back on-screen when needed */
+      right:0;
+    }
+    
+    .form-group {
+      position: relative;
+    }
+    
+    .clipboard-copy {
+      position: absolute;
+      top: 0;
+      right: 0;
+      margin-top: 8px;
+      margin-right: 15px;
+      cursor: pointer;
+      border-radius: 3px;
+      border: 1px solid #d7d3d3;
+    }
+    
+    .clipboard-copy:hover {
+      background-color: #dfdbdb;
+    }
+    
+    
     #barchart svg {
         overflow: visible !important;
     }
@@ -141,7 +206,13 @@
                <p class="lead">Input:</p>
              </div>
              <div class="col-10">
-                <a class="btn btn-primary" href="{{cartogram_data_dir}}/{{default_cartogram_handler}}/template.csv" role="button" id="template-link">Download CSV Template</a>
+              <div class="dropdown">
+                <button class="btn btn btn-primary no-click" >Download Template Data</button>
+                <div class=" dropdown-content">
+                  <a class="top-item" id="csv-template-link" href="#">CSV File</a>
+                  <a class="bottom-item" id="xlsx-template-link" href="#">Excel File</a>
+                </div>
+              </div>
              </div>
            </div>
          </div>
@@ -154,7 +225,7 @@
                </p>
              </div>
              <div class="col-5">
-                <select class="form-control border-primary bg-primary text-light" id="handler">
+                <select style="cursor: pointer" class="form-control border-primary bg-primary text-light" id="handler">
                     {% for handler in cartogram_handlers %}
                     <option value="{{handler.id}}" {% if handler.id == default_cartogram_handler %}selected{% endif %} >{{handler.display_name}}</option>
                     {% endfor %}
@@ -170,7 +241,7 @@
        </div>
 
 
-       <input type="file" name="csv" id="csv" class="form-control-file" accept="text/csv,.csv" style="display: none" onchange="if(this.value != null) { window.cartogram.requestAndDrawCartogram(); }"/>
+       <input type="file" name="csv" id="csv" class="form-control-file" accept="text/csv,.csv,.xlsx,.xls" style="display: none" onchange="if(this.value != null) { window.cartogram.requestAndDrawCartogram(); }"/>
 
        <p class="lead">Output:</p>
 
@@ -232,7 +303,7 @@
               <div id = "map-area" style="margin-top: 20px" data-grid-visibility="off"></div>
               <div style="padding-left: 0; padding-top: 10px" class="col-12"> <!-- padding-top to add spacing between mapSVG and legend -->
                 <svg width="375" height="90" id="map-area-legend" data-legend-type="static" data-current-grid-path="gridA"></svg>
-                <img src="/static/creativecommons_icon.svg" width="80" alt="Creative Commons Icon" style="position: absolute; top: 10px; margin-right: 0px">
+                <img class="cc-logo" src="/static/creativecommons_icon.svg" width="80" alt="Creative Commons Icon" style="position: absolute; top: 10px; margin-right: 0px">
               </div>
 
               <div class="d-flex">
@@ -244,7 +315,7 @@
               <div style="display: none" class="customise-popup" id="map-customise-popup">
                 <form class="customise-container">
                   <input type="checkbox" class="checkbox-customise" id="gridline-toggle-map" name="gridline" value="false" autocomplete="off">
-                  <label class="checkbox-label" for="gridline-toggle-map">Show Gridlines</label><br>
+                  <label class="checkbox-label" for="gridline-toggle-map">Show Grid Lines</label><br>
                   <input type="checkbox" class="checkbox-customise" id="legend-toggle-map" name="legend" value="false" autocomplete="off">
                   <label class="checkbox-label" for="legend-toggle-map">Resizable Legend</label>
                 </form>
@@ -265,7 +336,7 @@
               <div id = "cartogram-area" style="margin-top: 20px" data-grid-visibility="off"></div>
               <div style="padding-left: 0; padding-top: 10px" class="col-12">
                 <svg width="375" height="90" id="cartogram-area-legend" data-legend-type="static" data-current-grid-path="gridA"></svg>
-                <img src="/static/creativecommons_icon.svg" width="80" alt="Creative Commons Icon" style="position: absolute; top: 10px; margin-right: 0px">
+                <img class="cc-logo" src="/static/creativecommons_icon.svg" width="80" alt="Creative Commons Icon" style="position: absolute; top: 10px; margin-right: 0px">
               </div>
 
               <div class="d-flex">
@@ -278,7 +349,7 @@
               <div style="display: none" class="customise-popup" id="cartogram-customise-popup">
                 <form class="customise-container">
                   <input type="checkbox" class="checkbox-customise" id="gridline-toggle-cartogram" name="gridline" value="false" autocomplete="off">
-                  <label class="checkbox-label" for="gridline-toggle-cartogram">Show Gridlines</label><br>
+                  <label class="checkbox-label" for="gridline-toggle-cartogram">Show Grid Lines</label><br>
                   <input type="checkbox" class="checkbox-customise" id="legend-toggle-cartogram" name="legend" value="false" autocomplete="off">
                   <label class="checkbox-label" for="legend-toggle-cartogram">Resizable Legend</label>
                 </form>
@@ -293,7 +364,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header" style="border-bottom: none">
-            <img src="{{ url_for('static', filename='gocart_final.svg') }}" width="150" alt="" />
+            <img src="{{ url_for('static', filename='gocart_final.svg') }}" width="150" alt="go-cart.io logo" />
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -305,8 +376,15 @@
               <a href="" download="" id="download-modal-geojson-link" class="btn btn-lg btn-primary ml-5" style="border-radius: 1.2em">Download GeoJSON</a>
           </p>
           <p class="lead text-center">Liked our work? Make sure to credit us using the citation below:</p>
-          <p class="text-primary">Gastner MT, Seguy V, More P. Fast flow-based algorithm for creating
-              density-equalizing map projections. Proc Natl Acad Sci USA 115(10):E2156–E2164 (2018).</p>
+          <div class="form-group">
+            <a id="citation-text2" class="text-primary" href="https://www.pnas.org/content/115/10/E2156" target="_blank" rel="noopener noreferrer" >Gastner MT, Seguy V, More P. Fast 
+              low-based algorithm for creating density-equalizing map projections. Proc Natl Acad Sci USA 115(10):E2156–E2164 (2018).</a>
+        
+            <button style="margin-top:25px;" class="clipboard-copy" id="clipboard-citation2" data-animation="false" title="Copy" onclick="addClipboard('clipboard-citation2',document.getElementById('citation-text2').innerText);
+                document.getElementById('clipboard-citation2').click()">
+              <img id="clipboard-citation2-icon" src="/static/clipboard.svg" alt="Copy button" />
+            </button>
+          </div>
         </div>
         <!--<div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -320,7 +398,7 @@
       <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header" style="border-bottom: none">
-              <img src="{{ url_for('static', filename='gocart_final.svg') }}" width="150" alt="" />
+              <img src="{{ url_for('static', filename='gocart_final.svg') }}" width="150" alt="go-cart.io logo" />
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -355,19 +433,36 @@
 
 	    <div class="mb-3">
 	      <h3 class="text-center">Link</h3>
-	      <input type="text" id="share-link-href" class="form-control w-100" disabled style="font-family: monospace;" value="https://go-cart.io"/>
+        <div class="form-group">
+          <input type="text" id="share-link-href" class="form-control w-100" disabled style="font-family: monospace;" value="https://go-cart.io"/>
+          <button style= "margin-top: 4.6px;" data-animation="false" class="clipboard-copy " id="clipboard-link" title="Copy">
+            <img id="clipboard-link-icon" src="/static/clipboard.svg" alt="Copy button" />
+          </button>
+        </div>
 	    </div>
 
 	    <div id="share-embed" class="mb-5" style="display: none">
 	      <h3 class="text-center">Embed</h3>
-	      <p class="text-center">To embed your cartogram into any webpage, insert the HTML code below:</p>
-	      <textarea id="share-embed-code" class="form-control w-100" disabled rows="3" style="font-family: monospace; resize: none"></textarea>
+	      <p class="text-center">To embed yor cartogram into any webpage, insert the HTML code below:</p>
+        <div class="form-group">
+          <textarea id="share-embed-code" class="form-control w-100" disabled rows="3" style="font-family: monospace; resize: none"></textarea>
+          <button class="clipboard-copy"  id="clipboard-embed" data-animation="false" title="Copy">
+            <img id="clipboard-embed-icon" src="/static/clipboard.svg" alt="Copy button" />
+          </button>
+        </div>
 	    </div>
 
 	    <div>
             <p class="lead text-center">Liked our work? Make sure to credit us using the citation below:</p>
-            <p class="text-primary">Gastner MT, Seguy V, More P. Fast flow-based algorithm for creating
-              density-equalizing map projections. Proc Natl Acad Sci USA 115(10):E2156–E2164 (2018).</p>
+            <div class="form-group">
+            <a id="citation-text" class="text-primary" href="https://www.pnas.org/content/115/10/E2156" target="_blank" rel="noopener noreferrer" >Gastner MT, Seguy V, More P. Fast 
+              low-based algorithm for creating density-equalizing map projections. Proc Natl Acad Sci USA 115(10):E2156–E2164 (2018).</a>
+        
+            <button style="margin-top:25px;" class="clipboard-copy" id="clipboard-citation" data-animation="false" title="Copy" onclick="addClipboard('clipboard-citation',document.getElementById('citation-text').innerText);
+                document.getElementById('clipboard-citation').click()">
+              <img id="clipboard-citation-icon" src="/static/clipboard.svg" alt="Copy button" />
+            </button>
+            </div>
 	    </div>
           </div>
           <!--<div class="modal-footer">

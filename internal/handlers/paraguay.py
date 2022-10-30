@@ -17,24 +17,25 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Alto Paraguay
-2 {} Alto Parana
-3 {} Amambay
-4 {} Asuncion
-5 {} Boqueron
-6 {} Caaguazu
-7 {} Caazapa
-8 {} Canindeyu
-9 {} Central
-10 {} Concepcion
-11 {} Cordillera
-12 {} Guaira
-13 {} Itapua
-14 {} Misiones
-15 {} Neembucu
-16 {} Paraguari
-17 {} Presidente Hayes
-18 {} San Pedro""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Alto Paraguay,
+2,{},Alto Parana,
+3,{},Amambay,
+4,{},Asuncion,
+5,{},Boqueron,
+6,{},Caaguazu,
+7,{},Caazapa,
+8,{},Canindeyu,
+9,{},Central,
+10,{},Concepcion,
+11,{},Cordillera,
+12,{},Guaira,
+13,{},Itapua,
+14,{},Misiones,
+15,{},Neembucu,
+16,{},Paraguari,
+17,{},Presidente Hayes,
+18,{},San Pedro,""".format(*values)
     
     def expect_geojson_output(self):
         return True

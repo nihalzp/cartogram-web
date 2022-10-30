@@ -17,24 +17,25 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Attapeu
-2 {} Bokeo
-3 {} Borikhamxai
-4 {} Champasak
-5 {} Houaphanh
-6 {} Khammouane
-7 {} Luang Namtha
-8 {} Luang Prabang
-9 {} Oudomxay
-10 {} Phongsaly
-11 {} Salavan
-12 {} Savannakhet
-13 {} Vientiane [Prefecture]
-14 {} Vientiane
-15 {} Xaignabouli
-16 {} Xaisomboun
-17 {} Sekong
-18 {} Xiangkhouang""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Attapeu,
+2,{},Bokeo,
+3,{},Borikhamxai,
+4,{},Champasak,
+5,{},Houaphanh,
+6,{},Khammouane,
+7,{},Luang Namtha,
+8,{},Luang Prabang,
+9,{},Oudomxay,
+10,{},Phongsaly,
+11,{},Salavan,
+12,{},Savannakhet,
+13,{},Vientiane [Prefecture],
+14,{},Vientiane,
+15,{},Xaignabouli,
+16,{},Xaisomboun,
+17,{},Sekong,
+18,{},Xiangkhouang,""".format(*values)
     
     def expect_geojson_output(self):
         return True

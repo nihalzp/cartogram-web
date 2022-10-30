@@ -22,26 +22,27 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Abruzzo
-2 {} Apulia
-3 {} Basilicata
-4 {} Calabria
-5 {} Campania
-6 {} Emilia-Romagna
-7 {} Friuli-Venezia Giulia
-8 {} Lazio
-9 {} Liguria
-10 {} Lombardia
-11 {} Marche
-12 {} Molise
-13 {} Piemonte
-14 {} Sardegna
-15 {} Sicily
-16 {} Toscana
-17 {} Trentino-Alto Adige
-18 {} Umbria
-19 {} Valle d'Aosta
-20 {} Veneto""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Abruzzo,
+2,{},Apulia,
+3,{},Basilicata,
+4,{},Calabria,
+5,{},Campania,
+6,{},Emilia-Romagna,
+7,{},Friuli-Venezia Giulia,
+8,{},Lazio,
+9,{},Liguria,
+10,{},Lombardia,
+11,{},Marche,
+12,{},Molise,
+13,{},Piemonte,
+14,{},Sardegna,
+15,{},Sicily,
+16,{},Toscana,
+17,{},Trentino-Alto Adige,
+18,{},Umbria,
+19,{},Valle d'Aosta,
+20,{},Veneto,""".format(*values)
     
     def expect_geojson_output(self):
         return True

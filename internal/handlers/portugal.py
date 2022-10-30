@@ -22,24 +22,25 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Aveiro
-2 {} Beja
-3 {} Braga
-4 {} Braganca
-5 {} Castelo Branco
-6 {} Coimbra
-7 {} Evora
-8 {} Faro
-9 {} Guarda
-10 {} Leiria
-11 {} Lisboa
-12 {} Portalegre
-13 {} Porto
-14 {} Santarem
-15 {} Setubal
-16 {} Viana do Castelo
-17 {} Vila Real
-18 {} Viseu""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Aveiro,
+2,{},Beja,
+3,{},Braga,
+4,{},Braganca,
+5,{},Castelo Branco,
+6,{},Coimbra,
+7,{},Evora,
+8,{},Faro,
+9,{},Guarda,
+10,{},Leiria,
+11,{},Lisboa,
+12,{},Portalegre,
+13,{},Porto,
+14,{},Santarem,
+15,{},Setubal,
+16,{},Viana do Castelo,
+17,{},Vila Real,
+18,{},Viseu,""".format(*values)
     
     def expect_geojson_output(self):
         return True

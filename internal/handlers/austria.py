@@ -22,15 +22,16 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Burgenland
-2 {} Carinthia 
-3 {} Lower Austria 
-5 {} Salzburg
-6 {} Styria 
-7 {} Tyrol 
-4 {} Upper Austria 
-9 {} Vienna
-8 {} Vorarlberg""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Burgenland,
+2,{},Carinthia ,
+3,{},Lower Austria ,
+5,{},Salzburg,
+6,{},Styria ,
+7,{},Tyrol ,
+4,{},Upper Austria ,
+9,{},Vienna,
+8,{},Vorarlberg,""".format(*values)
     
     def expect_geojson_output(self):
         return True

@@ -22,15 +22,16 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Acquaviva
-2 {} Borgo Maggiore
-3 {} Chiesanuova
-4 {} Domagnano
-5 {} Faetano
-6 {} Fiorentino
-7 {} Montegiardino
-8 {} San Marino
-9 {} Serravalle""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Acquaviva,
+2,{},Borgo Maggiore,
+3,{},Chiesanuova,
+4,{},Domagnano,
+5,{},Faetano,
+6,{},Fiorentino,
+7,{},Montegiardino,
+8,{},San Marino,
+9,{},Serravalle,""".format(*values)
     
     def expect_geojson_output(self):
         return True

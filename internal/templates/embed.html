@@ -3,12 +3,19 @@
   <head>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://d3js.org/d3-ease.v1.min.js"></script>
-  <script src="https://d3js.org/d3-polygon.v1.min.js"></script>
-  <script src="{{ url_for('static', filename='tracking.js') }}"></script>
+    <script src="https://d3js.org/d3-polygon.v1.min.js"></script>
+    <script src="{{ url_for('static', filename='tracking.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.6/xlsx.full.min.js"></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <meta name="description" content="Free Cartogram Generator - Make cartograms for different countries using your own data!">
+    <meta name="author" content="Michael T. Gastner">
+    <meta property="og:title" content="Creating Cartograms Online">
+    <meta property="og:description" content="Free Cartogram Generator - Make cartograms for different countries using your own data!">
+    <meta property="og:site_name" content="go-cart.io">
+    <meta name="twitter:title" content="Creating Cartograms Online">
+    <meta name="twitter:description" content="Free Cartogram Generator - Make cartograms for different countries using your own data!">
+    <meta name="twitter:image" content="{{ url_for('static', filename='favicon.png') }}">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
 
     <title>Creating Cartograms Online</title>
@@ -201,7 +208,7 @@
     <div id="tooltip">&nbsp;</div>
     <div class="container-fluid">
       <a class="navbar-brand" href="/">
-          <img src="{{ url_for('static', filename='gocart_final.svg') }}" width="150" alt="" style="margin-left: 0px" />
+          <img src="{{ url_for('static', filename='gocart_final.svg') }}" width="150" alt="go-cart.io logo" style="margin-left: 0px" />
       </a>
     </div>
     <div class="container-fluid mt-3">
@@ -220,7 +227,8 @@
       
 
       <!-- dummy element so we can reuse existing JS code -->
-      <a href="" id="template-link" style="display: none"></a>
+      <a href="" id="csv-template-link" style="display: none"></a>
+      <a href="" id="xlsx-template-link" style="display: none"></a>
       <div id="piechart" style="display: none"></div>
       <div id="upload-button" style="display: none"></div>
       <div id="edit-button" style="display: none"></div>
@@ -260,7 +268,7 @@
             <div style="display: none" class="customise-popup" id="map-customise-popup">
               <form class="customise-container">
                 <input type="checkbox" class="checkbox-customise" id="gridline-toggle-map" name="gridline" value="false" autocomplete="off">
-                <label class="checkbox-label" for="gridline-toggle-map">Show Gridlines</label><br>
+                <label class="checkbox-label" for="gridline-toggle-map">Show Grid Lines</label><br>
                 <input type="checkbox" class="checkbox-customise" id="legend-toggle-map" name="legend" value="false" autocomplete="off">
                 <label class="checkbox-label" for="legend-toggle-map">Resizable Legend</label>
               </form>
@@ -297,7 +305,7 @@
             <div style="display: none" class="customise-popup" id="cartogram-customise-popup">
               <form class="customise-container">
                 <input type="checkbox" class="checkbox-customise" id="gridline-toggle-cartogram" name="gridline" value="false" autocomplete="off">
-                <label class="checkbox-label" for="gridline-toggle-cartogram">Show Gridlines</label><br>
+                <label class="checkbox-label" for="gridline-toggle-cartogram">Show Grid Lines</label><br>
                 <input type="checkbox" class="checkbox-customise" id="legend-toggle-cartogram" name="legend" value="false" autocomplete="off">
                 <label class="checkbox-label" for="legend-toggle-cartogram">Resizable Legend</label>
               </form>
@@ -323,7 +331,7 @@
       <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header" style="border-bottom: none">
-              <img src="{{ url_for('static', filename='gocart_final.svg') }}" width="150" alt="" />
+              <img src="{{ url_for('static', filename='gocart_final.svg') }}" width="150" alt="go-cart.io logo" />
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -356,20 +364,35 @@
 
 	      <div class="mb-2">
 	      <h3 class="text-center">Link</h3>
-	      <input type="text" id="share-link-href" class="form-control w-100" disabled style="font-family: monospace;" value="https://go-cart.io"/>
-	    </div>
+	      <div class="form-group">
+          <input type="text" id="share-link-href" class="form-control w-100" disabled style="font-family: monospace;" value="https://go-cart.io"/>
+          <button style= "margin-top: 4.7px;" data-animation="false" class="clipboard-copy " id="clipboard-link" title="Copy">
+            <img id="clipboard-link-icon" src="/static/clipboard.svg" alt="Copy button" />
+          </button>
+        </div></div>
 	      
 	      <div id="share-embed" class="mb-5" style="display: none">
 	      <h3 class="text-center">Embed</h3>
 	      <p class="text-center">To embed your cartogram into any webpage, insert the HTML code below:</p>
-	      <textarea id="share-embed-code" class="form-control w-100" disabled rows="3" style="font-family: monospace">Help</textarea>
-	    </div>
+	      <div class="form-group">
+          <textarea id="share-embed-code" class="form-control w-100" disabled rows="3" style="font-family: monospace; resize: none"></textarea>
+          <button class="clipboard-copy"  id="clipboard-embed" data-animation="false" title="Copy">
+            <img id="clipboard-embed-icon" src="/static/clipboard.svg" alt="Copy button" />
+          </button>
+        </div></div>
 
             </div>
             <p class="lead text-center">Liked our work? Make sure to credit us using the citation below:</p>
-            <p class="text-primary">Gastner MT, Seguy V, More P. Fast flow-based algorithm for creating
-                density-equalizing map projections. Proc Natl Acad Sci USA 115(10):E2156–E2164 (2018).</p>
-          </div>
+            <div class="form-group">
+              <a id="citation-text" class="text-primary" href="https://www.pnas.org/content/115/10/E2156" target="_blank" rel="noopener noreferrer" >Gastner MT, Seguy V, More P. Fast 
+                low-based algorithm for creating density-equalizing map projections. Proc Natl Acad Sci USA 115(10):E2156–E2164 (2018).</a>
+          
+              <button style="margin-top:25px;" class="clipboard-copy" id="clipboard-citation" data-animation="false" title="Copy" onclick="addClipboard('clipboard-citation',document.getElementById('citation-text').innerText);
+                  document.getElementById('clipboard-citation').click()">
+                <img id="clipboard-citation-icon" src="/static/clipboard.svg" alt="Copy button" />
+              </button>
+              </div>
+            </div>
           <!--<div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             <button type="button" class="btn btn-primary">Save changes</button>

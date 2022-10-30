@@ -22,27 +22,28 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """2 {} Dalarna
-3 {} Gavleborg
-4 {} Gotland
-5 {} Halland
-6 {} Jamtland
-7 {} Jonkoping
-8 {} Kalmar
-9 {} Kronoberg
-10 {} Norrbotten
-11 {} Orebro
-12 {} Ostergotland
-1 {} Blekinge
-14 {} Sodermanland
-13 {} Skane
-15 {} Stockholm
-16 {} Uppsala
-17 {} Varmland
-18 {} Vasterbotten
-19 {} Vasternorrland
-20 {} Vastmanland
-21 {} Vastra Gotaland""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+2,{},Dalarna,
+3,{},Gavleborg,
+4,{},Gotland,
+5,{},Halland,
+6,{},Jamtland,
+7,{},Jonkoping,
+8,{},Kalmar,
+9,{},Kronoberg,
+10,{},Norrbotten,
+11,{},Orebro,
+12,{},Ostergotland,
+1,{},Blekinge,
+14,{},Sodermanland,
+13,{},Skane,
+15,{},Stockholm,
+16,{},Uppsala,
+17,{},Varmland,
+18,{},Vasterbotten,
+19,{},Vasternorrland,
+20,{},Vastmanland,
+21,{},Vastra Gotaland,""".format(*values)
     
     def expect_geojson_output(self):
         return True

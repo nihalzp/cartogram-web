@@ -22,12 +22,13 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} HaDarom
-2 {} Haifa
-3 {} HaMerkaz
-4 {} HaZafon
-5 {} Jerusalem
-6 {} Tel Aviv""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},HaDarom,
+2,{},Haifa,
+3,{},HaMerkaz,
+4,{},HaZafon,
+5,{},Jerusalem,
+6,{},Tel Aviv,""".format(*values)
     
     def expect_geojson_output(self):
         return True

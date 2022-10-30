@@ -22,24 +22,25 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Bengo
-2 {} Benguela
-3 {} Bie
-4 {} Cabinda
-5 {} Cuando Cubango
-6 {} Cuanza Norte
-7 {} Cuanza Sul
-8 {} Cunene
-9 {} Huambo
-10 {} Huila
-11 {} Luanda
-12 {} Lunda Norte
-13 {} Lunda Sul
-14 {} Malanje
-15 {} Moxico
-16 {} Namibe
-17 {} Uige
-18 {} Zaire""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Bengo,
+2,{},Benguela,
+3,{},Bie,
+4,{},Cabinda,
+5,{},Cuando Cubango,
+6,{},Cuanza Norte,
+7,{},Cuanza Sul,
+8,{},Cunene,
+9,{},Huambo,
+10,{},Huila,
+11,{},Luanda,
+12,{},Lunda Norte,
+13,{},Lunda Sul,
+14,{},Malanje,
+15,{},Moxico,
+16,{},Namibe,
+17,{},Uige,
+18,{},Zaire,""".format(*values)
     
     def expect_geojson_output(self):
         return True

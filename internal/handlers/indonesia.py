@@ -22,39 +22,40 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Aceh
-2 {} Bali
-3 {} Bangka Belitung
-4 {} Banten
-5 {} Bengkulu
-6 {} Gorontalo
-7 {} Jakarta Raya
-8 {} Jambi
-9 {} Jawa Barat
-10 {} Jawa Tengah
-11 {} Jawa Timur
-12 {} Kalimantan Barat
-13 {} Kalimantan Selatan
-14 {} Kalimantan Tengah
-15 {} Kalimantan Timur
-16 {} Kepulauan Riau
-17 {} Lampung
-18 {} Maluku
-19 {} Maluku Utara
-20 {} Nusa Tenggara Barat
-21 {} Nusa Tenggara Timur
-22 {} Papua
-23 {} Papua Barat
-24 {} Riau
-25 {} Sulawesi Barat
-26 {} Sulawesi Selatan
-27 {} Sulawesi Tengah
-28 {} Sulawesi Tenggara
-29 {} Sulawesi Utara
-30 {} Sumatera Barat
-31 {} Sumatera Selatan
-32 {} Sumatera Utara
-33 {} Yogyakarta""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Aceh,
+2,{},Bali,
+3,{},Bangka Belitung,
+4,{},Banten,
+5,{},Bengkulu,
+6,{},Gorontalo,
+7,{},Jakarta Raya,
+8,{},Jambi,
+9,{},Jawa Barat,
+10,{},Jawa Tengah,
+11,{},Jawa Timur,
+12,{},Kalimantan Barat,
+13,{},Kalimantan Selatan,
+14,{},Kalimantan Tengah,
+15,{},Kalimantan Timur,
+16,{},Kepulauan Riau,
+17,{},Lampung,
+18,{},Maluku,
+19,{},Maluku Utara,
+20,{},Nusa Tenggara Barat,
+21,{},Nusa Tenggara Timur,
+22,{},Papua,
+23,{},Papua Barat,
+24,{},Riau,
+25,{},Sulawesi Barat,
+26,{},Sulawesi Selatan,
+27,{},Sulawesi Tengah,
+28,{},Sulawesi Tenggara,
+29,{},Sulawesi Utara,
+30,{},Sumatera Barat,
+31,{},Sumatera Selatan,
+32,{},Sumatera Utara,
+33,{},Yogyakarta,""".format(*values)
     
     def expect_geojson_output(self):
         return True

@@ -22,61 +22,62 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Ang Mo Kio
-2 {} Bedok
-3 {} Bishan
-4 {} Boon Lay
-5 {} Bukit Batok
-6 {} Bukit Merah
-7 {} Bukit Panjang
-8 {} Bukit Timah
-9 {} Central Water Catchment
-10 {} Changi
-11 {} Changi Bay
-12 {} Choa Chu Kang
-13 {} Clementi
-14 {} Downtown Core
-15 {} Geylang
-16 {} Hougang
-17 {} Jurong East
-18 {} Jurong West
-19 {} Kallang
-20 {} Lim Chu Kang
-21 {} Mandai
-22 {} Marina East
-23 {} Marina South
-24 {} Marine Parade
-25 {} Museum
-26 {} Newton
-27 {} North-eastern Islands
-28 {} Novena
-29 {} Orchard
-30 {} Outram
-31 {} Pasir Ris
-32 {} Paya Lebar
-33 {} Pioneer
-34 {} Punggol
-35 {} Queenstown
-36 {} River Valley
-37 {} Rochor
-38 {} Seletar
-39 {} Sembawang
-40 {} Sengkang
-41 {} Serangoon
-42 {} Simpang
-43 {} Singapore River
-44 {} Southern Islands
-45 {} Straits View
-46 {} Sungei Kadut
-47 {} Tampines
-48 {} Tanglin
-49 {} Tengah
-50 {} Toa Payoh
-51 {} Tuas
-52 {} Western Islands
-53 {} Western Water Catchment
-54 {} Woodlands
-55 {} Yishun""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Ang Mo Kio,
+2,{},Bedok,
+3,{},Bishan,
+4,{},Boon Lay,
+5,{},Bukit Batok,
+6,{},Bukit Merah,
+7,{},Bukit Panjang,
+8,{},Bukit Timah,
+9,{},Central Water Catchment,
+10,{},Changi,
+11,{},Changi Bay,
+12,{},Choa Chu Kang,
+13,{},Clementi,
+14,{},Downtown Core,
+15,{},Geylang,
+16,{},Hougang,
+17,{},Jurong East,
+18,{},Jurong West,
+19,{},Kallang,
+20,{},Lim Chu Kang,
+21,{},Mandai,
+22,{},Marina East,
+23,{},Marina South,
+24,{},Marine Parade,
+25,{},Museum,
+26,{},Newton,
+27,{},North-eastern Islands,
+28,{},Novena,
+29,{},Orchard,
+30,{},Outram,
+31,{},Pasir Ris,
+32,{},Paya Lebar,
+33,{},Pioneer,
+34,{},Punggol,
+35,{},Queenstown,
+36,{},River Valley,
+37,{},Rochor,
+38,{},Seletar,
+39,{},Sembawang,
+40,{},Sengkang,
+41,{},Serangoon,
+42,{},Simpang,
+43,{},Singapore River,
+44,{},Southern Islands,
+45,{},Straits View,
+46,{},Sungei Kadut,
+47,{},Tampines,
+48,{},Tanglin,
+49,{},Tengah,
+50,{},Toa Payoh,
+51,{},Tuas,
+52,{},Western Islands,
+53,{},Western Water Catchment,
+54,{},Woodlands,
+55,{},Yishun,""".format(*values)
     
     def expect_geojson_output(self):
         return True

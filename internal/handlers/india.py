@@ -22,41 +22,42 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Andaman and Nicobar Islands
-2 {} Andhra Pradesh
-3 {} Arunachal Pradesh
-4 {} Assam
-5 {} Bihar
-6 {} Chandigarh
-7 {} Chhattisgarh
-8 {} Dadra and Nagar Haveli
-9 {} Daman and Diu
-10 {} Delhi
-11 {} Goa
-12 {} Gujarat
-13 {} Haryana
-14 {} Himachal Pradesh
-15 {} Jammu and Kashmir
-16 {} Jharkhand
-17 {} Karnataka
-18 {} Kerala
-19 {} Madhya Pradesh
-20 {} Maharashtra
-21 {} Manipur
-22 {} Meghalaya
-23 {} Mizoram
-24 {} Nagaland
-25 {} Odisha
-26 {} Puducherry
-27 {} Punjab
-28 {} Rajasthan
-29 {} Sikkim
-30 {} Tamil Nadu
-31 {} Telangana
-32 {} Tripura
-33 {} Uttar Pradesh
-34 {} Uttarakhand
-35 {} West Bengal""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Andaman and Nicobar Islands,
+2,{},Andhra Pradesh,
+3,{},Arunachal Pradesh,
+4,{},Assam,
+5,{},Bihar,
+6,{},Chandigarh,
+7,{},Chhattisgarh,
+8,{},Dadra and Nagar Haveli,
+9,{},Daman and Diu,
+10,{},Delhi,
+11,{},Goa,
+12,{},Gujarat,
+13,{},Haryana,
+14,{},Himachal Pradesh,
+15,{},Jammu and Kashmir,
+16,{},Jharkhand,
+17,{},Karnataka,
+18,{},Kerala,
+19,{},Madhya Pradesh,
+20,{},Maharashtra,
+21,{},Manipur,
+22,{},Meghalaya,
+23,{},Mizoram,
+24,{},Nagaland,
+25,{},Odisha,
+26,{},Puducherry,
+27,{},Punjab,
+28,{},Rajasthan,
+29,{},Sikkim,
+30,{},Tamil Nadu,
+31,{},Telangana,
+32,{},Tripura,
+33,{},Uttar Pradesh,
+34,{},Uttarakhand,
+35,{},West Bengal,""".format(*values)
     
     def expect_geojson_output(self):
         return True

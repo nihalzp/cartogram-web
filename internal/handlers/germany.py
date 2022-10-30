@@ -22,22 +22,23 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Baden-Wuerttemberg
-2 {} Bayern
-3 {} Berlin
-4 {} Brandenburg
-5 {} Bremen
-6 {} Hamburg
-7 {} Hessen
-8 {} Mecklenburg-Vorpommern
-9 {} Niedersachsen
-10 {} Nordrhein-Westfalen
-11 {} Rheinland-Pfalz
-12 {} Saarland
-13 {} Sachsen
-14 {} Sachsen-Anhalt
-15 {} Schleswig-Holstein
-16 {} Thueringen""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Baden-Wuerttemberg,
+2,{},Bayern,
+3,{},Berlin,
+4,{},Brandenburg,
+5,{},Bremen,
+6,{},Hamburg,
+7,{},Hessen,
+8,{},Mecklenburg-Vorpommern,
+9,{},Niedersachsen,
+10,{},Nordrhein-Westfalen,
+11,{},Rheinland-Pfalz,
+12,{},Saarland,
+13,{},Sachsen,
+14,{},Sachsen-Anhalt,
+15,{},Schleswig-Holstein,
+16,{},Thueringen,""".format(*values)
     
     def expect_geojson_output(self):
         return True

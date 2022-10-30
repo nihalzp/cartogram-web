@@ -22,14 +22,15 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Australian Capital Territory
-2 {} New South Wales
-3 {} Northern Territory
-4 {} Queensland
-5 {} South Australia
-6 {} Tasmania
-7 {} Victoria
-8 {} Western Australia""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Australian Capital Territory,
+2,{},New South Wales,
+3,{},Northern Territory,
+4,{},Queensland,
+5,{},South Australia,
+6,{},Tasmania,
+7,{},Victoria,
+8,{},Western Australia,""".format(*values)
     
     def expect_geojson_output(self):
         return True

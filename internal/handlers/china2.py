@@ -22,40 +22,41 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Anhui
-2 {} Beijing
-3 {} Chongqing
-4 {} Fujian
-5 {} Gansu
-6 {} Guangdong
-7 {} Guangxi
-8 {} Guizhou
-9 {} Hainan
-10 {} Hebei
-11 {} Heilongjiang
-12 {} Henan
-13 {} Hong Kong
-14 {} Hubei
-15 {} Hunan
-16 {} Inner Mongolia
-17 {} Jiangsu
-18 {} Jiangxi
-19 {} Jilin
-20 {} Liaoning
-21 {} Macau
-22 {} Ningxia
-23 {} Qinghai
-24 {} Shaanxi
-25 {} Shandong
-26 {} Shanghai
-27 {} Shanxi
-28 {} Sichuan
-29 {} Taiwan
-30 {} Tianjin
-31 {} Tibet
-32 {} Xinjiang
-33 {} Yunnan
-34 {} Zhejiang""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Anhui,
+2,{},Beijing,
+3,{},Chongqing,
+4,{},Fujian,
+5,{},Gansu,
+6,{},Guangdong,
+7,{},Guangxi,
+8,{},Guizhou,
+9,{},Hainan,
+10,{},Hebei,
+11,{},Heilongjiang,
+12,{},Henan,
+13,{},Hong Kong,
+14,{},Hubei,
+15,{},Hunan,
+16,{},Inner Mongolia,
+17,{},Jiangsu,
+18,{},Jiangxi,
+19,{},Jilin,
+20,{},Liaoning,
+21,{},Macau,
+22,{},Ningxia,
+23,{},Qinghai,
+24,{},Shaanxi,
+25,{},Shandong,
+26,{},Shanghai,
+27,{},Shanxi,
+28,{},Sichuan,
+29,{},Taiwan,
+30,{},Tianjin,
+31,{},Tibet,
+32,{},Xinjiang,
+33,{},Yunnan,
+34,{},Zhejiang,""".format(*values)
     
     def expect_geojson_output(self):
         return True

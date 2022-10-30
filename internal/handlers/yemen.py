@@ -22,28 +22,29 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Aden
-2 {} Abyan
-3 {} Al Bayda'
-4 {} Ad Dali
-5 {} Al Hudaydah
-6 {} Al Jawf
-7 {} Al Mahrah
-8 {} Al Mahwit
-9 {} Amanat Al Asimah
-10 {} 'Amran
-11 {} Dhamar
-12 {} Hadramawt
-13 {} Hajjah
-14 {} Ibb
-15 {} Lahij
-16 {} Ma'rib
-17 {} Raymah
-18 {} Sa'dah
-19 {} Sana'a
-20 {} Shabwah
-21 {} Socotra
-22 {} Ta'izz""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Aden,
+2,{},Abyan,
+3,{},Al Bayda',
+4,{},Ad Dali,
+5,{},Al Hudaydah,
+6,{},Al Jawf,
+7,{},Al Mahrah,
+8,{},Al Mahwit,
+9,{},Amanat Al Asimah,
+10,{},'Amran,
+11,{},Dhamar,
+12,{},Hadramawt,
+13,{},Hajjah,
+14,{},Ibb,
+15,{},Lahij,
+16,{},Ma'rib,
+17,{},Raymah,
+18,{},Sa'dah,
+19,{},Sana'a,
+20,{},Shabwah,
+21,{},Socotra,
+22,{},Ta'izz,""".format(*values)
     
     def expect_geojson_output(self):
         return True

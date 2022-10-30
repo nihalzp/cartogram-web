@@ -22,11 +22,12 @@ class CartogramHandler(handlers.base_handler.BaseCartogramHandler):
         return True
     
     def gen_area_data(self, values):
-        return """1 {} Hovedstaden
-2 {} Midtjylland
-3 {} Nordjylland
-4 {} Sjaelland
-5 {} Syddanmark""".format(*values)
+        return """cartogram_id,Region Data,Region Name,Inset
+1,{},Hovedstaden,
+2,{},Midtjylland,
+3,{},Nordjylland,
+4,{},Sjaelland,
+5,{},Syddanmark,""".format(*values)
     
     def expect_geojson_output(self):
         return True
