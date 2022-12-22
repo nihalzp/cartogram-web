@@ -1,54 +1,9 @@
 {
-    "test": "test", 
-    "belgium2": {
-        "user_friendly_name": "Belgium Test", 
-        "region_name_key": "NAME_1", 
-        "region_abr_key": "GID_1"
-    }, 
-    "mymap": {
-        "user_friendly_name": "My Map", 
-        "region_name_key": "NAME_1", 
-        "region_abr_key": "HASC_1", 
-        "svg_geojson_scale": 0.00015806723553014873
-    }, 
-    "mymap2": {
-        "user_friendly_name": "My Map 2", 
-        "region_name_key": "NAME_1", 
-        "region_abr_key": "GID_1", 
-        "svg_geojson_scale": 0.0016532994345715933, 
-        "region_identifier": "Region", 
-        "dataset_name": "GDP"
-    }, 
-    "amap": {
-        "user_friendly_name": "A Map", 
-        "region_name_key": "NAME_1", 
-        "region_abr_key": "GID_1", 
-        "region_identifier": "State", 
-        "dataset_name": "GDP", 
-        "svg_geojson_scale": 0.0016532994345715933
-    }, 
-    "bgd": {
-        "user_friendly_name": "Bangladesh Test", 
-        "region_name_key": "NAME_1", 
-        "region_abr_key": "ABR", 
-        "region_identifier": "Division", 
-        "dataset_name": "GDP", 
-        "svg_geojson_scale": 0.0006905761216212964
-    }, 
-    "jpn": {
-        "user_friendly_name": "Japan Test", 
-        "region_name_key": "NAME_1", 
-        "region_abr_key": "HASC_1", 
-        "region_identifier": "State", 
-        "dataset_name": "GDP", 
-        "svg_geojson_scale": 0.00015806723553014873
-    }, 
-    "mymap3": {
-        "user_friendly_name": "My Map 3", 
-        "region_name_key": "NAME_1", 
-        "region_abr_key": "GID_1", 
-        "region_identifier": "State", 
-        "dataset_name": "GDP", 
-        "svg_geojson_scale": 0.0016532994345715933
+    "testmap": {
+        "user_friendly_name": "testname", 
+        "region_name_key": "testnamekey", 
+        "region_abr_key": "testabrkey", 
+        "region_identifier": "testidentifier", 
+        "dataset_name": "testdataset"
     }
 }
