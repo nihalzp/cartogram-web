@@ -64,11 +64,8 @@ def add_cart_id(json_file, out_file, name_key):
                 
             with open(out_file, 'w') as f:
                 f.write(json.dumps(geo_json))
-                
     except Exception as e:
-        print(repr(e))
-        return
-
+        raise e
 
 
 

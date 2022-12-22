@@ -20,8 +20,10 @@ def convert_id_to_hex(id):
         return '#a6761d'
 
 def json2csv(json_file, out_file, name_key, abr_key):
-    
-    gjson_df = gpd.read_file(open(json_file))
+    try:
+        gjson_df = gpd.read_file(open(json_file))
+    except Exception as e:
+        raise e
 
     gjson_df['color_id'] = greedy(gjson_df, min_colors=6)
 
@@ -53,6 +55,5 @@ def json2csv(json_file, out_file, name_key, abr_key):
                 writer.writerows(csv_data_sorted)
             
     except Exception as e:
-        print(repr(e))
-        return
+        raise e
     

@@ -1,22 +1,28 @@
 import json
 import csv
 
+# TODO: Use a Python package to write SVG files instead of writing the SVG by hand
 def json2svg(json_file, out_file, csv_file):
     
-    with open(json_file, "r") as map_gen_file:
-        geo_json = json.load(map_gen_file)
+    try:
+        with open(json_file, "r") as map_gen_file:
+            geo_json = json.load(map_gen_file)
+    except Exception as e:
+        raise e
     
-    with open(csv_file, 'r') as csv_file:
-        reader = csv.DictReader(csv_file)
+    try:
+        with open(csv_file, 'r') as csv_file:
+            reader = csv.DictReader(csv_file)
+            regions = []
     
-        regions = []
-        
-        for row in reader:
-            regions.append({
-                "id": row["Region Id"],
-                "name": row["Region Name"],
-                "color": row["Color"]
-            })
+            for row in reader:
+                regions.append({
+                    "id": row["Region Id"],
+                    "name": row["Region Name"],
+                    "color": row["Color"]
+                })
+    except Exception as e:
+        raise e
         
     def find_region_by_id(i):
         for region in regions:

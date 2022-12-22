@@ -8,9 +8,12 @@ def updatewebpy(map_name):
     
     shutil.copy(INTERNAL_DIR + "/web.py", INTERNAL_DIR + "/web.py.bak")
     
-    with open(INTERNAL_DIR + "/web.py", "r") as web_py_file:    
-        web_py_contents = web_py_file.read()
-        web_py_lines = web_py_contents.split("\n")
+    try:
+        with open(INTERNAL_DIR + "/web.py", "r") as web_py_file:    
+            web_py_contents = web_py_file.read()
+            web_py_lines = web_py_contents.split("\n")
+    except Exception as e:
+        raise e
     
     web_py_new_lines = []
     found_header = False
