@@ -3297,6 +3297,18 @@ class Cartogram {
                 document.getElementById("map-customise").style.borderColor = "#ab4e1f";
             }
         })
+        
+        // Hide map-customise-popup on click outside the popup
+        const map_popup_element = document.getElementById("map-customise-popup");
+        const map_button_element = document.getElementById("map-customise");
+        document.addEventListener("click", event => {
+            const isClickInside = map_popup_element.contains(event.target) || map_button_element.contains(event.target);
+            if (!isClickInside) {
+                document.getElementById("map-customise-popup").style.display = "none";
+                document.getElementById("map-customise").style.backgroundColor = "#d76126";
+                document.getElementById("map-customise").style.borderColor = "#d76126";
+            }
+        });
 
         d3.select("#cartogram-customise").on("click", function () {
             let element = document.getElementById("cartogram-customise-popup");
@@ -3314,6 +3326,18 @@ class Cartogram {
             }
         })
         
+        // Hide cartogram-customise-popup on click outside the popup
+        const cartogram_popup_element = document.getElementById("cartogram-customise-popup");
+        const cartogram_button_element = document.getElementById("cartogram-customise");
+        document.addEventListener("click", event => {
+            const isClickInside = cartogram_popup_element.contains(event.target) || cartogram_button_element.contains(event.target);
+            if (!isClickInside) {
+                document.getElementById("cartogram-customise-popup").style.display = "none";
+                document.getElementById("cartogram-customise").style.backgroundColor = "#d76126";
+                document.getElementById("cartogram-customise").style.borderColor = "#d76126";
+            }
+        });
+        
         // Toggle the gridline visibility
         
         d3.select("#gridline-toggle-map").on("change",
@@ -3324,6 +3348,11 @@ class Cartogram {
                         .duration(500)
                         .attr("stroke-opacity", 0.4)
                     document.getElementById("map-area").dataset.gridVisibility = "on";
+                    
+                    // show the legend-toggle-map checkbox
+                    document.getElementById("legend-toggle-map").style.display = "inline-block";
+                    document.getElementById("legend-toggle-map-label").style.display = "inline-block";
+                    
                 }
                 else {
                     d3.select("#map-area-grid").transition()
@@ -3331,6 +3360,10 @@ class Cartogram {
                         .duration(500)
                         .attr("stroke-opacity", 0)
                     document.getElementById("map-area").dataset.gridVisibility = "off";
+                    
+                    // hide the legend-toggle-map checkbox
+                    document.getElementById("legend-toggle-map").style.display = "none";
+                    document.getElementById("legend-toggle-map-label").style.display = "none";
                 }
             })
 
@@ -3342,6 +3375,8 @@ class Cartogram {
                         .duration(500)
                         .attr("stroke-opacity", 0.4)
                     document.getElementById("cartogram-area").dataset.gridVisibility = "on";
+                    document.getElementById("legend-toggle-cartogram").style.display = "inline-block";
+                    document.getElementById("legend-toggle-cartogram-label").style.display = "inline-block";
                 }
                 else {
                     d3.select("#cartogram-area-grid").transition()
@@ -3349,6 +3384,8 @@ class Cartogram {
                         .duration(500)
                         .attr("stroke-opacity", 0)
                     document.getElementById("cartogram-area").dataset.gridVisibility = "off";
+                    document.getElementById("legend-toggle-cartogram").style.display = "none";
+                    document.getElementById("legend-toggle-cartogram-label").style.display = "none";
                 }
             })
             

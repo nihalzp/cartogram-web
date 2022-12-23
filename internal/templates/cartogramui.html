@@ -89,7 +89,6 @@
     
     .dropdown-content a {
       color: white;
-      padding: 6px 8px;
       text-decoration: none;
       display: block;
     }
@@ -316,8 +315,8 @@
                 <form class="customise-container">
                   <input type="checkbox" class="checkbox-customise" id="gridline-toggle-map" name="gridline" value="false" autocomplete="off">
                   <label class="checkbox-label" for="gridline-toggle-map">Show Grid Lines</label><br>
-                  <input type="checkbox" class="checkbox-customise" id="legend-toggle-map" name="legend" value="false" autocomplete="off">
-                  <label class="checkbox-label" for="legend-toggle-map">Resizable Legend</label>
+                  <input type="checkbox" style="display: none" class="checkbox-customise" id="legend-toggle-map" name="legend" value="false" autocomplete="off">
+                  <label class="checkbox-label" style="display: none" id="legend-toggle-map-label" for="legend-toggle-map">Resizable Legend</label>
                 </form>
               </div>
           </div>
@@ -349,9 +348,9 @@
               <div style="display: none" class="customise-popup" id="cartogram-customise-popup">
                 <form class="customise-container">
                   <input type="checkbox" class="checkbox-customise" id="gridline-toggle-cartogram" name="gridline" value="false" autocomplete="off">
-                  <label class="checkbox-label" for="gridline-toggle-cartogram">Show Grid Lines</label><br>
-                  <input type="checkbox" class="checkbox-customise" id="legend-toggle-cartogram" name="legend" value="false" autocomplete="off">
-                  <label class="checkbox-label" for="legend-toggle-cartogram">Resizable Legend</label>
+                  <label class="checkbox-label" for="gridline-toggle-cartogram">Show Grid Lines</label> <br>
+                  <input type="checkbox" style="display: none" class="checkbox-customise" id="legend-toggle-cartogram" name="legend" value="false" autocomplete="off">
+                  <label class="checkbox-label" style="display: none;" id="legend-toggle-cartogram-label" for="legend-toggle-cartogram">Resizable Legend</label>
                 </form>
               </div>
           </div>
